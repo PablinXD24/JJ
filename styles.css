@@ -1,0 +1,210 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background-color: #010B0D; /* Cor escura para o fundo */
+    overflow: auto; /* Adiciona rolagem se necessário */
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr;
+    grid-template-rows: auto auto 1fr 1fr 1fr;
+    gap: 10px;
+    width: 90%;
+    height: 100%; /* Ajustado para permitir rolagem */
+}
+
+.logo-container {
+    grid-column: 1 / span 3;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.logo {
+    width: 150px;
+    height: auto;
+}
+
+.top-extra-panel {
+    grid-column: 1 / span 3;
+    background-color: #F2C6AC; /* Bege claro para a área superior extra */
+    padding: 20px; /* Aumentado para mais espaço */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: #010B0D; /* Texto escuro */
+    height: 300px; /* Aumentado para mais altura */
+    position: relative; /* Necessário para posicionar controles e bolinhas */
+    overflow: hidden; /* Oculta o excesso */
+}
+
+.carousel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.carousel-slides {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    height: 100%; /* Altura cheia da área do carrossel */
+    box-sizing: border-box;
+    background-color: #F2C6AC; /* Cor de fundo dos slides */
+    color: #010B0D; /* Cor do texto */
+    padding: 20px;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+}
+
+.carousel-controls {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+}
+
+.carousel-prev, .carousel-next {
+    background-color: #BF0404; /* Cor dos botões */
+    color: #F2C6AC; /* Cor do texto dos botões */
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+.carousel-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #F2C6AC; /* Cor das bolinhas */
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.carousel-dot.active {
+    background-color: #BF0404; /* Cor da bolinha ativa */
+}
+
+.top-panel {
+    grid-column: 1 / span 3;
+    background-color: #BF0404; /* Vermelho */
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: #F2C6AC; /* Texto claro */
+}
+
+.right-panel {
+    grid-column: 2 / span 1;
+    grid-row: 3 / span 2;
+    background-color: #8C0303; /* Vermelho escuro */
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #F2C6AC; /* Texto claro */
+}
+
+.vertical-panel {
+    grid-column: 3;
+    grid-row: 3 / span 2;
+    background-color: #F21313; /* Vermelho brilhante */
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #F2C6AC; /* Texto claro */
+}
+
+.bottom-panel.left {
+    grid-column: 1 / span 1;
+    grid-row: 3;
+    background-color: #8C0303; /* Vermelho escuro */
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #F2C6AC; /* Texto claro */
+}
+
+.bottom-panel.right {
+    grid-column: 1 / span 1;
+    grid-row: 4;
+    background-color: #F21313; /* Vermelho brilhante */
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #F2C6AC; /* Texto claro */
+}
+
+.extra-panel {
+    grid-column: 2 / span 1;
+    grid-row: 4;
+    background-color: #BF0404; /* Vermelho */
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #F2C6AC; /* Texto claro */
+}
+
+/* Efeito de salto mais sutil */
+.tab {
+    transition: transform 0.2s ease; /* Transição mais rápida para um efeito mais sutil */
+}
+
+.tab:hover {
+    transform: scale(1.05); /* Aumenta o tamanho em 5% quando o cursor está sobre a aba */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto auto auto auto;
+        width: 100%;
+        height: 100%;
+        gap: 10px;
+    }
+
+    .logo-container {
+        grid-column: 1;
+    }
+
+    .top-extra-panel, .top-panel, .right-panel, .vertical-panel, .bottom-panel.left, .bottom-panel.right, .extra-panel {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .logo {
+        width: 120px;
+    }
+}
+.panel-image {
+    width: 100%;
+    height: auto;
+    max-height: 100%; /* Garante que a imagem não ultrapasse a altura do contêiner */
+    object-fit: cover; /* Faz com que a imagem cubra o contêiner sem distorcer */
+}
+
+/* Ajuste adicional para a responsividade, se necessário */
+@media (max-width: 768px) {
+    .panel-image {
+        width: 100%;
+        height: auto;
+    }
+}

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>J&J | Art Collection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,900;1,400&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -18,70 +19,93 @@
             --jj-text: #1a1a1a;
             --shadow-dark: rgba(163, 177, 198, 0.8);
             --shadow-light: rgba(255, 255, 255, 0.9);
-            --font-serif: 'Bodoni Moda', serif;
-            --font-sans: 'Montserrat', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
         }
 
+        /* Reset e Base */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); overflow-x: hidden; cursor: none; }
+        
+        /* Cursor Personalizado */
         .cursor-dot { position: fixed; width: 8px; height: 8px; background: var(--jj-red); border-radius: 50%; z-index: 10000; pointer-events: none; }
-        .cursor-outline { position: fixed; width: 40px; height: 40px; border: 2px solid var(--jj-red); border-radius: 50%; z-index: 9999; pointer-events: none; transition: 0.1s; }
+        .cursor-outline { position: fixed; width: 40px; height: 40px; border: 1px solid var(--jj-red); border-radius: 50%; z-index: 9999; pointer-events: none; transition: 0.1s; }
 
         /* Navbar */
-        .main-nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(224, 229, 236, 0.85); backdrop-filter: blur(12px); }
+        .main-nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(224, 229, 236, 0.9); backdrop-filter: blur(15px); }
         .logo { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
         .logo span { color: var(--jj-red); }
 
-        /* Grid */
+        /* Grid de Produtos */
         .content-wrapper { padding: 40px 5%; max-width: 1400px; margin: 0 auto; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; }
 
-        /* Card */
+        /* Card Neumórfico */
         .product-card {
-            background: var(--jj-bg); padding: 25px; border-radius: 45px;
+            background: var(--jj-bg); padding: 25px; border-radius: 35px;
             box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
-            transition: 0.4s; cursor: pointer; position: relative;
+            transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); cursor: pointer; position: relative;
         }
-        .img-sculpt-frame {
-            background: var(--jj-bg); height: 260px; border-radius: 35px;
+        
+        .img-frame {
+            background: var(--jj-bg); height: 260px; border-radius: 25px;
             display: flex; justify-content: center; align-items: center;
             box-shadow: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
-            position: relative; overflow: hidden; margin-bottom: 25px;
+            position: relative; overflow: hidden; margin-bottom: 20px;
         }
-        .glass-inner-border { position: absolute; inset: 20px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); z-index: 1; }
-        .product-card img { max-width: 75%; z-index: 2; position: relative; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
-        
-        .badge-estoque { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; padding: 5px 10px; border-radius: 20px; background: white; box-shadow: 2px 2px 5px var(--shadow-dark); margin-bottom: 10px; display: inline-block; }
 
-        /* Buttons */
-        .jj-btn-red {
-            background: var(--jj-red); color: white; border: none; padding: 14px 24px; border-radius: 18px;
-            font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: 0.2s;
-            box-shadow: 6px 6px 12px rgba(230, 57, 70, 0.3); font-family: var(--font-sans);
+        /* Correção da Camada de Vidro: Fica no fundo */
+        .glass-bg { 
+            position: absolute; inset: 15px; border-radius: 20px; 
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px); z-index: 1; 
         }
-        .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 18px; border-radius: 12px; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); font-weight: 700; font-size: 0.65rem; cursor: pointer; color: var(--jj-text); }
 
-        /* Modals */
+        .product-card img { max-width: 75%; height: auto; z-index: 2; position: relative; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); transition: 0.3s; }
+        .product-card:hover img { transform: scale(1.05); }
+
+        .product-card h3 { font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 5px; }
+        .price-tag { font-family: var(--font-serif); color: var(--jj-red); font-size: 1.4rem; font-weight: 900; margin-bottom: 15px; }
+
+        .badge-stock { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; background: white; margin-bottom: 10px; display: inline-block; }
+
+        /* Botões */
+        .btn-jj-main {
+            background: var(--jj-red); color: white; border: none; padding: 14px; border-radius: 12px;
+            font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; width: 100%;
+            box-shadow: 4px 4px 10px rgba(230, 57, 70, 0.3);
+        }
+        .btn-jj-ghost {
+            background: var(--jj-bg); border: none; padding: 10px 20px; border-radius: 10px;
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            font-weight: 700; font-size: 0.7rem; cursor: pointer; text-transform: uppercase;
+        }
+
+        /* Modal */
         .modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
+        .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
         .modal-content {
             background: var(--jj-bg); width: 100%; max-width: 800px; border-radius: 40px;
-            position: relative; z-index: 2100; padding: 40px;
-            box-shadow: 30px 30px 60px rgba(0,0,0,0.2); animation: slideUp 0.4s ease;
+            position: relative; z-index: 2100; padding: 40px; box-shadow: 30px 30px 60px rgba(0,0,0,0.2);
+            animation: modalSlide 0.4s ease-out;
         }
 
+        .modal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; align-items: center; }
+
+        /* Inputs Admin */
         .admin-form input, .admin-form textarea {
-            width: 100%; background: var(--jj-bg); border: none; padding: 16px; border-radius: 15px;
+            width: 100%; background: var(--jj-bg); border: none; padding: 15px; border-radius: 12px;
             box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
-            margin-bottom: 15px; font-family: var(--font-sans); outline: none; font-weight: 500;
+            margin-bottom: 15px; font-family: var(--font-sans); outline: none;
         }
 
-        #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; }
-        .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #8a99af; }
+        #admin-btn-float { display: none; position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; z-index: 1500; font-size: 28px; }
 
-        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @media (max-width: 768px) { .cursor-dot, .cursor-outline { display: none; } body { cursor: auto; } }
+        @keyframes modalSlide { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-x { position: absolute; top: 20px; right: 25px; background: none; border: none; font-size: 2rem; color: #8a99af; cursor: pointer; }
+
+        @media (max-width: 768px) { .cursor-dot, .cursor-outline { display: none; } body { cursor: auto; } .modal-content { padding: 30px; } }
     </style>
 </head>
 <body>
@@ -91,8 +115,8 @@
 
     <nav class="main-nav">
         <div class="logo">J&J<span>.</span></div>
-        <div class="auth-controls" id="auth-ui">
-            <button class="jj-btn-ghost" onclick="loginGoogle()">LOGIN GOOGLE</button>
+        <div id="auth-ui">
+            <button class="btn-jj-ghost" onclick="loginGoogle()">Entrar</button>
         </div>
     </nav>
 
@@ -100,43 +124,44 @@
         <div class="product-grid" id="product-grid"></div>
     </main>
 
-    <div id="details-modal" class="modal">
-        <div class="modal-overlay" onclick="closeModals()"></div>
+    <div id="modal-details" class="modal">
+        <div class="modal-overlay" onclick="closeAllModals()"></div>
         <div class="modal-content">
-            <button class="close-btn" onclick="closeModals()">&times;</button>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; align-items: center;">
-                <div class="img-sculpt-frame">
-                    <div class="glass-inner-border"></div>
-                    <img id="det-img" src="" style="max-width: 80%;">
+            <button class="close-x" onclick="closeAllModals()">&times;</button>
+            <div class="modal-grid">
+                <div class="img-frame">
+                    <div class="glass-bg"></div>
+                    <img id="m-img" src="" style="max-width: 85%;">
                 </div>
                 <div>
-                    <h2 id="det-title" style="font-family: var(--font-serif); font-size: 2rem; font-weight: 900; margin-bottom: 10px;"></h2>
-                    <p id="det-desc" style="color: #666; margin-bottom: 20px; line-height: 1.6;"></p>
-                    <p id="det-price" style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--jj-red); font-weight: 900; margin-bottom: 10px;"></p>
-                    <p id="det-estoque" style="font-weight: 700; margin-bottom: 25px;"></p>
-                    <button class="jj-btn-red" style="width: 100%;">RESERVAR VIA WHATSAPP</button>
+                    <h2 id="m-title" style="font-family: var(--font-serif); font-size: 2.2rem; margin-bottom: 10px;"></h2>
+                    <p id="m-desc" style="color: #555; line-height: 1.7; margin-bottom: 20px;"></p>
+                    <div id="m-price" class="price-tag"></div>
+                    <div id="m-stock-info" style="margin-bottom: 20px; font-weight: 600;"></div>
+                    <button class="btn-jj-main">Solicitar Consultoria</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="admin-modal" class="modal">
-        <div class="modal-overlay" onclick="closeModals()"></div>
+    <div id="modal-admin" class="modal">
+        <div class="modal-overlay" onclick="closeAllModals()"></div>
         <div class="modal-content admin-form">
-            <button class="close-btn" onclick="closeModals()">&times;</button>
-            <h2 style="font-family: var(--font-serif); margin-bottom: 25px;">CURADORIA J&J</h2>
-            <input type="text" id="p-name" placeholder="Nome do Produto">
-            <input type="text" id="p-price" placeholder="Preço (Ex: R$ 1.500)">
-            <input type="number" id="p-stock" placeholder="Quantidade em Estoque">
-            <input type="text" id="p-img" placeholder="URL da Imagem">
-            <textarea id="p-desc" placeholder="Descrição artística..." rows="3"></textarea>
-            <button class="jj-btn-red" onclick="saveToRTDB()" style="width: 100%;">SALVAR NO CATÁLOGO</button>
+            <button class="close-x" onclick="closeAllModals()">&times;</button>
+            <h2 style="font-family: var(--font-serif); margin-bottom: 25px;">Novo Item de Luxo</h2>
+            <input type="text" id="in-name" placeholder="Título do Produto">
+            <input type="text" id="in-price" placeholder="Preço (Ex: R$ 2.400)">
+            <input type="number" id="in-stock" placeholder="Quantidade em Estoque">
+            <input type="text" id="in-img" placeholder="Link da Imagem">
+            <textarea id="in-desc" placeholder="Descrição detalhada..." rows="4"></textarea>
+            <button class="btn-jj-main" onclick="pushToFirebase()">Publicar no Catálogo</button>
         </div>
     </div>
 
-    <button id="admin-btn" class="jj-btn-red" onclick="openAdmin()">+</button>
+    <button id="admin-btn-float" class="btn-jj-main" onclick="openAdmin()">+</button>
 
     <script>
+        // Suas Credenciais J&J
         const firebaseConfig = {
             apiKey: "AIzaSyDTYFc2tphilGadT8LfSV_mTI0GRmebMdI",
             authDomain: "jj26-d5c78.firebaseapp.com",
@@ -149,7 +174,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const database = firebase.database();
+        const rtdb = firebase.database();
         const provider = new firebase.auth.GoogleAuthProvider();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
 
@@ -157,106 +182,108 @@
         function logout() { auth.signOut(); }
 
         auth.onAuthStateChanged(user => {
-            const authUI = document.getElementById('auth-ui');
-            const adminBtn = document.getElementById('admin-btn');
+            const ui = document.getElementById('auth-ui');
+            const abtn = document.getElementById('admin-btn-float');
             if (user) {
-                authUI.innerHTML = `<span style="font-size:0.7rem; font-weight:700">${user.displayName.split(' ')[0]}</span><button class="jj-btn-ghost" onclick="logout()" style="margin-left:10px">SAIR</button>`;
-                if (user.email === ADM_EMAIL) adminBtn.style.display = 'block';
+                ui.innerHTML = `<span style="font-size:0.7rem; font-weight:700; margin-right:10px">${user.displayName}</span><button class="btn-jj-ghost" onclick="logout()">Sair</button>`;
+                if (user.email === ADM_EMAIL) abtn.style.display = 'block';
             } else {
-                authUI.innerHTML = `<button class="jj-btn-ghost" onclick="loginGoogle()">LOGIN GOOGLE</button>`;
-                adminBtn.style.display = 'none';
+                ui.innerHTML = `<button class="btn-jj-ghost" onclick="loginGoogle()">Entrar</button>`;
+                abtn.style.display = 'none';
             }
         });
 
-        function saveToRTDB() {
-            const name = document.getElementById('p-name').value;
-            const price = document.getElementById('p-price').value;
-            const stock = document.getElementById('p-stock').value;
-            const img = document.getElementById('p-img').value;
-            const desc = document.getElementById('p-desc').value;
+        function pushToFirebase() {
+            const name = document.getElementById('in-name').value;
+            const price = document.getElementById('in-price').value;
+            const stock = document.getElementById('in-stock').value;
+            const img = document.getElementById('in-img').value;
+            const desc = document.getElementById('in-desc').value;
 
             if (name && price && img) {
-                const newRef = database.ref('produtos').push();
-                newRef.set({ id: newRef.key, name, price, stock: parseInt(stock) || 0, img, desc }).then(closeModals);
+                const ref = rtdb.ref('produtos').push();
+                ref.set({ id: ref.key, name, price, stock: parseInt(stock) || 0, img, desc }).then(closeAllModals);
             }
         }
 
-        function listenToProducts() {
-            database.ref('produtos').on('value', (snapshot) => {
+        function loadCatalog() {
+            rtdb.ref('produtos').on('value', snap => {
                 const grid = document.getElementById('product-grid');
                 grid.innerHTML = "";
-                const data = snapshot.val();
+                const data = snap.val();
                 if (data) {
                     Object.values(data).forEach(p => {
                         const isAdm = auth.currentUser && auth.currentUser.email === ADM_EMAIL;
-                        const stockStatus = p.stock > 0 ? `EM ESTOQUE (${p.stock})` : "ESGOTADO";
                         const card = document.createElement('div');
                         card.className = 'product-card';
                         card.onclick = () => openDetails(p);
                         card.innerHTML = `
-                            ${isAdm ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:15px; right:15px; border:none; background:none; font-size:1.2rem; cursor:pointer;">✕</button>` : ''}
-                            <div class="img-sculpt-frame">
-                                <div class="glass-inner-border"></div>
+                            ${isAdm ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:15px; right:15px; border:none; background:none; cursor:pointer; font-size:1.2rem; z-index:10;">&times;</button>` : ''}
+                            <div class="img-frame">
+                                <div class="glass-bg"></div>
                                 <img src="${p.img}">
                             </div>
-                            <span class="badge-estoque" style="color: ${p.stock > 0 ? 'green' : 'red'}">${stockStatus}</span>
-                            <h3 style="font-family: var(--font-serif); font-weight:900">${p.name}</h3>
-                            <p style="font-family: var(--font-serif); color:var(--jj-red); font-weight:900; margin:10px 0">${p.price}</p>
-                            <button class="jj-btn-red" style="width:100%">DETALHES</button>
+                            <span class="badge-stock" style="color: ${p.stock > 0 ? '#2d6a4f' : '#e63946'}">
+                                ${p.stock > 0 ? `Disponível (${p.stock})` : 'Esgotado'}
+                            </span>
+                            <h3>${p.name}</h3>
+                            <div class="price-tag">${p.price}</div>
+                            <button class="btn-jj-main">Detalhes</button>
                         `;
                         grid.appendChild(card);
                     });
-                    if (window.innerWidth > 768) VanillaTilt.init(document.querySelectorAll(".product-card"), { max: 10, speed: 400 });
+                    if (window.innerWidth > 768) VanillaTilt.init(document.querySelectorAll(".product-card"), { max: 8, speed: 400 });
                 }
             });
         }
 
         function openDetails(p) {
-            const modal = document.getElementById('details-modal');
+            const m = document.getElementById('modal-details');
             const isAdm = auth.currentUser && auth.currentUser.email === ADM_EMAIL;
             
-            document.getElementById('det-img').src = p.img;
-            document.getElementById('det-title').innerText = p.name;
-            document.getElementById('det-desc').innerText = p.desc;
-            document.getElementById('det-price').innerText = p.price;
+            document.getElementById('m-img').src = p.img;
+            document.getElementById('m-title').innerText = p.name;
+            document.getElementById('m-desc').innerText = p.desc;
+            document.getElementById('m-price').innerText = p.price;
             
-            const stockEl = document.getElementById('det-estoque');
+            const stockBox = document.getElementById('m-stock-info');
             if(isAdm) {
-                stockEl.innerHTML = `Estoque: <input type="number" value="${p.stock}" id="edit-stock" style="width:60px; padding:5px; border-radius:8px; border:none; box-shadow:inset 2px 2px 5px #ccc;"> <button class="jj-btn-ghost" onclick="updateStock('${p.id}')">OK</button>`;
+                stockBox.innerHTML = `Estoque: <input type="number" id="edit-stk" value="${p.stock}" style="width:70px; padding:5px; border-radius:8px; border:none; box-shadow:inset 2px 2px 5px #ccc; margin:0 10px;"> <button class="btn-jj-ghost" onclick="updateStock('${p.id}')">Atualizar</button>`;
             } else {
-                stockEl.innerText = p.stock > 0 ? `Disponível: ${p.stock} unidades` : "Produto temporariamente esgotado";
-                stockEl.style.color = p.stock > 0 ? "inherit" : "red";
+                stockBox.innerText = p.stock > 0 ? `Unidades disponíveis: ${p.stock}` : "Indisponível no momento";
+                stockBox.style.color = p.stock > 0 ? "inherit" : "var(--jj-red)";
             }
 
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
-        }
-
-        function updateStock(id) {
-            const newVal = document.getElementById('edit-stock').value;
-            database.ref('produtos/' + id).update({ stock: parseInt(newVal) }).then(() => {
-                alert("Estoque atualizado!");
-                closeModals();
-            });
-        }
-
-        function deleteProduct(id) {
-            if(confirm("Excluir item?")) database.ref('produtos/' + id).remove();
-        }
-
-        function openAdmin() {
-            const m = document.getElementById('admin-modal');
             m.style.display = 'flex';
             setTimeout(() => m.classList.add('active'), 10);
         }
 
-        function closeModals() {
-            document.querySelectorAll('.modal').forEach(m => {
-                m.classList.remove('active');
-                setTimeout(() => m.style.display = 'none', 500);
+        function updateStock(id) {
+            const val = document.getElementById('edit-stk').value;
+            rtdb.ref('produtos/' + id).update({ stock: parseInt(val) }).then(() => {
+                alert("Estoque Atualizado!");
+                closeAllModals();
             });
         }
 
+        function deleteProduct(id) {
+            if(confirm("Remover do catálogo?")) rtdb.ref('produtos/' + id).remove();
+        }
+
+        function openAdmin() {
+            const m = document.getElementById('modal-admin');
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('active'), 10);
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(m => {
+                m.classList.remove('active');
+                setTimeout(() => m.style.display = 'none', 400);
+            });
+        }
+
+        // Mouse Tracker
         if (window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot');
             const outline = document.querySelector('.cursor-outline');
@@ -266,7 +293,7 @@
             };
         }
 
-        window.onload = listenToProducts;
+        window.onload = loadCatalog;
     </script>
 </body>
 </html>

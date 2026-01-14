@@ -35,7 +35,7 @@
         /* Categorias e Carrossel */
         .content-wrapper { padding: 20px 0 40px 0; max-width: 100vw; }
         .category-section { margin-bottom: 50px; }
-        .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; opacity: 0.8; }
+        .category-title { margin-left: 5%; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; opacity: 0.8; }
         
         .carousel-container { 
             display: flex; gap: 30px; overflow-x: auto; padding: 20px 5% 40px 5%; 
@@ -43,7 +43,7 @@
         }
         .carousel-container::-webkit-scrollbar { display: none; }
 
-        /* Card Neumorphic */
+        /* Card Neumorphic Ajustado */
         .product-card {
             flex: 0 0 300px; background: var(--jj-bg); padding: 25px; padding-bottom: 85px; border-radius: 45px;
             box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
@@ -55,41 +55,35 @@
             box-shadow: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
             position: relative; overflow: hidden; margin-bottom: 20px;
         }
-        .glass-inner-border { position: absolute; inset: 20px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(8px); z-index: 1; }
-        .img-sculpt-frame img { max-width: 85%; max-height: 85%; object-fit: contain; z-index: 2; position: relative; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.12)); }
+        .glass-inner-border { position: absolute; inset: 20px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); z-index: 1; }
+        .img-sculpt-frame img { max-width: 90%; max-height: 90%; object-fit: contain; z-index: 2; position: relative; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); }
 
-        .badge-stock { font-size: 0.6rem; font-weight: 700; margin-bottom: 12px; display: inline-block; letter-spacing: 0.5px; }
-        .product-card h3 { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 5px; line-height: 1.3; }
-        .product-card .price { font-weight: 700; color: var(--jj-red); font-size: 1rem; }
+        /* Badge sem fundo branco */
+        .badge-stock { font-size: 0.65rem; font-weight: 700; margin-bottom: 12px; display: inline-block; letter-spacing: 1px; }
+        .product-card h3 { font-weight: 700; font-size: 0.95rem; text-transform: uppercase; margin-bottom: 5px; line-height: 1.3; }
+        .product-card .price { font-weight: 700; color: var(--jj-red); font-size: 1.1rem; }
 
         /* Botão Fixo no Card */
         .card-btn-fix {
             position: absolute; bottom: 25px; left: 25px; right: 25px;
             background: var(--jj-red); color: white; border: none; padding: 14px; border-radius: 18px;
-            font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: 0.2s;
+            font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: 0.2s;
             box-shadow: 6px 6px 12px rgba(230, 57, 70, 0.3); font-family: var(--font-sans); text-transform: uppercase;
         }
 
         .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 18px; border-radius: 12px; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); font-weight: 700; font-size: 0.65rem; cursor: pointer; font-family: var(--font-sans); }
         .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 14px; border-radius: 15px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); margin-bottom: 12px; font-family: var(--font-sans); outline: none; font-weight: 600; font-size: 0.85rem; }
 
-        /* Modals Corrigidos (Sem Fundo Branco) */
+        /* Modals */
         .modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); }
-        .modal-content { 
-            background: var(--jj-bg); 
-            width: 100%; max-width: 900px; max-height: 90vh; border-radius: 45px; 
-            position: relative; z-index: 2100; padding: 40px; overflow-y: auto; 
-            box-shadow: 30px 30px 60px var(--shadow-dark), -10px -10px 30px var(--shadow-light); 
-            animation: slideUp 0.4s ease;
-            border: none; /* Garante que não haja bordas brancas */
-        }
+        .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
+        .modal-content { background: var(--jj-bg); width: 100%; max-width: 900px; max-height: 90vh; border-radius: 40px; position: relative; z-index: 2100; padding: 40px; overflow-y: auto; box-shadow: 30px 30px 60px rgba(0,0,0,0.2); animation: slideUp 0.4s ease; }
 
-        #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; box-shadow: 8px 8px 20px rgba(0,0,0,0.15); border: none; color: white; background: var(--jj-red); cursor: pointer;}
+        #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; box-shadow: 10px 10px 20px rgba(0,0,0,0.1); border: none; color: white; background: var(--jj-red); cursor: pointer;}
         .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 2rem; cursor: pointer; color: #8a99af; z-index: 2200; }
 
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
         
         @media (max-width: 768px) { 
@@ -97,7 +91,6 @@
             .product-card { flex: 0 0 280px; min-height: 480px; }
             .cursor-dot, .cursor-outline { display: none; } 
             body { cursor: auto; }
-            .modal-content { padding: 30px 20px; }
         }
     </style>
 </head>
@@ -107,7 +100,7 @@
     <div class="cursor-outline"></div>
 
     <nav class="main-nav">
-        <img src=jjvidro.png" alt="J&J Logo" class="logo-img">
+        <img src="jjvidro.png" alt="J&J Logo" class="logo-img">
         <div class="auth-controls" id="auth-ui">
             <button class="jj-btn-ghost" onclick="loginGoogle()">LOGIN GOOGLE</button>
         </div>
@@ -127,17 +120,17 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 500px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            <h2 style="font-weight: 700; text-transform: uppercase; margin-bottom: 25px; font-size: 1.2rem;">Adicionar Item</h2>
-            <input type="text" id="p-category" class="edit-field" placeholder="Categoria (Relógios, Som...)">
-            <input type="text" id="p-name" class="edit-field" placeholder="Nome">
-            <input type="text" id="p-price" class="edit-field" placeholder="Preço">
-            <input type="number" id="p-stock" class="edit-field" placeholder="Estoque">
+            <h2 style="font-weight: 700; text-transform: uppercase; margin-bottom: 25px;">Novo Item</h2>
+            <input type="text" id="p-category" class="edit-field" placeholder="Categoria (Ex: Relógios)">
+            <input type="text" id="p-name" class="edit-field" placeholder="Nome do Produto">
+            <input type="text" id="p-price" class="edit-field" placeholder="Preço (R$)">
+            <input type="number" id="p-stock" class="edit-field" placeholder="Estoque Inicial">
             <label style="font-size:0.6rem; font-weight:700; margin-bottom:5px; display:block">IMAGEM DO COMPUTADOR</label>
             <input type="file" id="p-file" class="edit-field" accept="image/*" onchange="handleFileSelect(this, 'p-img-preview')">
             <input type="text" id="p-img" class="edit-field" placeholder="Ou URL da imagem">
-            <img id="p-img-preview" src="" style="width:80px; display:none; border-radius:10px; margin-bottom:10px">
+            <img id="p-img-preview" src="" style="width:100px; display:none; border-radius:10px; margin-bottom:10px">
             <textarea id="p-desc" class="edit-field" placeholder="Descrição..." rows="3"></textarea>
-            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
+            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR</button>
         </div>
     </div>
 
@@ -236,7 +229,7 @@
                                     <div class="glass-inner-border"></div>
                                     <img src="${p.img}">
                                 </div>
-                                <span class="badge-stock" style="color: ${p.stock > 0 ? '#2d6a4f' : '#e63946'}">${p.stock > 0 ? 'ESTOQUE: ' + p.stock : 'ESGOTADO'}</span>
+                                <span class="badge-stock" style="color: ${p.stock > 0 ? '#2d6a4f' : '#e63946'}">${p.stock > 0 ? 'EM ESTOQUE: ' + p.stock : 'ESGOTADO'}</span>
                                 <h3>${p.name}</h3>
                                 <p class="price">${p.price}</p>
                                 <button class="card-btn-fix">DETALHES</button>
@@ -267,7 +260,7 @@
                         <input type="file" class="edit-field" accept="image/*" onchange="handleFileSelect(this, 'edit-img-preview-modal')">
                         <input type="text" id="edit-img-url" class="edit-field" value="${p.img.startsWith('data:') ? '' : p.img}" placeholder="URL da Imagem">
                         <textarea id="edit-desc" class="edit-field" rows="3">${p.desc}</textarea>
-                        <button class="card-btn-fix" onclick="updateProduct('${p.id}')" style="position:static; width:100%">SALVAR ALTERAÇÕES</button>
+                        <button class="card-btn-fix" onclick="updateProduct('${p.id}')" style="position:static; width:100%">SALVAR</button>
                     </div>
                 `;
             } else {
@@ -277,13 +270,13 @@
                         <img src="${p.img}">
                     </div>
                     <div>
-                        <h2 style="font-weight: 700; text-transform: uppercase; margin-bottom: 10px; font-size: 1.2rem;">${p.name}</h2>
-                        <p style="color: #555; margin-bottom: 20px; line-height: 1.6; font-size: 0.85rem;">${p.desc}</p>
-                        <p style="font-weight: 700; font-size: 1.5rem; color: var(--jj-red); margin-bottom: 15px;">${p.price}</p>
-                        <p style="font-weight:700; margin-bottom:25px; font-size: 0.8rem; color:${p.stock > 0 ? '#2d6a4f' : '#e63946'}">
-                            ${p.stock > 0 ? 'DISPONÍVEL: ' + p.stock + ' UNIDADES' : 'ESGOTADO'}
+                        <h2 style="font-weight: 700; text-transform: uppercase; margin-bottom: 10px;">${p.name}</h2>
+                        <p style="color: #555; margin-bottom: 20px; line-height: 1.6; font-size: 0.9rem;">${p.desc}</p>
+                        <p style="font-weight: 700; font-size: 1.8rem; color: var(--jj-red); margin-bottom: 15px;">${p.price}</p>
+                        <p style="font-weight:700; margin-bottom:25px; color:${p.stock > 0 ? '#2d6a4f' : '#e63946'}">
+                            ${p.stock > 0 ? 'DISPONIBILIDADE: ' + p.stock + ' UNID.' : 'PRODUTO ESGOTADO'}
                         </p>
-                        <button class="card-btn-fix" style="position:static; width: 100%;" onclick="orderWhatsApp('${p.name}')">CONSULTAR WHATSAPP</button>
+                        <button class="card-btn-fix" style="position:static; width: 100%;" onclick="orderWhatsApp('${p.name}')">INTERESSE NO PRODUTO</button>
                     </div>
                 `;
             }
@@ -309,12 +302,12 @@
 
         function orderWhatsApp(productName) {
             const phone = "5511999999999"; 
-            const msg = encodeURIComponent(`Olá J&J, tenho interesse no item: ${productName}`);
+            const msg = encodeURIComponent(`Olá J&J, gostaria de mais informações sobre: ${productName}`);
             window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
         }
 
         function deleteProduct(id) {
-            if(confirm("Remover este item definitivamente?")) database.ref('produtos/' + id).remove();
+            if(confirm("Excluir definitivamente?")) database.ref('produtos/' + id).remove();
         }
 
         function openAdmin() {

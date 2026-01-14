@@ -28,75 +28,62 @@
         .cursor-dot { position: fixed; width: 8px; height: 8px; background: var(--jj-red); border-radius: 50%; z-index: 10000; pointer-events: none; }
         .cursor-outline { position: fixed; width: 40px; height: 40px; border: 2px solid var(--jj-red); border-radius: 50%; z-index: 9999; pointer-events: none; transition: 0.1s; }
 
-        /* Navbar com Logo Imagem */
+        /* Navbar */
         .main-nav { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(224, 229, 236, 0.85); backdrop-filter: blur(12px); }
         .logo-img { height: 50px; width: auto; object-fit: contain; }
 
-        /* Conteúdo Principal */
-        .content-wrapper { padding: 40px 5%; max-width: 1400px; margin: 0 auto; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; }
+        /* Estrutura de Categorias e Carrossel */
+        .content-wrapper { padding: 20px 0 40px 0; max-width: 100vw; overflow-x: hidden; }
+        .category-section { margin-bottom: 50px; }
+        .category-title { margin-left: 5%; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; color: var(--jj-text); opacity: 0.8; }
+        
+        .carousel-container { 
+            display: flex; gap: 30px; overflow-x: auto; padding: 20px 5% 40px 5%; 
+            scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
+        }
+        .carousel-container::-webkit-scrollbar { display: none; }
 
         /* Card Neumorphic */
         .product-card {
-            background: var(--jj-bg); padding: 25px; border-radius: 45px;
+            flex: 0 0 300px; background: var(--jj-bg); padding: 25px; border-radius: 45px;
             box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
             transition: 0.4s; cursor: pointer; position: relative;
         }
         .img-sculpt-frame {
-            background: var(--jj-bg); height: 280px; border-radius: 35px;
+            background: var(--jj-bg); height: 260px; border-radius: 35px;
             display: flex; justify-content: center; align-items: center;
             box-shadow: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
             position: relative; overflow: hidden; margin-bottom: 20px;
         }
-        .glass-inner-border { 
-            position: absolute; inset: 20px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.4); 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); z-index: 1; 
-        }
-        .img-sculpt-frame img { 
-            max-width: 90%; max-height: 90%; object-fit: contain;
-            z-index: 2; position: relative; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); 
-        }
+        .glass-inner-border { position: absolute; inset: 20px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); z-index: 1; }
+        .img-sculpt-frame img { max-width: 90%; max-height: 90%; object-fit: contain; z-index: 2; position: relative; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); }
 
         .badge-stock { font-size: 0.6rem; font-weight: 700; padding: 6px 12px; border-radius: 20px; background: white; margin-bottom: 12px; display: inline-block; }
-        .product-card h3 { font-weight: 700; font-size: 1rem; text-transform: uppercase; margin-bottom: 5px; }
-        .product-card .price { font-weight: 700; color: var(--jj-red); font-size: 1.2rem; margin-bottom: 15px; }
+        .product-card h3 { font-weight: 700; font-size: 0.95rem; text-transform: uppercase; margin-bottom: 5px; }
+        .product-card .price { font-weight: 700; color: var(--jj-red); font-size: 1.1rem; margin-bottom: 15px; }
 
-        /* Botões */
-        .jj-btn-red {
-            background: var(--jj-red); color: white; border: none; padding: 14px 24px; border-radius: 18px;
-            font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: 0.2s;
-            box-shadow: 6px 6px 12px rgba(230, 57, 70, 0.3); font-family: var(--font-sans); text-transform: uppercase;
-        }
+        /* Botões e Inputs */
+        .jj-btn-red { background: var(--jj-red); color: white; border: none; padding: 14px 24px; border-radius: 18px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: 0.2s; box-shadow: 6px 6px 12px rgba(230, 57, 70, 0.3); font-family: var(--font-sans); text-transform: uppercase; }
         .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 18px; border-radius: 12px; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); font-weight: 700; font-size: 0.65rem; cursor: pointer; font-family: var(--font-sans); }
+        .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 14px; border-radius: 15px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); margin-bottom: 12px; font-family: var(--font-sans); outline: none; font-weight: 600; font-size: 0.85rem; }
 
         /* Modals */
         .modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
         .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
-        .modal-content {
-            background: var(--jj-bg); width: 100%; max-width: 900px; max-height: 90vh; border-radius: 40px;
-            position: relative; z-index: 2100; padding: 40px; overflow-y: auto;
-            box-shadow: 30px 30px 60px rgba(0,0,0,0.2); animation: slideUp 0.4s ease;
-        }
-
-        .edit-field {
-            width: 100%; background: var(--jj-bg); border: none; padding: 14px; border-radius: 15px;
-            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
-            margin-bottom: 12px; font-family: var(--font-sans); outline: none; font-weight: 600; font-size: 0.85rem;
-        }
+        .modal-content { background: var(--jj-bg); width: 100%; max-width: 900px; max-height: 90vh; border-radius: 40px; position: relative; z-index: 2100; padding: 40px; overflow-y: auto; box-shadow: 30px 30px 60px rgba(0,0,0,0.2); animation: slideUp 0.4s ease; }
 
         #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; }
         .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 2rem; cursor: pointer; color: #8a99af; z-index: 2200; }
 
         @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+        
         @media (max-width: 768px) { 
             .modal-grid { grid-template-columns: 1fr; gap: 20px; } 
+            .product-card { flex: 0 0 260px; }
             .cursor-dot, .cursor-outline { display: none; } 
             body { cursor: auto; }
-            .img-sculpt-frame { height: 220px; }
-            .logo-img { height: 40px; }
         }
     </style>
 </head>
@@ -107,15 +94,13 @@
 
     <nav class="main-nav">
         <img src="jjvidro.png" alt="J&J Logo" class="logo-img">
-        
         <div class="auth-controls" id="auth-ui">
             <button class="jj-btn-ghost" onclick="loginGoogle()">LOGIN GOOGLE</button>
         </div>
     </nav>
 
-    <main class="content-wrapper">
-        <div class="product-grid" id="product-grid"></div>
-    </main>
+    <main class="content-wrapper" id="main-content">
+        </main>
 
     <div id="details-modal" class="modal">
         <div class="modal-overlay" onclick="closeModals()"></div>
@@ -129,11 +114,17 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 500px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            <h2 style="font-weight: 700; text-transform: uppercase; margin-bottom: 25px;">Adicionar Novo</h2>
+            <h2 style="font-weight: 700; text-transform: uppercase; margin-bottom: 25px;">Novo Item</h2>
+            <input type="text" id="p-category" class="edit-field" placeholder="Categoria (Ex: Relógios)">
             <input type="text" id="p-name" class="edit-field" placeholder="Nome do Produto">
             <input type="text" id="p-price" class="edit-field" placeholder="Preço (R$)">
             <input type="number" id="p-stock" class="edit-field" placeholder="Estoque Inicial">
-            <input type="text" id="p-img" class="edit-field" placeholder="URL da Imagem">
+            
+            <label style="font-size:0.6rem; font-weight:700; margin-bottom:5px; display:block">IMAGEM (ARQUIVO OU URL)</label>
+            <input type="file" id="p-file" class="edit-field" accept="image/*" onchange="handleFileSelect(this, 'p-img-preview')">
+            <input type="text" id="p-img" class="edit-field" placeholder="Ou cole a URL da imagem">
+            <img id="p-img-preview" src="" style="width:100px; display:none; border-radius:10px; margin-bottom:10px">
+
             <textarea id="p-desc" class="edit-field" placeholder="Descrição..." rows="3"></textarea>
             <button class="jj-btn-red" onclick="saveToRTDB()" style="width: 100%;">CADASTRAR</button>
         </div>
@@ -157,6 +148,7 @@
         const database = firebase.database();
         const provider = new firebase.auth.GoogleAuthProvider();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
+        let tempBase64 = "";
 
         function loginGoogle() { auth.signInWithPopup(provider); }
         function logout() { auth.signOut(); }
@@ -174,41 +166,72 @@
             listenToProducts();
         });
 
+        function handleFileSelect(input, previewId) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    tempBase64 = e.target.result;
+                    const preview = document.getElementById(previewId);
+                    preview.src = tempBase64;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         function saveToRTDB() {
             const name = document.getElementById('p-name').value;
             const price = document.getElementById('p-price').value;
             const stock = document.getElementById('p-stock').value;
-            const img = document.getElementById('p-img').value;
             const desc = document.getElementById('p-desc').value;
-            if (name && price && img) {
+            const category = document.getElementById('p-category').value || "Geral";
+            const imgUrl = document.getElementById('p-img').value;
+            const finalImg = tempBase64 || imgUrl;
+
+            if (name && price && finalImg) {
                 const newRef = database.ref('produtos').push();
-                newRef.set({ id: newRef.key, name, price, stock: parseInt(stock) || 0, img, desc }).then(closeModals);
+                newRef.set({ id: newRef.key, name, price, stock: parseInt(stock) || 0, img: finalImg, desc, category }).then(() => {
+                    tempBase64 = "";
+                    closeModals();
+                });
             }
         }
 
         function listenToProducts() {
             database.ref('produtos').on('value', (snapshot) => {
-                const grid = document.getElementById('product-grid');
-                grid.innerHTML = "";
+                const mainContent = document.getElementById('main-content');
+                mainContent.innerHTML = "";
                 const data = snapshot.val();
                 if (data) {
-                    Object.values(data).forEach(p => {
-                        const isAdm = auth.currentUser && auth.currentUser.email === ADM_EMAIL;
-                        const card = document.createElement('div');
-                        card.className = 'product-card';
-                        card.onclick = () => openDetails(p);
-                        card.innerHTML = `
-                            ${isAdm ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.3rem; cursor:pointer; color:#8a99af; z-index:10;">&times;</button>` : ''}
-                            <div class="img-sculpt-frame">
-                                <div class="glass-inner-border"></div>
-                                <img src="${p.img}">
-                            </div>
-                            <span class="badge-stock" style="color: ${p.stock > 0 ? '#2d6a4f' : '#e63946'}">${p.stock > 0 ? 'ESTOQUE: ' + p.stock : 'ESGOTADO'}</span>
-                            <h3>${p.name}</h3>
-                            <p class="price">${p.price}</p>
-                            <button class="jj-btn-red" style="width:100%">DETALHES</button>
-                        `;
-                        grid.appendChild(card);
+                    const products = Object.values(data);
+                    const categories = [...new Set(products.map(p => p.category || "Geral"))];
+
+                    categories.forEach(cat => {
+                        const section = document.createElement('div');
+                        section.className = 'category-section';
+                        section.innerHTML = `<h2 class="category-title">${cat}</h2><div class="carousel-container" id="cat-${cat}"></div>`;
+                        mainContent.appendChild(section);
+
+                        const container = document.getElementById(`cat-${cat}`);
+                        products.filter(p => (p.category || "Geral") === cat).forEach(p => {
+                            const isAdm = auth.currentUser && auth.currentUser.email === ADM_EMAIL;
+                            const card = document.createElement('div');
+                            card.className = 'product-card';
+                            card.onclick = () => openDetails(p);
+                            card.innerHTML = `
+                                ${isAdm ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.3rem; cursor:pointer; color:#8a99af; z-index:10;">&times;</button>` : ''}
+                                <div class="img-sculpt-frame">
+                                    <div class="glass-inner-border"></div>
+                                    <img src="${p.img}">
+                                </div>
+                                <span class="badge-stock" style="color: ${p.stock > 0 ? '#2d6a4f' : '#e63946'}">${p.stock > 0 ? 'ESTOQUE: ' + p.stock : 'ESGOTADO'}</span>
+                                <h3>${p.name}</h3>
+                                <p class="price">${p.price}</p>
+                                <button class="jj-btn-red" style="width:100%">DETALHES</button>
+                            `;
+                            container.appendChild(card);
+                        });
                     });
                     if (window.innerWidth > 768) VanillaTilt.init(document.querySelectorAll(".product-card"), { max: 8, speed: 400 });
                 }
@@ -223,18 +246,15 @@
                 body.innerHTML = `
                     <div class="img-sculpt-frame">
                         <div class="glass-inner-border"></div>
-                        <img src="${p.img}" id="current-edit-img">
+                        <img src="${p.img}" id="edit-img-preview">
                     </div>
                     <div>
-                        <label style="font-size:0.6rem; font-weight:700;">NOME</label>
-                        <input type="text" id="edit-name" class="edit-field" value="${p.name}">
-                        <label style="font-size:0.6rem; font-weight:700;">PREÇO</label>
-                        <input type="text" id="edit-price" class="edit-field" value="${p.price}">
-                        <label style="font-size:0.6rem; font-weight:700;">ESTOQUE</label>
-                        <input type="number" id="edit-stock" class="edit-field" value="${p.stock}">
-                        <label style="font-size:0.6rem; font-weight:700;">URL IMAGEM</label>
-                        <input type="text" id="edit-img-url" class="edit-field" value="${p.img}" oninput="document.getElementById('current-edit-img').src=this.value">
-                        <label style="font-size:0.6rem; font-weight:700;">DESCRIÇÃO</label>
+                        <input type="text" id="edit-cat" class="edit-field" value="${p.category || 'Geral'}" placeholder="Categoria">
+                        <input type="text" id="edit-name" class="edit-field" value="${p.name}" placeholder="Nome">
+                        <input type="text" id="edit-price" class="edit-field" value="${p.price}" placeholder="Preço">
+                        <input type="number" id="edit-stock" class="edit-field" value="${p.stock}" placeholder="Estoque">
+                        <input type="file" class="edit-field" accept="image/*" onchange="handleFileSelect(this, 'edit-img-preview')">
+                        <input type="text" id="edit-img-url" class="edit-field" value="${p.img.startsWith('data:') ? '' : p.img}" placeholder="URL da Imagem (opcional)">
                         <textarea id="edit-desc" class="edit-field" rows="3">${p.desc}</textarea>
                         <button class="jj-btn-red" onclick="updateProduct('${p.id}')" style="width:100%;">SALVAR</button>
                     </div>
@@ -263,13 +283,17 @@
 
         function updateProduct(id) {
             const updates = {
+                category: document.getElementById('edit-cat').value,
                 name: document.getElementById('edit-name').value,
                 price: document.getElementById('edit-price').value,
-                img: document.getElementById('edit-img-url').value,
                 stock: parseInt(document.getElementById('edit-stock').value),
-                desc: document.getElementById('edit-desc').value
+                desc: document.getElementById('edit-desc').value,
+                img: tempBase64 || document.getElementById('edit-img-url').value || database.ref('produtos/'+id).img
             };
-            database.ref('produtos/' + id).update(updates).then(closeModals);
+            database.ref('produtos/' + id).update(updates).then(() => {
+                tempBase64 = "";
+                closeModals();
+            });
         }
 
         function orderWhatsApp(productName) {
@@ -283,9 +307,8 @@
         }
 
         function openAdmin() {
-            const m = document.getElementById('admin-modal');
-            m.style.display = 'flex';
-            setTimeout(() => m.classList.add('active'), 10);
+            document.getElementById('admin-modal').style.display = 'flex';
+            setTimeout(() => document.getElementById('admin-modal').classList.add('active'), 10);
         }
 
         function closeModals() {
@@ -293,6 +316,7 @@
                 m.classList.remove('active');
                 setTimeout(() => m.style.display = 'none', 500);
             });
+            tempBase64 = "";
         }
 
         if (window.innerWidth > 768) {

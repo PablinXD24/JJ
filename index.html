@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | Lojas</title>
+    <title>J&J | Art Collection</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
     
@@ -69,7 +69,10 @@
         }
 
         .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 20px; border-radius: 15px; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); font-weight: 700; font-size: 0.65rem; cursor: pointer; color: var(--jj-brown); }
-        .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 15px; border-radius: 18px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); margin-bottom: 15px; font-family: var(--font-sans); outline: none; font-size: 0.85rem; }
+        
+        /* Inputs Neumórficos */
+        .edit-field, .user-input { width: 100%; background: var(--jj-bg); border: none; padding: 12px 15px; border-radius: 18px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); margin-bottom: 12px; font-family: var(--font-sans); outline: none; font-size: 0.85rem; color: var(--jj-text); }
+        select.user-input { cursor: pointer; appearance: none; }
 
         /* Modals */
         .modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -81,54 +84,25 @@
             box-shadow: 25px 25px 50px rgba(0,0,0,0.2); transition: 0.4s; transform: translateY(40px); opacity: 0;
         }
         .modal.active .modal-content { transform: translateY(0); opacity: 1; }
-
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 2.2rem; cursor: pointer; color: var(--jj-brown); z-index: 2200; }
 
+        /* Footer */
+        .main-footer { position: relative; width: 100%; min-height: 250px; background-image: url('SUA_IMAGEM_AQUI'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; text-align: center; padding: 40px 5%; margin-top: 50px; }
+        .footer-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(3px); }
+        .footer-content { position: relative; z-index: 2; color: white; }
+        .footer-copy { margin-top: 20px; font-size: 0.6rem; opacity: 0.5; }
+
         #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; border: none; color: #1a1a1a; background: var(--jj-yellow-main); cursor: pointer; box-shadow: 10px 10px 25px rgba(0,0,0,0.15); }
-
-        /* Footer Novo */
-        .main-footer {
-            position: relative;
-            width: 100%;
-            min-height: 250px;
-            background-image: url('jjvidro2.png'); /* Substitua aqui */
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px 5%;
-            margin-top: 50px;
-        }
-
-        .footer-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.65); /* Escurece a imagem para o texto aparecer */
-            backdrop-filter: blur(3px); /* Leve desfoque opcional */
-        }
-
-        .footer-content {
-            position: relative;
-            z-index: 2;
-            color: white;
-        }
-
-        .footer-content h2 { font-size: 1.5rem; margin-bottom: 15px; letter-spacing: 3px; font-weight: 700; }
-        .footer-content p { font-size: 0.8rem; opacity: 0.8; line-height: 1.8; max-width: 500px; margin: 0 auto; }
-        .footer-copy { margin-top: 30px; font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; }
 
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
-            .modal-content { max-height: 85vh; border-radius: 40px 40px 0 0; padding: 50px 25px 30px 25px; transform: translateY(100%); }
+            .modal-content { max-height: 90vh; border-radius: 40px 40px 0 0; padding: 50px 20px 30px 20px; transform: translateY(100%); }
             .modal.active .modal-content { transform: translateY(0); }
             .modal-grid { grid-template-columns: 1fr; gap: 20px; }
             .product-card { flex: 0 0 280px; }
             .cursor-dot, .cursor-outline { display: none; }
             body { cursor: auto; }
-            .main-footer { min-height: 300px; }
         }
     </style>
 </head>
@@ -138,7 +112,7 @@
     <div class="cursor-outline"></div>
 
     <nav class="main-nav">
-        <img src="jjvidro.png" alt="J&J Logo" class="logo-img">
+        <img src="j&j vidro.png" alt="J&J Logo" class="logo-img">
         <div id="auth-ui"><button class="jj-btn-ghost" onclick="loginGoogle()">ENTRAR</button></div>
     </nav>
 
@@ -147,10 +121,9 @@
     <footer class="main-footer">
         <div class="footer-overlay"></div>
         <div class="footer-content">
-            <img src="jjvidro.png" alt="J&J Logo" style="height: 40px; margin-bottom: 20px; filter: brightness(0) invert(1);">
-            <h2>J&J | lojas </h2>
-            <p>Site exclusivo para divulgação e buscas de nosso catálogo.</p>
-            <div class="footer-copy">© 2026 J&J - Todos os direitos reservados.</div>
+            <h2 style="letter-spacing:4px">J&J ART</h2>
+            <p style="font-size:0.8rem; margin:10px 0; opacity:0.8">Curadoria exclusiva e atemporal.</p>
+            <div class="footer-copy">© 2026 Todos os direitos reservados.</div>
         </div>
     </footer>
 
@@ -166,15 +139,17 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 500px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            <h2 style="color:var(--jj-brown); margin-bottom:25px; font-size:1.1rem;">CADASTRAR ITEM</h2>
+            <h2 style="color:var(--jj-brown); margin-bottom:20px; font-size:1.1rem;">CADASTRAR ITEM</h2>
             <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
-            <input type="text" id="p-name" class="edit-field" placeholder="Nome">
+            <input type="text" id="p-name" class="edit-field" placeholder="Nome do Produto">
             <input type="text" id="p-price" class="edit-field" placeholder="Preço">
-            <textarea id="p-sizes" class="edit-field" placeholder="Tamanhos (Ex: P:2, M:5)"></textarea>
+            <textarea id="p-sizes" class="edit-field" placeholder="Tamanhos (P:2, M:5)"></textarea>
+            <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Azul, Preto, Branco)">
+            <input type="text" id="p-payments" class="edit-field" placeholder="Pagamento (Pix, Cartão, Boleto)">
             <input type="file" id="p-file" class="edit-field" accept="image/*" onchange="handleFileSelect(this, 'p-img-preview')">
-            <img id="p-img-preview" style="width:70px; display:none; border-radius:15px; margin-bottom:15px;">
-            <textarea id="p-desc" class="edit-field" placeholder="Descrição..." rows="3"></textarea>
-            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">SALVAR NO CATÁLOGO</button>
+            <img id="p-img-preview" style="width:60px; display:none; border-radius:10px; margin-bottom:10px;">
+            <textarea id="p-desc" class="edit-field" placeholder="Descrição..." rows="2"></textarea>
+            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">SALVAR</button>
         </div>
     </div>
 
@@ -205,7 +180,7 @@
             const authUI = document.getElementById('auth-ui');
             const adminBtn = document.getElementById('admin-btn');
             if (user) {
-                authUI.innerHTML = `<span style="font-size:0.7rem; font-weight:700; color:var(--jj-brown)">${user.displayName}</span><button class="jj-btn-ghost" onclick="logout()" style="margin-left:15px">SAIR</button>`;
+                authUI.innerHTML = `<span style="font-size:0.7rem; font-weight:700;">${user.displayName}</span><button class="jj-btn-ghost" onclick="logout()" style="margin-left:10px">SAIR</button>`;
                 if (user.email === ADM_EMAIL) adminBtn.style.display = 'block';
             } else {
                 authUI.innerHTML = `<button class="jj-btn-ghost" onclick="loginGoogle()">ENTRAR</button>`;
@@ -220,24 +195,26 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     tempBase64 = e.target.result;
-                    const prev = document.getElementById(previewId);
-                    prev.src = tempBase64;
-                    prev.style.display = 'block';
+                    document.getElementById(previewId).src = tempBase64;
+                    document.getElementById(previewId).style.display = 'block';
                 };
                 reader.readAsDataURL(file);
             }
         }
 
         function saveToRTDB() {
-            const name = document.getElementById('p-name').value;
-            const price = document.getElementById('p-price').value;
-            const sizes = document.getElementById('p-sizes').value;
-            const desc = document.getElementById('p-desc').value;
-            const category = document.getElementById('p-category').value || "Geral";
-            if (name && price && tempBase64) {
-                const newRef = database.ref('produtos').push();
-                newRef.set({ id: newRef.key, name, price, sizes, img: tempBase64, desc, category }).then(closeModals);
-            }
+            const data = {
+                id: database.ref('produtos').push().key,
+                category: document.getElementById('p-category').value || "Geral",
+                name: document.getElementById('p-name').value,
+                price: document.getElementById('p-price').value,
+                sizes: document.getElementById('p-sizes').value,
+                colors: document.getElementById('p-colors').value,
+                payments: document.getElementById('p-payments').value,
+                desc: document.getElementById('p-desc').value,
+                img: tempBase64
+            };
+            if (data.name && data.img) database.ref('produtos/' + data.id).set(data).then(closeModals);
         }
 
         function listenToProducts() {
@@ -253,21 +230,18 @@
                         section.className = 'category-section';
                         section.innerHTML = `<h2 class="category-title">${cat}</h2><div class="carousel-container" id="cat-${cat}"></div>`;
                         mainContent.appendChild(section);
-                        const container = document.getElementById(`cat-${cat}`);
                         products.filter(p => (p.category || "Geral") === cat).forEach(p => {
-                            const sizeHtml = p.sizes ? p.sizes.split(',').map(s => `<span class="size-pill">${s.trim()}</span>`).join('') : '';
                             const card = document.createElement('div');
                             card.className = 'product-card';
                             card.onclick = () => openDetails(p);
                             card.innerHTML = `
                                 ${auth.currentUser?.email === ADM_EMAIL ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.5rem; color:var(--jj-brown); cursor:pointer; z-index:20">&times;</button>` : ''}
                                 <div class="img-sculpt-frame"><div class="glass-inner-border"></div><img src="${p.img}"></div>
-                                <div class="size-pills">${sizeHtml}</div>
-                                <h3>${p.name}</h3>
-                                <p class="price">${p.price}</p>
+                                <div class="size-pills">${p.sizes ? p.sizes.split(',').map(s => `<span class="size-pill">${s.trim()}</span>`).join('') : ''}</div>
+                                <h3>${p.name}</h3><p class="price">${p.price}</p>
                                 <button class="card-btn-fix">DETALHES</button>
                             `;
-                            container.appendChild(card);
+                            document.getElementById(`cat-${cat}`).appendChild(card);
                         });
                     });
                     if (window.innerWidth > 768) VanillaTilt.init(document.querySelectorAll(".product-card"), { max: 5, speed: 400 });
@@ -278,29 +252,46 @@
         function openDetails(p) {
             const body = document.getElementById('details-body');
             const isAdm = auth.currentUser?.email === ADM_EMAIL;
+            
             if (isAdm) {
                 body.innerHTML = `
                     <div class="img-sculpt-frame"><img src="${p.img}" id="edit-img-modal"></div>
                     <div>
-                        <input type="text" id="e-cat" class="edit-field" value="${p.category || ''}" placeholder="Categoria">
-                        <input type="text" id="e-name" class="edit-field" value="${p.name || ''}" placeholder="Nome">
-                        <input type="text" id="e-price" class="edit-field" value="${p.price || ''}" placeholder="Preço">
+                        <input type="text" id="e-name" class="edit-field" value="${p.name || ''}">
+                        <input type="text" id="e-price" class="edit-field" value="${p.price || ''}">
                         <textarea id="e-sizes" class="edit-field" placeholder="Tamanhos">${p.sizes || ''}</textarea>
-                        <input type="file" class="edit-field" accept="image/*" onchange="handleFileSelect(this, 'edit-img-modal')">
-                        <textarea id="e-desc" class="edit-field" rows="4" placeholder="Descrição">${p.desc || ''}</textarea>
-                        <button class="card-btn-fix" onclick="updateProduct('${p.id}', '${p.img}')" style="position:static; width:100%">SALVAR ALTERAÇÕES</button>
+                        <input type="text" id="e-colors" class="edit-field" value="${p.colors || ''}" placeholder="Cores">
+                        <input type="text" id="e-payments" class="edit-field" value="${p.payments || ''}" placeholder="Pagamentos">
+                        <input type="file" class="edit-field" onchange="handleFileSelect(this, 'edit-img-modal')">
+                        <textarea id="e-desc" class="edit-field" rows="3">${p.desc || ''}</textarea>
+                        <button class="card-btn-fix" onclick="updateProduct('${p.id}', '${p.img}')" style="position:static; width:100%">SALVAR</button>
                     </div>
                 `;
             } else {
-                const sizesInfo = p.sizes ? p.sizes.split(',').map(s => `<span class="size-pill" style="font-size:0.8rem; padding:10px 15px">${s.trim()}</span>`).join('') : 'Sob consulta';
+                const colors = p.colors ? p.colors.split(',').map(c => `<option value="${c.trim()}">${c.trim()}</option>`).join('') : '<option>Padrão</option>';
+                const sizes = p.sizes ? p.sizes.split(',').map(s => `<option value="${s.trim()}">${s.trim()}</option>`).join('') : '<option>Único</option>';
+                const pays = p.payments ? p.payments.split(',').map(py => `<option value="${py.trim()}">${py.trim()}</option>`).join('') : '<option>A combinar</option>';
+
                 body.innerHTML = `
                     <div class="img-sculpt-frame"><div class="glass-inner-border"></div><img src="${p.img}"></div>
                     <div>
-                        <h2 style="color:var(--jj-brown); text-transform:uppercase; margin-bottom:15px; font-size:1.2rem;">${p.name}</h2>
-                        <p style="font-size:0.9rem; line-height:1.7; color:#444; margin-bottom:20px">${p.desc}</p>
-                        <div style="margin-bottom:25px"><p style="font-weight:700; font-size:0.7rem; color:var(--jj-brown); margin-bottom:12px;">TAMANHOS:</p><div class="size-pills">${sizesInfo}</div></div>
-                        <p style="font-weight:700; font-size:1.8rem; color:var(--jj-yellow-main); margin-bottom:20px">${p.price}</p>
-                        <button class="card-btn-fix" style="position:static; width:100%" onclick="orderWhatsApp('${p.name}')">WHATSAPP</button>
+                        <h2 style="color:var(--jj-brown); font-size:1.2rem; margin-bottom:10px">${p.name}</h2>
+                        <p style="font-size:0.8rem; color:#666; margin-bottom:15px">${p.desc}</p>
+                        
+                        <div style="background:rgba(0,0,0,0.02); padding:15px; border-radius:25px; box-shadow:inset 4px 4px 10px var(--shadow-dark)">
+                            <input type="text" id="u-name" class="user-input" placeholder="Seu Nome">
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                                <select id="u-color" class="user-input">${colors}</select>
+                                <select id="u-size" class="user-input">${sizes}</select>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                                <input type="number" id="u-qty" class="user-input" value="1" min="1">
+                                <select id="u-pay" class="user-input">${pays}</select>
+                            </div>
+                        </div>
+                        
+                        <p style="font-weight:700; font-size:1.6rem; color:var(--jj-yellow-main); margin:15px 0">${p.price}</p>
+                        <button class="card-btn-fix" style="position:static; width:100%" onclick="sendOrder('${p.name}')">PEDIR NO WHATSAPP</button>
                     </div>
                 `;
             }
@@ -309,21 +300,32 @@
             setTimeout(() => modal.classList.add('active'), 10);
         }
 
+        function sendOrder(prod) {
+            const n = document.getElementById('u-name').value;
+            const c = document.getElementById('u-color').value;
+            const s = document.getElementById('u-size').value;
+            const q = document.getElementById('u-qty').value;
+            const p = document.getElementById('u-pay').value;
+
+            if(!n) return alert("Por favor, digite seu nome.");
+
+            const msg = `Olá J&J! Meu nome é ${n}.%0A%0ATenho interesse no item: *${prod}*%0A- Cor: ${c}%0A- Tamanho/Qtd: ${s}%0A- Quantidade: ${q}%0A- Pagamento: ${p}`;
+            window.open(`https://wa.me/5511999999999?text=${msg}`, '_blank');
+        }
+
         function updateProduct(id, currentImg) {
             const updates = {
-                category: document.getElementById('e-cat').value,
                 name: document.getElementById('e-name').value,
                 price: document.getElementById('e-price').value,
                 sizes: document.getElementById('e-sizes').value,
+                colors: document.getElementById('e-colors').value,
+                payments: document.getElementById('e-payments').value,
                 desc: document.getElementById('e-desc').value,
                 img: tempBase64 || currentImg
             };
-            database.ref('produtos/' + id).update(updates)
-                .then(() => { tempBase64 = ""; closeModals(); })
-                .catch(err => alert("Erro ao salvar: " + err));
+            database.ref('produtos/' + id).update(updates).then(closeModals);
         }
 
-        function orderWhatsApp(n) { window.open(`https://wa.me/5511999999999?text=Interesse: ${n}`, '_blank'); }
         function deleteProduct(id) { if(confirm("Excluir?")) database.ref('produtos/' + id).remove(); }
         function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); }
         function closeModals() { document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(()=>m.style.display='none',400); }); tempBase64=""; }

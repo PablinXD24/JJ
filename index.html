@@ -15,7 +15,6 @@
         :root {
             --jj-yellow-light: #FFF4AC;
             --jj-yellow-main: #FFC800;
-            --jj-olive: #7C8F65;
             --jj-brown: #834A29;
             --jj-bg: #f8f9fa;
             --jj-text: #1a1a1a;
@@ -35,45 +34,49 @@
         .main-nav { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(248, 249, 250, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         .logo-img { height: 55px; width: auto; object-fit: contain; }
 
-        .content-wrapper { padding: 20px 0 40px 0; min-height: 80vh; }
-        .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; color: var(--jj-brown); }
-        .carousel-container { display: flex; gap: 30px; overflow-x: auto; padding: 20px 5% 40px 5%; scrollbar-width: none; }
+        .content-wrapper { padding: 20px 0 60px 0; min-height: 80vh; }
+        .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; color: var(--jj-brown); position: relative; }
+        .category-title::after { content: ''; position: absolute; left: 0; bottom: -8px; width: 40px; height: 3px; background: var(--jj-yellow-main); border-radius: 2px; }
+        
+        .carousel-container { display: flex; gap: 30px; overflow-x: auto; padding: 20px 5% 45px 5%; scrollbar-width: none; }
         .carousel-container::-webkit-scrollbar { display: none; }
 
-        /* Card Original */
+        /* Card Estética Refinada */
         .product-card {
             flex: 0 0 300px; background: var(--jj-bg); padding: 25px; padding-bottom: 85px; border-radius: 45px;
             box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
-            transition: 0.4s; cursor: pointer; position: relative; min-height: 540px;
+            transition: 0.4s; cursor: pointer; position: relative; min-height: 560px;
         }
         
         .img-sculpt-frame {
             background: var(--jj-bg); height: 260px; border-radius: 35px;
             display: flex; justify-content: center; align-items: center;
             box-shadow: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
-            position: relative; overflow: hidden; margin-bottom: 20px;
+            position: relative; overflow: hidden; margin-bottom: 25px;
         }
         .glass-inner-border { position: absolute; inset: 15px; border-radius: 25px; border: 1px solid rgba(255, 200, 0, 0.2); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(4px); z-index: 1; }
-        .img-sculpt-frame img { max-width: 85%; max-height: 85%; object-fit: contain; z-index: 2; position: relative; }
+        .img-sculpt-frame img { max-width: 85%; max-height: 85%; object-fit: contain; z-index: 2; position: relative; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .product-card:hover .img-sculpt-frame img { transform: scale(1.1) rotate(2deg); }
 
-        .size-pills { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-        .size-pill { font-size: 0.6rem; padding: 5px 10px; border-radius: 10px; background: var(--jj-bg); color: var(--jj-brown); font-weight: 700; box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light); }
-
-        .product-card h3 { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 5px; color: var(--jj-brown); }
-        .product-card .price { font-weight: 700; color: var(--jj-yellow-main); font-size: 1.1rem; }
+        .card-info { padding: 0 5px; }
+        .card-label { font-size: 0.55rem; font-weight: 700; color: var(--jj-yellow-main); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: block; }
+        .product-card h3 { font-weight: 700; font-size: 1rem; text-transform: uppercase; margin-bottom: 8px; color: var(--jj-brown); line-height: 1.2; }
+        .card-desc-preview { font-size: 0.7rem; color: #777; line-height: 1.4; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-card .price { font-weight: 800; color: var(--jj-text); font-size: 1.2rem; display: flex; align-items: center; gap: 5px; }
+        .price-prefix { font-size: 0.7rem; font-weight: 400; opacity: 0.6; }
 
         .card-btn-fix {
             position: absolute; bottom: 25px; left: 25px; right: 25px;
-            background: var(--jj-yellow-main); color: #1a1a1a; border: none; padding: 15px; border-radius: 20px;
+            background: var(--jj-yellow-main); color: #1a1a1a; border: none; padding: 16px; border-radius: 22px;
             font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: 0.3s;
-            box-shadow: 5px 5px 15px rgba(255, 200, 0, 0.3); font-family: var(--font-sans); text-transform: uppercase;
+            box-shadow: 6px 6px 15px rgba(255, 200, 0, 0.35); font-family: var(--font-sans); text-transform: uppercase; letter-spacing: 1px;
         }
 
         /* Inputs Neumórficos */
         .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 20px; border-radius: 15px; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); font-weight: 700; font-size: 0.65rem; cursor: pointer; color: var(--jj-brown); }
-        .edit-field, .user-input { width: 100%; background: var(--jj-bg); border: none; padding: 15px; border-radius: 18px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); margin-bottom: 15px; font-family: var(--font-sans); outline: none; font-size: 0.85rem; }
+        .edit-field, .user-input { width: 100%; background: var(--jj-bg); border: none; padding: 15px; border-radius: 18px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); margin-bottom: 15px; font-family: var(--font-sans); outline: none; font-size: 0.85rem; color: var(--jj-text); }
 
-        /* Modals Preservados */
+        /* Modals */
         .modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
         .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); }
@@ -86,23 +89,21 @@
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 2.2rem; cursor: pointer; color: var(--jj-brown); z-index: 2200; }
 
-        /* Footer Overlay */
-        .main-footer { position: relative; width: 100%; min-height: 250px; background-image: url('URL_DA_SUA_IMAGEM_AQUI'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; text-align: center; padding: 40px 5%; margin-top: 50px; }
-        .footer-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(3px); }
+        /* Footer */
+        .main-footer { position: relative; width: 100%; min-height: 280px; background-image: url('SUA_IMAGEM_AQUI'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; text-align: center; padding: 40px 5%; margin-top: 50px; }
+        .footer-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }
         .footer-content { position: relative; z-index: 2; color: white; }
 
-        #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; border: none; color: #1a1a1a; background: var(--jj-yellow-main); cursor: pointer; }
-
-        /* Carrinho Flutuante Elegante */
+        #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; border: none; color: #1a1a1a; background: var(--jj-yellow-main); cursor: pointer; box-shadow: 10px 10px 20px rgba(0,0,0,0.2); }
         #cart-btn-floating { position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 24px; }
-        #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
-            .modal-content { max-height: 90vh; border-radius: 40px 40px 0 0; padding: 50px 25px 30px 25px; transform: translateY(100%); }
+            .modal-content { max-height: 92vh; border-radius: 40px 40px 0 0; padding: 50px 25px 35px 25px; transform: translateY(100%); }
             .modal.active .modal-content { transform: translateY(0); }
             .modal-grid { grid-template-columns: 1fr; gap: 20px; }
-            .product-card { flex: 0 0 280px; }
+            .product-card { flex: 0 0 285px; }
             .cursor-dot, .cursor-outline { display: none; }
             body { cursor: auto; }
         }
@@ -123,9 +124,9 @@
     <footer class="main-footer">
         <div class="footer-overlay"></div>
         <div class="footer-content">
-            <h2 style="letter-spacing:3px">J&J ART COLLECTION</h2>
-            <p style="font-size:0.8rem; margin:15px 0; opacity:0.8">Peças atemporais e design moderno.</p>
-            <div style="font-size:0.65rem; opacity:0.5; text-transform:uppercase">© 2026 Todos os direitos reservados.</div>
+            <h2 style="letter-spacing:5px; font-weight:700">J&J ART COLLECTION</h2>
+            <p style="font-size:0.85rem; margin:15px 0; opacity:0.8; max-width:400px; line-height:1.6">Elevando o conceito de design e exclusividade em cada detalhe.</p>
+            <div style="font-size:0.65rem; opacity:0.5; text-transform:uppercase; margin-top:20px">© 2026 J&J Art - Todos os direitos reservados.</div>
         </div>
     </footer>
 
@@ -145,17 +146,16 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 500px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            <h2 style="color:var(--jj-brown); margin-bottom:25px; font-size:1.1rem;">CADASTRAR ITEM</h2>
+            <h2 style="color:var(--jj-brown); margin-bottom:25px; font-size:1.1rem; letter-spacing:1px">NOVO ITEM</h2>
             <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
-            <input type="text" id="p-name" class="edit-field" placeholder="Nome">
-            <input type="text" id="p-price" class="edit-field" placeholder="Preço">
-            <textarea id="p-sizes" class="edit-field" placeholder="Tamanhos (Ex: P, M, G)"></textarea>
-            <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Preto, Branco)">
-            <input type="text" id="p-payments" class="edit-field" placeholder="Formas de Pagamento (Ex: Pix, Cartão)">
-            <input type="file" id="p-file" class="edit-field" accept="image/*" onchange="handleFileSelect(this, 'p-img-preview')">
+            <input type="text" id="p-name" class="edit-field" placeholder="Nome do Produto">
+            <input type="text" id="p-price" class="edit-field" placeholder="Preço (ex: 299,00)">
+            <textarea id="p-sizes" class="edit-field" placeholder="Tamanhos (P, M, G)"></textarea>
+            <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Preto, Branco)">
+            <input type="file" id="p-file" class="edit-field" onchange="handleFileSelect(this, 'p-img-preview')">
             <img id="p-img-preview" style="width:70px; display:none; border-radius:15px; margin-bottom:15px;">
-            <textarea id="p-desc" class="edit-field" placeholder="Descrição..." rows="3"></textarea>
-            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">SALVAR NO CATÁLOGO</button>
+            <textarea id="p-desc" class="edit-field" placeholder="Breve descrição do item..." rows="3"></textarea>
+            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR</button>
         </div>
     </div>
 
@@ -177,21 +177,20 @@
         const database = firebase.database();
         const provider = new firebase.auth.GoogleAuthProvider();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
-        let tempBase64 = "";
         let cart = [];
+        let tempBase64 = "";
 
         function loginGoogle() { auth.signInWithPopup(provider); }
         function logout() { auth.signOut(); }
 
         auth.onAuthStateChanged(user => {
             const authUI = document.getElementById('auth-ui');
-            const adminBtn = document.getElementById('admin-btn');
             if (user) {
                 authUI.innerHTML = `<span style="font-size:0.7rem; font-weight:700;">${user.displayName}</span><button class="jj-btn-ghost" onclick="logout()" style="margin-left:15px">SAIR</button>`;
-                if (user.email === ADM_EMAIL) adminBtn.style.display = 'block';
+                if (user.email === ADM_EMAIL) document.getElementById('admin-btn').style.display = 'block';
             } else {
                 authUI.innerHTML = `<button class="jj-btn-ghost" onclick="loginGoogle()">ENTRAR</button>`;
-                adminBtn.style.display = 'none';
+                document.getElementById('admin-btn').style.display = 'none';
             }
             listenToProducts();
         });
@@ -202,9 +201,8 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     tempBase64 = e.target.result;
-                    const prev = document.getElementById(previewId);
-                    prev.src = tempBase64;
-                    prev.style.display = 'block';
+                    document.getElementById(previewId).src = tempBase64;
+                    document.getElementById(previewId).style.display = 'block';
                 };
                 reader.readAsDataURL(file);
             }
@@ -212,40 +210,47 @@
 
         function saveToRTDB() {
             const name = document.getElementById('p-name').value;
-            const price = document.getElementById('p-price').value;
-            const sizes = document.getElementById('p-sizes').value;
-            const colors = document.getElementById('p-colors').value;
-            const payments = document.getElementById('p-payments').value;
-            const desc = document.getElementById('p-desc').value;
-            const category = document.getElementById('p-category').value || "Geral";
             if (name && tempBase64) {
                 const newRef = database.ref('produtos').push();
-                newRef.set({ id: newRef.key, name, price, sizes, colors, payments, img: tempBase64, desc, category }).then(closeModals);
+                newRef.set({
+                    id: newRef.key,
+                    category: document.getElementById('p-category').value || "Geral",
+                    name: name,
+                    price: document.getElementById('p-price').value,
+                    sizes: document.getElementById('p-sizes').value,
+                    colors: document.getElementById('p-colors').value,
+                    desc: document.getElementById('p-desc').value,
+                    img: tempBase64
+                }).then(closeModals);
             }
         }
 
         function listenToProducts() {
-            database.ref('produtos').on('value', (snapshot) => {
-                const mainContent = document.getElementById('main-content');
-                mainContent.innerHTML = "";
-                const data = snapshot.val();
+            database.ref('produtos').on('value', (snap) => {
+                const main = document.getElementById('main-content');
+                main.innerHTML = "";
+                const data = snap.val();
                 if (data) {
                     const products = Object.values(data);
-                    const categories = [...new Set(products.map(p => p.category || "Geral"))];
-                    categories.forEach(cat => {
+                    const cats = [...new Set(products.map(p => p.category))];
+                    cats.forEach(cat => {
                         const section = document.createElement('div');
                         section.innerHTML = `<h2 class="category-title">${cat}</h2><div class="carousel-container" id="cat-${cat}"></div>`;
-                        mainContent.appendChild(section);
-                        products.filter(p => (p.category || "Geral") === cat).forEach(p => {
+                        main.appendChild(section);
+                        products.filter(p => p.category === cat).forEach(p => {
                             const card = document.createElement('div');
                             card.className = 'product-card';
                             card.onclick = () => openDetails(p);
                             card.innerHTML = `
                                 ${auth.currentUser?.email === ADM_EMAIL ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.5rem; color:var(--jj-brown); cursor:pointer; z-index:20">&times;</button>` : ''}
                                 <div class="img-sculpt-frame"><div class="glass-inner-border"></div><img src="${p.img}"></div>
-                                <div class="size-pills">${p.sizes ? p.sizes.split(',').map(s => `<span class="size-pill">${s.trim()}</span>`).join('') : ''}</div>
-                                <h3>${p.name}</h3><p class="price">${p.price}</p>
-                                <button class="card-btn-fix">DETALHES</button>
+                                <div class="card-info">
+                                    <span class="card-label">Design Exclusive</span>
+                                    <h3>${p.name}</h3>
+                                    <p class="card-desc-preview">${p.desc || ''}</p>
+                                    <div class="price"><span class="price-prefix">R$</span>${p.price}</div>
+                                </div>
+                                <button class="card-btn-fix">RESERVAR PEÇA</button>
                             `;
                             document.getElementById(`cat-${cat}`).appendChild(card);
                         });
@@ -260,16 +265,14 @@
             const isAdm = auth.currentUser?.email === ADM_EMAIL;
             if (isAdm) {
                 body.innerHTML = `
-                    <div class="img-sculpt-frame"><img src="${p.img}" id="edit-img-modal"></div>
+                    <div class="img-sculpt-frame"><img src="${p.img}" id="e-img"></div>
                     <div>
                         <input type="text" id="e-name" class="edit-field" value="${p.name}">
                         <input type="text" id="e-price" class="edit-field" value="${p.price}">
-                        <textarea id="e-sizes" class="edit-field" placeholder="Tamanhos">${p.sizes || ''}</textarea>
-                        <textarea id="e-colors" class="edit-field" placeholder="Cores">${p.colors || ''}</textarea>
-                        <textarea id="e-pays" class="edit-field" placeholder="Pagamentos">${p.payments || ''}</textarea>
-                        <input type="file" class="edit-field" onchange="handleFileSelect(this, 'edit-img-modal')">
-                        <textarea id="e-desc" class="edit-field" rows="3">${p.desc || ''}</textarea>
-                        <button class="card-btn-fix" onclick="updateProduct('${p.id}', '${p.img}')" style="position:static; width:100%">SALVAR ALTERAÇÕES</button>
+                        <textarea id="e-sizes" class="edit-field">${p.sizes || ''}</textarea>
+                        <textarea id="e-colors" class="edit-field">${p.colors || ''}</textarea>
+                        <textarea id="e-desc" class="edit-field" rows="4">${p.desc || ''}</textarea>
+                        <button class="card-btn-fix" style="position:static; width:100%" onclick="updateProduct('${p.id}', '${p.img}')">SALVAR ALTERAÇÕES</button>
                     </div>`;
             } else {
                 const sizes = p.sizes ? p.sizes.split(',').map(s=>`<option>${s.trim()}</option>`).join('') : '<option>Único</option>';
@@ -277,22 +280,22 @@
                 body.innerHTML = `
                     <div class="img-sculpt-frame"><div class="glass-inner-border"></div><img src="${p.img}"></div>
                     <div>
-                        <h2 style="color:var(--jj-brown); text-transform:uppercase; margin-bottom:10px; font-size:1.2rem;">${p.name}</h2>
-                        <p style="font-size:0.85rem; line-height:1.6; color:#555; margin-bottom:15px">${p.desc}</p>
-                        <div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:25px; margin-bottom:15px">
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                        <span class="card-label">Exclusive Collection</span>
+                        <h2 style="color:var(--jj-brown); margin-bottom:12px; font-size:1.3rem;">${p.name}</h2>
+                        <p style="font-size:0.85rem; color:#555; line-height:1.7; margin-bottom:20px">${p.desc}</p>
+                        <div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
                                 <select id="u-size" class="user-input">${sizes}</select>
                                 <select id="u-color" class="user-input">${colors}</select>
                             </div>
-                            <input type="number" id="u-qty" class="user-input" value="1" min="1" placeholder="Qtd">
+                            <input type="number" id="u-qty" class="user-input" value="1" min="1">
                         </div>
-                        <p style="font-weight:700; font-size:1.6rem; color:var(--jj-yellow-main); margin-bottom:15px">${p.price}</p>
-                        <button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}')">ADICIONAR INTERESSE</button>
+                        <div style="font-weight:800; font-size:1.8rem; color:var(--jj-text); margin-bottom:20px">R$ ${p.price}</div>
+                        <button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}')">ADICIONAR À LISTA</button>
                     </div>`;
             }
-            const modal = document.getElementById('details-modal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
+            document.getElementById('details-modal').style.display = 'flex';
+            setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
         function addToCart(name, price) {
@@ -306,61 +309,62 @@
         }
 
         function openCartModal() {
+            const userName = auth.currentUser ? auth.currentUser.displayName : "";
             const body = document.getElementById('details-body');
-            let listHtml = cart.map((i, index) => `
-                <div style="padding:10px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.8rem; position:relative">
-                    <b>${i.name}</b> (${i.size}/${i.color}) x${i.qty}
-                    <button onclick="cart.splice(${index},1); openCartModal();" style="position:absolute; right:10px; top:10px; border:none; background:none; cursor:pointer">×</button>
+            let listHtml = cart.map((i, idx) => `
+                <div style="padding:15px; background:white; border-radius:18px; margin-bottom:12px; font-size:0.8rem; position:relative; box-shadow:4px 4px 10px rgba(0,0,0,0.05)">
+                    <b>${i.name}</b><br><span style="opacity:0.6">${i.size} | ${i.color} | Qtd: ${i.qty}</span>
+                    <button onclick="cart.splice(${idx},1); openCartModal();" style="position:absolute; right:15px; top:18px; border:none; background:none; cursor:pointer; font-size:1.2rem">×</button>
                 </div>
             `).join('');
             
             body.innerHTML = `
                 <div style="grid-column: span 2">
-                    <h2 style="color:var(--jj-brown); margin-bottom:20px">MEU CARRINHO</h2>
-                    ${listHtml || '<p style="opacity:0.5">Carrinho vazio</p>'}
-                    <div style="margin-top:20px">
-                        <input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome Completo">
-                        <input type="text" id="u-final-pay" class="user-input" placeholder="Forma de Pagamento (Pix/Cartão)">
-                        <button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp()">FINALIZAR NO WHATSAPP</button>
+                    <h2 style="color:var(--jj-brown); margin-bottom:25px; letter-spacing:1px">MINHA LISTA</h2>
+                    ${listHtml || '<p style="opacity:0.5; text-align:center">Sua lista está vazia</p>'}
+                    <div style="margin-top:25px">
+                        <input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome" value="${userName}">
+                        <select id="u-final-pay" class="user-input">
+                            <option>Pix</option>
+                            <option>Cartão</option>
+                        </select>
+                        <button class="card-btn-fix" style="position:static; width:100%; margin-top:10px" onclick="sendWhatsApp()">FINALIZAR NO WHATSAPP</button>
                     </div>
                 </div>`;
-            const modal = document.getElementById('details-modal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
+            document.getElementById('details-modal').style.display = 'flex';
+            setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
         function sendWhatsApp() {
             const user = document.getElementById('u-final-name').value;
             const pay = document.getElementById('u-final-pay').value;
-            if(!user || cart.length === 0) return alert("Preencha seu nome!");
+            if(!user || cart.length === 0) return alert("Adicione itens e preencha seu nome!");
 
             let msg = `Olá J&J! Me chamo ${user}.%0A%0A*MEU PEDIDO:*%0A`;
-            cart.forEach(i => msg += `- ${i.name} (${i.size}/${i.color}) x${i.qty}%0A`);
+            cart.forEach(i => msg += `- *${i.name}* (${i.size}/${i.color}) x${i.qty}%0A`);
             msg += `%0A*PAGAMENTO:* ${pay}`;
-            
             window.open(`https://wa.me/5511999999999?text=${msg}`, '_blank');
         }
 
-        function updateProduct(id, currentImg) {
-            const updates = {
+        function updateProduct(id, oldImg) {
+            const data = {
                 name: document.getElementById('e-name').value,
                 price: document.getElementById('e-price').value,
                 sizes: document.getElementById('e-sizes').value,
                 colors: document.getElementById('e-colors').value,
-                payments: document.getElementById('e-pays').value,
                 desc: document.getElementById('e-desc').value,
-                img: tempBase64 || currentImg
+                img: tempBase64 || oldImg
             };
-            database.ref('produtos/' + id).update(updates).then(closeModals);
+            database.ref('produtos/' + id).update(data).then(closeModals);
         }
 
-        function deleteProduct(id) { if(confirm("Excluir?")) database.ref('produtos/' + id).remove(); }
+        function deleteProduct(id) { if(confirm("Excluir item permanentemente?")) database.ref('produtos/'+id).remove(); }
         function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); }
-        function closeModals() { document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(()=>m.style.display='none',400); }); tempBase64=""; }
+        function closeModals() { document.querySelectorAll('.modal').forEach(m=>{m.classList.remove('active'); setTimeout(()=>m.style.display='none',400);}); tempBase64=""; }
 
         if (window.innerWidth > 768) {
-            const dot = document.querySelector('.cursor-dot'), outline = document.querySelector('.cursor-outline');
-            window.onmousemove = (e) => { dot.style.left = outline.style.left = e.clientX + 'px'; dot.style.top = outline.style.top = e.clientY + 'px'; };
+            const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');
+            window.onmousemove = (e) => { dot.style.left = out.style.left = e.clientX+'px'; dot.style.top = out.style.top = e.clientY+'px'; };
         }
     </script>
 </body>

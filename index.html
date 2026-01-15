@@ -15,7 +15,6 @@
         :root {
             --jj-yellow-light: #FFF4AC;
             --jj-yellow-main: #FFC800;
-            --jj-olive: #7C8F65;
             --jj-brown: #834A29;
             --jj-bg: #f8f9fa;
             --jj-text: #1a1a1a;
@@ -35,7 +34,7 @@
         .main-nav { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(248, 249, 250, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         .logo-img { height: 55px; width: auto; object-fit: contain; }
 
-        .content-wrapper { padding: 20px 0 40px 0; }
+        .content-wrapper { padding: 20px 0 60px 0; min-height: 80vh; }
         .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; color: var(--jj-brown); }
         .carousel-container { display: flex; gap: 30px; overflow-x: auto; padding: 20px 5% 40px 5%; scrollbar-width: none; }
         .carousel-container::-webkit-scrollbar { display: none; }
@@ -88,18 +87,48 @@
 
         #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; border: none; color: #1a1a1a; background: var(--jj-yellow-main); cursor: pointer; box-shadow: 10px 10px 25px rgba(0,0,0,0.15); }
 
-        /* Ajuste Mobile Popup */
+        /* Footer Novo */
+        .main-footer {
+            position: relative;
+            width: 100%;
+            min-height: 250px;
+            background-image: url('URL_DA_SUA_IMAGEM_AQUI'); /* Substitua aqui */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 5%;
+            margin-top: 50px;
+        }
+
+        .footer-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65); /* Escurece a imagem para o texto aparecer */
+            backdrop-filter: blur(3px); /* Leve desfoque opcional */
+        }
+
+        .footer-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+
+        .footer-content h2 { font-size: 1.5rem; margin-bottom: 15px; letter-spacing: 3px; font-weight: 700; }
+        .footer-content p { font-size: 0.8rem; opacity: 0.8; line-height: 1.8; max-width: 500px; margin: 0 auto; }
+        .footer-copy { margin-top: 30px; font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; }
+
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
-            .modal-content { 
-                max-height: 85vh; border-radius: 40px 40px 0 0; padding: 50px 25px 30px 25px; 
-                transform: translateY(100%); 
-            }
+            .modal-content { max-height: 85vh; border-radius: 40px 40px 0 0; padding: 50px 25px 30px 25px; transform: translateY(100%); }
             .modal.active .modal-content { transform: translateY(0); }
             .modal-grid { grid-template-columns: 1fr; gap: 20px; }
             .product-card { flex: 0 0 280px; }
             .cursor-dot, .cursor-outline { display: none; }
             body { cursor: auto; }
+            .main-footer { min-height: 300px; }
         }
     </style>
 </head>
@@ -114,6 +143,16 @@
     </nav>
 
     <main class="content-wrapper" id="main-content"></main>
+
+    <footer class="main-footer">
+        <div class="footer-overlay"></div>
+        <div class="footer-content">
+            <img src="jjvidro2.png" alt="J&J Logo" style="height: 40px; margin-bottom: 20px; filter: brightness(0) invert(1);">
+            <h2>J&J ART COLLECTION</h2>
+            <p>Curadoria exclusiva de peças atemporais e design moderno. Transformando o comum em extraordinário.</p>
+            <div class="footer-copy">© 2026 J&J Art - Todos os direitos reservados.</div>
+        </div>
+    </footer>
 
     <div id="details-modal" class="modal">
         <div class="modal-overlay" onclick="closeModals()"></div>

@@ -73,6 +73,11 @@
             box-shadow: 6px 6px 15px rgba(255, 200, 0, 0.35); text-transform: uppercase;
         }
 
+        /* Cores em Bolinhas */
+        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; }
+        .color-dot-btn { width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.2); }
+
         /* Inputs & Modals */
         .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 20px; border-radius: 15px; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); font-weight: 700; font-size: 0.65rem; color: var(--jj-brown); cursor: pointer; }
         .edit-field, .user-input { width: 100%; background: var(--jj-bg); border: none; padding: 15px; border-radius: 18px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); margin-bottom: 15px; outline: none; font-size: 0.85rem; }
@@ -134,12 +139,12 @@
             <input type="text" id="p-category" class="edit-field" placeholder="Categoria (Ex: Decoração)">
             <input type="text" id="p-name" class="edit-field" placeholder="Nome">
             <input type="text" id="p-price" class="edit-field" placeholder="Preço (299,00)">
-            <textarea id="p-sizes" class="edit-field" placeholder="Tamanhos (P, M, G)"></textarea>
-            <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Preto, Branco)">
+            <textarea id="p-sizes" class="edit-field" placeholder="Estoque (Ex: P:10, M:5, G:2)"></textarea>
+            <input type="text" id="p-colors" class="edit-field" placeholder="Cores em Hex ou Nome (Ex: #000, White, Red)">
             <input type="file" id="p-file" class="edit-field" onchange="handleFileSelect(this, 'p-img-prev')">
             <img id="p-img-prev" style="width:60px; display:none; border-radius:10px; margin-bottom:10px">
             <textarea id="p-desc" class="edit-field" placeholder="Descrição..." rows="3"></textarea>
-            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">SALVAR</button>
+            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">SALVAR NO ESTOQUE</button>
         </div>
     </div>
 
@@ -160,7 +165,7 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
         const WPP_NUM = "5511998937643";
-        let cart = [], tempBase64 = "";
+        let cart = [], tempBase64 = "", selectedColor = "";
 
         function loginGoogle() { auth.signInWithPopup(provider); }
         function logout() { auth.signOut(); }
@@ -194,7 +199,7 @@
                     category: document.getElementById('p-category').value || "Geral",
                     name: name,
                     price: document.getElementById('p-price').value,
-                    sizes: document.getElementById('p-sizes').value,
+                    sizes: document.getElementById('p-sizes').value, // Esperado P:10, M:5
                     colors: document.getElementById('p-colors').value,
                     desc: document.getElementById('p-desc').value,
                     img: tempBase64
@@ -253,33 +258,62 @@
             });
         }
 
+        function selectColor(color, el) {
+            selectedColor = color;
+            document.querySelectorAll('.color-dot-btn').forEach(btn => btn.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
         function openDetails(p) {
             const body = document.getElementById('details-body');
             const isAdm = auth.currentUser?.email === ADM_EMAIL;
+            selectedColor = "";
+
             if (isAdm) {
                 body.innerHTML = `
-                    <div class="img-sculpt-frame"><img src="${p.img}" id="e-img"></div>
+                    <div class="img-sculpt-frame"><img src="${p.img}"></div>
                     <div>
                         <input type="text" id="e-name" class="user-input" value="${p.name}">
                         <input type="text" id="e-price" class="user-input" value="${p.price}">
+                        <textarea id="e-sizes" class="user-input" placeholder="Estoque (P:10, M:5)">${p.sizes || ''}</textarea>
                         <textarea id="e-desc" class="user-input" rows="5">${p.desc || ''}</textarea>
-                        <button class="card-btn-fix" style="position:static; width:100%" onclick="updateProduct('${p.id}', '${p.img}')">ATUALIZAR</button>
+                        <button class="card-btn-fix" style="position:static; width:100%" onclick="updateProduct('${p.id}')">ATUALIZAR</button>
                     </div>`;
             } else {
-                const sizes = p.sizes ? p.sizes.split(',').map(s=>`<option>${s.trim()}</option>`).join('') : '<option>Único</option>';
-                const colors = p.colors ? p.colors.split(',').map(c=>`<option>${c.trim()}</option>`).join('') : '<option>Padrão</option>';
+                // Parse do estoque (Ex: P:10, M:0)
+                const stockMap = {};
+                if(p.sizes) {
+                    p.sizes.split(',').forEach(item => {
+                        const [t, q] = item.split(':');
+                        if(t && q) stockMap[t.trim()] = parseInt(q.trim());
+                    });
+                }
+                
+                const sizeOptions = Object.keys(stockMap).map(s => 
+                    `<option value="${s}" ${stockMap[s] <= 0 ? 'disabled' : ''}>${s} (${stockMap[s] > 0 ? stockMap[s] + ' disp.' : 'Esgotado'})</option>`
+                ).join('');
+
+                const colorDots = p.colors ? p.colors.split(',').map(c => {
+                    const cleanC = c.trim();
+                    return `<div class="color-dot-btn" style="background:${cleanC}" onclick="selectColor('${cleanC}', this)" title="${cleanC}"></div>`;
+                }).join('') : '';
+
                 body.innerHTML = `
                     <div class="img-sculpt-frame"><img src="${p.img}"></div>
                     <div>
                         <span class="card-label">Exclusive Collection</span>
                         <h2 style="color:var(--jj-brown); margin-bottom:12px">${p.name}</h2>
-                        <p style="font-size:0.85rem; color:#555; line-height:1.6; margin-bottom:20px">${p.desc}</p>
+                        <p style="font-size:0.85rem; color:#555; line-height:1.6; margin-bottom:20px">${p.desc || ''}</p>
+                        
                         <div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px">
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-                                <select id="u-size" class="user-input">${sizes}</select>
-                                <select id="u-color" class="user-input">${colors}</select>
+                            <label style="font-size:0.6rem; font-weight:700; margin-bottom:8px; display:block">ESCOLHA A COR:</label>
+                            <div class="color-selector">${colorDots || 'Padrão'}</div>
+                            
+                            <label style="font-size:0.6rem; font-weight:700; margin-bottom:8px; display:block">TAMANHO E QUANTIDADE:</label>
+                            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px">
+                                <select id="u-size" class="user-input">${sizeOptions || '<option>Único</option>'}</select>
+                                <input type="number" id="u-qty" class="user-input" value="1" min="1">
                             </div>
-                            <input type="number" id="u-qty" class="user-input" value="1" min="1">
                         </div>
                         <div style="font-weight:800; font-size:1.6rem; margin-bottom:20px">R$ ${p.price}</div>
                         <button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}')">ADICIONAR À LISTA</button>
@@ -290,17 +324,38 @@
         }
 
         function addToCart(name, price) {
-            cart.push({ name, price, size: document.getElementById('u-size').value, color: document.getElementById('u-color').value, qty: document.getElementById('u-qty').value });
+            const size = document.getElementById('u-size').value;
+            const qty = document.getElementById('u-qty').value;
+            const color = selectedColor || "Padrão";
+
+            cart.push({ name, price, size, color, qty });
             document.getElementById('cart-badge').innerText = cart.length;
             document.getElementById('cart-btn-floating').style.display = 'flex';
             closeModals();
         }
 
         function openCartModal() {
-            const userName = auth.currentUser ? auth.currentUser.displayName : "";
             const body = document.getElementById('details-body');
-            let list = cart.map((i, idx) => `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.8rem; position:relative"><b>${i.name}</b> (${i.size}/${i.color}) x${i.qty}<button onclick="cart.splice(${idx},1); openCartModal();" style="position:absolute; right:10px; top:12px; border:none; background:none; cursor:pointer">×</button></div>`).join('');
-            body.innerHTML = `<div style="grid-column: span 2"><h2 style="margin-bottom:20px">MINHA LISTA</h2>${list || '<p style="opacity:0.5; text-align:center">Vazio</p>'}<div style="margin-top:20px"><input type="text" id="u-final-name" class="user-input" placeholder="Nome" value="${userName}"><select id="u-final-pay" class="user-input"><option>Pix</option><option>Cartão</option></select><button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp()">PEDIR VIA WHATSAPP</button></div></div>`;
+            let list = cart.map((i, idx) => `
+                <div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.8rem; position:relative; box-shadow: 2px 2px 5px rgba(0,0,0,0.05)">
+                    <b>${i.name}</b><br>
+                    <span style="color:#777">Tam: ${i.size} | Cor: ${i.color} | Qtd: ${i.qty}</span>
+                    <button onclick="cart.splice(${idx},1); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button>
+                </div>`).join('');
+            
+            body.innerHTML = `
+                <div style="grid-column: span 2">
+                    <h2 style="margin-bottom:20px; color:var(--jj-brown)">MINHA LISTA</h2>
+                    ${list || '<p style="opacity:0.5; text-align:center; padding:40px">Sua lista está vazia</p>'}
+                    <div style="margin-top:20px; border-top: 1px solid #ddd; padding-top:20px">
+                        <input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome Completo">
+                        <select id="u-final-pay" class="user-input">
+                            <option>Forma de Pagamento: Pix</option>
+                            <option>Forma de Pagamento: Cartão</option>
+                        </select>
+                        <button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp()">FINALIZAR NO WHATSAPP</button>
+                    </div>
+                </div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
@@ -308,20 +363,49 @@
         function sendWhatsApp() {
             const user = document.getElementById('u-final-name').value;
             const pay = document.getElementById('u-final-pay').value;
-            if(!user || cart.length === 0) return alert("Erro no pedido!");
-            let msg = `Olá J&J! Me chamo ${user}.%0A%0A*MEU PEDIDO:*%0A`;
-            cart.forEach(i => msg += `- *${i.name}* (${i.size}/${i.color}) x${i.qty}%0A`);
-            msg += `%0A*PAGAMENTO:* ${pay}`;
-            window.open(`https://wa.me/${WPP_NUM}?text=${msg}`, '_blank');
+            if(!user || cart.length === 0) return alert("Por favor, preencha seu nome e adicione itens.");
+
+            let msg = `*NOVO PEDIDO J&J ART*%0A`;
+            msg += `--------------------------%0A`;
+            msg += `*Cliente:* ${user}%0A`;
+            msg += `*Pagamento:* ${pay}%0A%0A`;
+            msg += `*ITENS:*%0A`;
+            
+            cart.forEach((i, index) => {
+                msg += `${index + 1}. *${i.name}*%0A`;
+                msg += `   Tam: ${i.size} | Cor: ${i.color} | Qtd: ${i.qty}%0A`;
+                msg += `   Preço un: R$ ${i.price}%0A%0A`;
+            });
+
+            msg += `--------------------------%0A`;
+            msg += `_Aguardo confirmação de disponibilidade!_`;
+
+            // Codifica a URL corretamente para o WhatsApp não bugar
+            const encodedMsg = encodeURIComponent(msg);
+            window.open(`https://wa.me/${WPP_NUM}?text=${encodedMsg}`, '_blank');
         }
 
-        function deleteProduct(id) { if(confirm("Apagar?")) database.ref('produtos/'+id).remove(); }
+        function deleteProduct(id) { if(confirm("Deseja remover este item permanentemente?")) database.ref('produtos/'+id).remove(); }
+        
+        function updateProduct(id) {
+            const updates = {
+                name: document.getElementById('e-name').value,
+                price: document.getElementById('e-price').value,
+                sizes: document.getElementById('e-sizes').value,
+                desc: document.getElementById('e-desc').value
+            };
+            database.ref('produtos/'+id).update(updates).then(closeModals);
+        }
+
         function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); }
         function closeModals() { document.querySelectorAll('.modal').forEach(m=>{m.classList.remove('active'); setTimeout(()=>m.style.display='none',400);}); tempBase64=""; }
 
         if (window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');
-            window.onmousemove = (e) => { dot.style.left = out.style.left = e.clientX+'px'; dot.style.top = out.style.top = e.clientY+'px'; };
+            window.onmousemove = (e) => { 
+                dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px'; 
+                out.style.left = (e.clientX - 16) +'px'; out.style.top = (e.clientY - 16) +'px'; 
+            };
         }
     </script>
 </body>

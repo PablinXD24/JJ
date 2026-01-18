@@ -228,7 +228,6 @@
                         main.appendChild(section);
                         
                         products.filter(p => p.category === cat).forEach(p => {
-                            // Pega a imagem da primeira cor configurada ou um placeholder
                             const firstColor = p.colors ? p.colors.split(',')[0].trim() : "";
                             const displayImg = (p.variants && p.variants[firstColor] && p.variants[firstColor].img) 
                                 ? p.variants[firstColor].img 
@@ -335,7 +334,6 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const base64 = e.target.result;
-                    // Salva no banco e atualiza o preview imediatamente
                     database.ref(`produtos/${pid}/variants/${color}/img`).set(base64);
                     const prev = document.getElementById(`prev-${color}`);
                     if(prev) {
@@ -390,20 +388,40 @@
                 </div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
-            if(cart.length === 0) document.getElementById('cart-btn-floating').style.display = 'none';
+            if(cart.length === 0) {
+                 document.getElementById('cart-btn-floating').style.display = 'none';
+                 closeModals();
+            }
         }
 
         function sendWhatsApp() {
             const user = document.getElementById('u-final-name').value;
             if(!user || cart.length === 0) return alert("Por favor, informe seu nome.");
-            let msg = `*PEDIDO J&J ART COLLECTION*%0A*Cliente:* ${user}%0A%0A`;
-            cart.forEach(i => msg += `• ${i.name} (${i.color} / ${i.size}) x${i.qty}%0A`);
-            window.open(`https://wa.me/${WPP_NUM}?text=${msg}`, '_blank');
+            
+            // Construção da mensagem limpa e organizada
+            let msg = `*PEDIDO J&J ART COLLECTION*\n`;
+            msg += `----------------------------\n`;
+            msg += `*Cliente:* ${user}\n\n`;
+            msg += `*ITENS DO PEDIDO:*\n`;
+            
+            cart.forEach((i, index) => {
+                msg += `${index + 1}. *${i.name}*\n`;
+                msg += `   • Cor: ${i.color}\n`;
+                msg += `   • Tamanho: ${i.size}\n`;
+                msg += `   • Qtd: ${i.qty}\n`;
+                msg += `   • Preço: R$ ${i.price}\n\n`;
+            });
+            
+            msg += `----------------------------\n`;
+            msg += `*Aguardando confirmação...*`;
+            
+            const encodedMsg = encodeURIComponent(msg);
+            window.open(`https://wa.me/${WPP_NUM}?text=${encodedMsg}`, '_blank');
         }
 
         function filterCat(cat) {
             document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            if(event) event.target.classList.add('active');
             document.querySelectorAll('.cat-group').forEach(g => {
                 g.style.display = (cat === 'all' || g.classList.contains(`cat-${cat.replace(/\s+/g, '-')}`)) ? 'block' : 'none';
             });
@@ -413,7 +431,6 @@
         function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); }
         function closeModals() { document.querySelectorAll('.modal').forEach(m=>{m.classList.remove('active'); setTimeout(()=>m.style.display='none',400);}); }
 
-        // Cursor
         if (window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');
             window.onmousemove = (e) => { 

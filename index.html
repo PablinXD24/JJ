@@ -40,7 +40,7 @@
         .cat-filter-btn { padding: 8px 20px; border-radius: 15px; border: none; background: var(--jj-bg); box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); font-size: 0.7rem; font-weight: 700; color: var(--jj-brown); cursor: pointer; white-space: nowrap; text-transform: uppercase; transition: 0.3s; }
         .cat-filter-btn.active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); color: var(--jj-yellow-main); }
 
-        /* Cards & Container */
+        /* Cards */
         .content-wrapper { padding: 20px 0 60px 0; flex: 1; }
         .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; color: var(--jj-brown); position: relative; }
         .category-title::after { content: ''; position: absolute; left: 0; bottom: -8px; width: 40px; height: 3px; background: var(--jj-yellow-main); border-radius: 2px; }
@@ -92,11 +92,12 @@
         .btn-edit { background: var(--jj-brown); color: white; }
         .btn-quick { background: var(--jj-yellow-main); color: var(--jj-text); }
 
-        /* Estilo Caixa */
+        /* Cashier */
         .cashier-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--jj-bg); padding: 15px; border-radius: 20px; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); text-align: center; }
         .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--jj-brown); }
         .stat-label { font-size: 0.6rem; opacity: 0.6; text-transform: uppercase; }
+        .order-log-card { background: white; padding: 15px; border-radius: 20px; margin-bottom: 12px; font-size: 0.7rem; box-shadow: 4px 4px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--jj-yellow-main); }
 
         footer {
             position: relative; background-image: url('jjvidro2.png'); background-size: cover; background-position: center;
@@ -155,8 +156,7 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 600px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            
-            <div style="display:flex; gap:10px; margin-bottom:25px; overflow-x: auto; padding-bottom:10px;">
+            <div style="display:flex; gap:10px; margin-bottom:25px; overflow-x: auto;">
                 <button class="cat-filter-btn active" id="tab-novo" onclick="switchAdminTab('novo')">Novo Item</button>
                 <button class="cat-filter-btn" id="tab-caixa" onclick="switchAdminTab('caixa')">Caixa</button>
                 <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Pedidos</button>
@@ -164,31 +164,24 @@
 
             <div id="admin-create-section">
                 <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
-                <input type="text" id="p-name" class="edit-field" placeholder="Nome do Item">
-                <input type="text" id="p-price" class="edit-field" placeholder="Preço (00.00)">
-                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Transparente)">
-                <textarea id="p-desc" class="edit-field" placeholder="Descrição da Obra"></textarea>
-                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
+                <input type="text" id="p-name" class="edit-field" placeholder="Nome">
+                <input type="text" id="p-price" class="edit-field" placeholder="Preço">
+                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Preto)">
+                <textarea id="p-desc" class="edit-field" placeholder="Descrição"></textarea>
+                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR</button>
             </div>
 
             <div id="admin-caixa-section" style="display:none">
                 <div class="cashier-stats">
-                    <div class="stat-card">
-                        <div class="stat-label">Vendas Hoje</div>
-                        <div class="stat-val" id="stat-count">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Total Bruto</div>
-                        <div class="stat-val" id="stat-total">R$ 0,00</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-label">Vendas</div><div class="stat-val" id="stat-count">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val" id="stat-total">R$ 0,00</div></div>
                 </div>
-                <h4 style="font-size: 0.7rem; margin-bottom: 15px; color: var(--jj-brown);">ÚLTIMAS MOVIMENTAÇÕES</h4>
-                <div id="cashier-history" style="max-height: 300px; overflow-y: auto;"></div>
+                <div id="cashier-history" style="max-height: 400px; overflow-y: auto; padding-top: 10px;"></div>
             </div>
 
             <div id="admin-dashboard-section" style="display:none">
-                <input type="text" id="search-token" class="edit-field" placeholder="Digite o Token (Ex: jj1234)">
-                <button class="card-btn-fix" onclick="searchOrderByToken()" style="position:static; width:100%">LOCALIZAR PEDIDO</button>
+                <input type="text" id="search-token" class="edit-field" placeholder="Token do Pedido">
+                <button class="card-btn-fix" onclick="searchOrderByToken()" style="position:static; width:100%">BUSCAR</button>
                 <div id="token-result-area" style="margin-top:20px"></div>
             </div>
         </div>
@@ -219,7 +212,6 @@
             const ui = document.getElementById('auth-ui');
             const btnAdmin = document.getElementById('admin-btn');
             const btnScan = document.getElementById('scan-btn-floating');
-            
             if(user) {
                 ui.innerHTML = `<span style="font-size:0.6rem; font-weight:700">${user.displayName.split(' ')[0]}</span> <button class="cat-filter-btn" onclick="auth.signOut()" style="padding:4px 10px; font-size:0.5rem; margin-left:5px">Sair</button>`;
                 if(user.email === ADM_EMAIL) {
@@ -240,7 +232,6 @@
             document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none'; 
         }
 
-        // --- SCANNER COM OPÇÕES ---
         function openScanner() {
             if(auth.currentUser?.email !== ADM_EMAIL) return;
             const body = document.getElementById('details-body');
@@ -264,18 +255,16 @@
             body.innerHTML = `
                 <div style="grid-column: 1/-1; text-align:center">
                     <h2 style="margin-bottom:10px">${p.name}</h2>
-                    <p style="margin-bottom:30px; opacity:0.6">Ação rápida para Administrador</p>
+                    <p style="margin-bottom:30px; opacity:0.6">Ação de Administrador</p>
                     <button class="scan-choice-btn btn-edit" onclick='openDetails(${JSON.stringify(p)})'>EDITAR PRODUTO</button>
-                    <button class="scan-choice-btn btn-quick" onclick='quickAdd("${p.name}", "${p.price}", "${p.colors}")'>VENDA DIRETA (CAIXA)</button>
+                    <button class="scan-choice-btn btn-quick" onclick='quickAdd("${p.name}", "${p.price}", "${p.colors}")'>VENDA RÁPIDA</button>
                 </div>`;
         }
 
         function quickAdd(name, price, colors) {
             const firstColor = colors.split(',')[0].trim();
             cart.push({ name, price: parseFloat(price), color: firstColor, size: "Padrão", qty: 1 });
-            saveCart();
-            closeModals();
-            openCartModal(); // Abre o carrinho para finalizar
+            saveCart(); closeModals(); openCartModal();
         }
 
         function stopScanner() { if(html5QrCode) html5QrCode.stop().then(()=>html5QrCode=null); }
@@ -317,20 +306,28 @@
         function updateCashierStats() {
             database.ref('pedidos').on('value', snap => {
                 const pedidos = snap.val();
-                let total = 0, count = 0;
-                let html = "";
+                let total = 0, count = 0, html = "";
                 if(pedidos) {
                     Object.values(pedidos).reverse().forEach(p => {
                         count++;
                         total += parseFloat(p.total);
-                        html += `<div style="padding:12px; background:white; border-radius:12px; margin-bottom:8px; font-size:0.65rem; box-shadow: 2px 2px 5px rgba(0,0,0,0.03)">
-                            <b>${p.token}</b> - ${p.cliente}<br>R$ ${p.total} | ${p.data.split(',')[0]}
+                        html += `<div class="order-log-card">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                                <b>TOKEN: ${p.token}</b>
+                                <span style="opacity:0.6">${p.data.split(',')[0]}</span>
+                            </div>
+                            <div style="color:var(--jj-brown); font-weight:700; margin-bottom:8px">${p.cliente}</div>
+                            <div style="margin-bottom:8px">${p.itens_resumo}</div>
+                            <div style="display:flex; justify-content:space-between; font-weight:700">
+                                <span>${p.pagamento}</span>
+                                <span style="color:var(--jj-yellow-main)">R$ ${p.total}</span>
+                            </div>
                         </div>`;
                     });
                 }
                 document.getElementById('stat-count').innerText = count;
                 document.getElementById('stat-total').innerText = `R$ ${total.toFixed(2)}`;
-                document.getElementById('cashier-history').innerHTML = html || "Sem vendas hoje.";
+                document.getElementById('cashier-history').innerHTML = html || "Aguardando vendas...";
             });
         }
 
@@ -350,25 +347,21 @@
                     </div>`;
                 }).join('');
 
-                body.innerHTML = `
-                    <div style="grid-column: 1/-1">
-                        <h3 style="margin-bottom:20px">EDITOR DE PEÇA</h3>
-                        <div style="background:white; padding:20px; border-radius:30px; text-align:center; margin-bottom:20px">
-                            <svg id="barcode-canvas"></svg>
-                            <p style="font-size:0.5rem; margin-top:5px; opacity:0.6">${p.id}</p>
-                        </div>
-                        <input type="text" id="e-cat" class="edit-field" value="${p.category}" placeholder="Categoria">
-                        <input type="text" id="e-name" class="edit-field" value="${p.name}" placeholder="Nome">
-                        <input type="text" id="e-price" class="edit-field" value="${p.price}" placeholder="Preço">
-                        <input type="text" id="e-colors" class="edit-field" value="${p.colors}" placeholder="Cores (vírgula)">
-                        <textarea id="e-desc" class="edit-field" style="height:80px">${p.desc || ''}</textarea>
-                        ${variantEditor}
-                        <button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button>
-                    </div>`;
+                body.innerHTML = `<div style="grid-column: 1/-1">
+                    <h3 style="margin-bottom:20px">EDITOR DE PEÇA</h3>
+                    <div style="background:white; padding:20px; border-radius:30px; text-align:center; margin-bottom:20px">
+                        <svg id="barcode-canvas"></svg>
+                    </div>
+                    <input type="text" id="e-cat" class="edit-field" value="${p.category}" placeholder="Categoria">
+                    <input type="text" id="e-name" class="edit-field" value="${p.name}" placeholder="Nome">
+                    <input type="text" id="e-price" class="edit-field" value="${p.price}" placeholder="Preço">
+                    <input type="text" id="e-colors" class="edit-field" value="${p.colors}" placeholder="Cores (vírgula)">
+                    <textarea id="e-desc" class="edit-field" style="height:80px">${p.desc || ''}</textarea>
+                    ${variantEditor}
+                    <button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR</button>
+                </div>`;
                 setTimeout(() => JsBarcode("#barcode-canvas", p.id, { format: "CODE128", width: 1.5, height: 40, displayValue: false }), 100);
-            } else {
-                renderUserView(p, selectedCol);
-            }
+            } else { renderUserView(p, selectedCol); }
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
@@ -378,9 +371,7 @@
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "jjvidro2.png", stock: "" };
             const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
             const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="renderUserView(currentProduct, '${c.trim()}')"></div>`).join('');
-            
-            body.innerHTML = `
-                <div class="img-sculpt-frame"><img src="${v.img}"></div>
+            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div>
                 <div>
                     <h2>${p.name}</h2>
                     <p style="font-size:0.75rem; margin:15px 0; opacity:0.8; line-height:1.4">${p.desc || ''}</p>
@@ -390,22 +381,8 @@
                         <input type="number" id="u-qty" class="user-input" value="1" min="1">
                     </div>
                     <div style="font-size:1.5rem; font-weight:800; margin-bottom:15px">R$ ${p.price}</div>
-                    <button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR À LISTA</button>
+                    <button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR</button>
                 </div>`;
-        }
-
-        function updateProductAll(id) {
-            const upd = { category: document.getElementById('e-cat').value, name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, colors: document.getElementById('e-colors').value, desc: document.getElementById('e-desc').value };
-            document.querySelectorAll('.v-stock').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/stock`).set(i.value));
-            database.ref('produtos/'+id).update(upd).then(() => { alert("Salvo!"); closeModals(); });
-        }
-
-        function uploadImg(pid, color, input) {
-            if(input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => database.ref(`produtos/${pid}/variants/${color}/img`).set(e.target.result);
-                reader.readAsDataURL(input.files[0]);
-            }
         }
 
         function addToCart(name, price, color) {
@@ -415,22 +392,65 @@
 
         function openCartModal() {
             const body = document.getElementById('details-body');
-            let total = 0;
-            let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.7rem; position:relative; box-shadow:4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br>R$ ${(i.price*i.qty).toFixed(2)}<button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer">×</button></div>` }).join('');
-            body.innerHTML = `<div style="grid-column: 1/-1"><h2>PEDIDO</h2><div style="margin:20px 0">${list}</div><div style="background:var(--jj-yellow-main); padding:15px; border-radius:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome do Cliente" style="margin-top:15px"><button class="card-btn-fix" style="position:static; width:100%" onclick="finishOrder(${total})">FINALIZAR E ENVIAR WHATSAPP</button></div>`;
+            let total = 0, itensTxt = "";
+            let list = cart.map((i, idx) => { 
+                total += (i.price * i.qty); 
+                itensTxt += `• ${i.qty}x ${i.name} [${i.color} / ${i.size}]\n`;
+                return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.7rem; position:relative;">
+                    <b>${i.name} (${i.color})</b><br>${i.qty}x | R$ ${(i.price*i.qty).toFixed(2)}
+                    <button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none;">×</button>
+                </div>` 
+            }).join('');
+            
+            body.innerHTML = `<div style="grid-column: 1/-1">
+                <h2>MEU PEDIDO</h2>
+                <div style="margin:20px 0">${list}</div>
+                <div style="background:var(--jj-yellow-main); padding:15px; border-radius:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div>
+                <div style="margin-top:20px">
+                    <input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome Completo">
+                    <select id="u-payment" class="user-input">
+                        <option value="">Selecione a Forma de Pagamento</option>
+                        <option value="Pix">Pix (Desconto Especial)</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Boleto">Boleto Bancário</option>
+                    </select>
+                </div>
+                <button class="card-btn-fix" style="position:static; width:100%" onclick="finishOrder(${total}, '${itensTxt.replace(/'/g, "")}')">FINALIZAR PEDIDO</button>
+            </div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
-        function finishOrder(total) {
+        function finishOrder(total, resumo) {
             const user = document.getElementById('u-final-name').value;
-            if(!user) return alert("Nome do cliente é obrigatório.");
+            const pay = document.getElementById('u-payment').value;
+            if(!user || !pay) return alert("Por favor, preencha seu nome e a forma de pagamento.");
             const token = "jj" + Math.floor(1000 + Math.random()*9000);
-            let msg = `*J&J ART COLLECTION*\n*Venda:* ${token}\n*Cliente:* ${user}\n\n`;
-            cart.forEach(i => msg += `• ${i.qty}x ${i.name} (${i.color}) - R$ ${i.price}\n`);
-            msg += `\n*Total:* R$ ${total.toFixed(2)}`;
-            database.ref('pedidos/'+token).set({ token, cliente: user, total: total.toFixed(2), data: new Date().toLocaleString() })
-            .finally(() => { cart = []; saveCart(); window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`); });
+            
+            let msg = `*✨ NOVO PEDIDO - J&J ART COLLECTION ✨*\n`;
+            msg += `------------------------------------------\n`;
+            msg += `*Protocolo:* #${token}\n`;
+            msg += `*Cliente:* ${user}\n`;
+            msg += `*Pagamento:* ${pay}\n`;
+            msg += `------------------------------------------\n`;
+            msg += `*ITENS DO PEDIDO:*\n${resumo}`;
+            msg += `------------------------------------------\n`;
+            msg += `*TOTAL:* R$ ${total.toFixed(2)}\n\n`;
+            msg += `_Por favor, aguarde o retorno para confirmação de estoque e link de pagamento._`;
+
+            database.ref('pedidos/'+token).set({ 
+                token, cliente: user, total: total.toFixed(2), pagamento: pay, 
+                itens_resumo: resumo, data: new Date().toLocaleString() 
+            }).finally(() => { 
+                cart = []; saveCart(); 
+                window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`); 
+            });
+        }
+
+        function updateProductAll(id) {
+            const upd = { category: document.getElementById('e-cat').value, name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, colors: document.getElementById('e-colors').value, desc: document.getElementById('e-desc').value };
+            document.querySelectorAll('.v-stock').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/stock`).set(i.value));
+            database.ref('produtos/'+id).update(upd).then(() => { alert("Atualizado!"); closeModals(); });
         }
 
         function saveToRTDB() {
@@ -438,14 +458,16 @@
             if(!n) return;
             const ref = database.ref('produtos').push();
             ref.set({ id: ref.key, barcode: ref.key, category: document.getElementById('p-category').value, name: n, price: document.getElementById('p-price').value, colors: document.getElementById('p-colors').value, desc: document.getElementById('p-desc').value })
-            .then(() => { closeModals(); alert("Item cadastrado!"); });
+            .then(() => { closeModals(); alert("Cadastrado!"); });
         }
 
         function searchOrderByToken() {
             const t = document.getElementById('search-token').value.trim();
             database.ref('pedidos/'+t).once('value', snap => {
                 const p = snap.val();
-                document.getElementById('token-result-area').innerHTML = p ? `<div style="background:white; padding:20px; border-radius:20px; font-size:0.75rem"><b>Cliente:</b> ${p.cliente}<br><b>Total:</b> R$ ${p.total}<br><b>Data:</b> ${p.data}</div>` : 'Token não encontrado.';
+                document.getElementById('token-result-area').innerHTML = p ? `<div class="order-log-card">
+                    <b>Cliente:</b> ${p.cliente}<br><b>Itens:</b><br>${p.itens_resumo.replace(/\n/g, '<br>')}<b>Pagamento:</b> ${p.pagamento}<br><b>Total:</b> R$ ${p.total}
+                </div>` : 'Pedido não localizado.';
             });
         }
 
@@ -453,7 +475,6 @@
             document.getElementById('admin-create-section').style.display = t === 'novo' ? 'block' : 'none';
             document.getElementById('admin-caixa-section').style.display = t === 'caixa' ? 'block' : 'none';
             document.getElementById('admin-dashboard-section').style.display = t === 'dash' ? 'block' : 'none';
-            
             document.getElementById('tab-novo').classList.toggle('active', t==='novo');
             document.getElementById('tab-caixa').classList.toggle('active', t==='caixa');
             document.getElementById('tab-dash').classList.toggle('active', t==='dash');
@@ -466,8 +487,16 @@
         }
 
         function closeModals() { stopScanner(); document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 400); }); }
-        function deleteProduct(id) { if(confirm("Remover este item do catálogo?")) database.ref('produtos/'+id).remove(); }
+        function deleteProduct(id) { if(confirm("Excluir item permanentemente?")) database.ref('produtos/'+id).remove(); }
         function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'), 10); }
+
+        function uploadImg(pid, color, input) {
+            if(input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => database.ref(`produtos/${pid}/variants/${color}/img`).set(e.target.result);
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
         if(window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');

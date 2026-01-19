@@ -103,7 +103,7 @@
         .footer-content { position: relative; z-index: 2; }
         .footer-copy { font-size: 0.6rem; color: rgba(255,255,255,0.6); letter-spacing: 2px; text-transform: uppercase; }
 
-        .order-detail-card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; font-size: 0.7rem; box-shadow: 4px 4px 10px rgba(0,0,0,0.05); }
+        .order-detail-card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; font-size: 0.7rem; box-shadow: 4px 4px 10px rgba(0,0,0,0.05); color: var(--jj-text); }
 
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
@@ -172,8 +172,8 @@
                     <div class="stat-card"><div class="stat-label">Vendas</div><div class="stat-val" id="stat-count">0</div></div>
                     <div class="stat-card"><div class="stat-label">Total Bruto</div><div class="stat-val" id="stat-total">R$ 0,00</div></div>
                 </div>
-                <h4 style="font-size: 0.7rem; margin-bottom: 15px; color: var(--jj-brown);">HISTÓRICO DE VENDAS</h4>
-                <div id="cashier-history" style="max-height: 350px; overflow-y: auto;"></div>
+                <h4 style="font-size: 0.7rem; margin-bottom: 15px; color: var(--jj-brown); letter-spacing: 1px;">HISTÓRICO DE VENDAS</h4>
+                <div id="cashier-history" style="max-height: 350px; overflow-y: auto; padding: 5px;"></div>
             </div>
             <div id="admin-dashboard-section" style="display:none">
                 <input type="text" id="search-token" class="edit-field" placeholder="Digite o Token (Ex: jj1234)">
@@ -284,29 +284,40 @@
             });
         }
 
+        // CORREÇÃO DA ABA CAIXA - MAPEAMENTO DE PEDIDOS
         function updateCashierStats() {
             database.ref('pedidos').on('value', snap => {
                 const pedidos = snap.val();
-                let total = 0, count = 0;
-                let html = "";
+                let totalGeral = 0, countVendas = 0;
+                let htmlHistorico = "";
+                
                 if(pedidos) {
-                    Object.values(pedidos).reverse().forEach(p => {
-                        count++;
-                        total += parseFloat(p.total);
-                        html += `<div class="order-detail-card">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:5px"><b>${p.token}</b> <span>${p.data.split(',')[0]}</span></div>
-                            <div style="color:var(--jj-brown); font-weight:700">${p.cliente}</div>
-                            <div style="margin:5px 0; opacity:0.8; font-size:0.6rem">${p.itens_resumo}</div>
-                            <div style="display:flex; justify-content:space-between; border-top:1px solid #eee; padding-top:5px">
-                                <span>${p.pagamento}</span>
-                                <b>R$ ${p.total}</b>
-                            </div>
-                        </div>`;
+                    // Converter para array e inverter para ver os mais recentes primeiro
+                    const listaPedidos = Object.values(pedidos).reverse();
+                    
+                    listaPedidos.forEach(p => {
+                        countVendas++;
+                        totalGeral += parseFloat(p.total || 0);
+                        
+                        htmlHistorico += `
+                            <div class="order-detail-card">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                                    <b style="color:var(--jj-yellow-main)">#${p.token}</b> 
+                                    <span style="font-size:0.55rem; opacity:0.6">${p.data ? p.data.split(',')[0] : ''}</span>
+                                </div>
+                                <div style="color:var(--jj-brown); font-weight:700; margin-bottom:5px">${p.cliente || 'Consumidor'}</div>
+                                <div style="margin:5px 0; opacity:0.8; font-size:0.6rem; line-height:1.2">${p.itens_resumo || ''}</div>
+                                <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(0,0,0,0.05); padding-top:8px; margin-top:5px">
+                                    <span style="font-size:0.6rem; font-weight:600; opacity:0.7">${p.pagamento || 'N/A'}</span>
+                                    <b style="font-size:0.75rem">R$ ${p.total || '0.00'}</b>
+                                </div>
+                            </div>`;
                     });
                 }
-                document.getElementById('stat-count').innerText = count;
-                document.getElementById('stat-total').innerText = `R$ ${total.toFixed(2)}`;
-                document.getElementById('cashier-history').innerHTML = html || "Sem vendas.";
+                
+                document.getElementById('stat-count').innerText = countVendas;
+                document.getElementById('stat-total').innerText = `R$ ${totalGeral.toFixed(2)}`;
+                document.getElementById('cashier-history').innerHTML = htmlHistorico || "<p style='text-align:center; font-size:0.7rem; opacity:0.5; margin-top:20px;'>Nenhuma venda registrada.</p>";
             });
         }
 

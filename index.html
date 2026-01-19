@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | Art Collection</title>
+    <title>J&J | LOJA</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -24,7 +24,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); overflow-x: hidden; cursor: none; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* Cursor Custom */
+        /* Cursor */
         .cursor-dot { position: fixed; width: 8px; height: 8px; background: var(--jj-yellow-main); border-radius: 50%; z-index: 10000; pointer-events: none; }
         .cursor-outline { position: fixed; width: 40px; height: 40px; border: 2px solid var(--jj-yellow-main); border-radius: 50%; z-index: 9999; pointer-events: none; transition: 0.1s; }
 
@@ -85,7 +85,7 @@
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 2.2rem; cursor: pointer; color: var(--jj-brown); }
 
-        /* UI */
+        /* UI Elements */
         .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; }
         .color-dot-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
         .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.15); }
@@ -143,13 +143,12 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 500px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">CRIAR NOVO ITEM</h2>
-            <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
-            <input type="text" id="p-name" class="edit-field" placeholder="Nome">
-            <input type="text" id="p-price" class="edit-field" placeholder="Preço">
-            <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Preto, Azul)">
-            <textarea id="p-desc" class="edit-field" placeholder="Descrição"></textarea>
-            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CRIAR ITEM</button>
+            <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">ADMINISTRAÇÃO</h2>
+            <div style="display:flex; gap:10px; margin-bottom:20px">
+                <button class="jj-btn-ghost" onclick="showAdminView('create')">CRIAR ITEM</button>
+                <button class="jj-btn-ghost" onclick="showAdminView('orders')">VER PEDIDOS</button>
+            </div>
+            <div id="admin-view-content"></div>
         </div>
     </div>
 
@@ -171,29 +170,17 @@
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
         const WPP_NUM = "5511998937643";
         
-        // --- PERSISTÊNCIA DE DADOS ---
         let cart = JSON.parse(localStorage.getItem('jj_cart')) || [];
         let currentProduct = null, selectedColor = "";
 
-        // Inicializar badge do carrinho
-        window.onload = () => {
-            updateCartBadge();
-            if(cart.length > 0) document.getElementById('cart-btn-floating').style.display = 'flex';
-        };
+        window.onload = () => { updateCartBadge(); };
+        window.addEventListener('popstate', () => closeModals(false));
 
-        function saveCart() {
-            localStorage.setItem('jj_cart', JSON.stringify(cart));
-            updateCartBadge();
-        }
-
+        function saveCart() { localStorage.setItem('jj_cart', JSON.stringify(cart)); updateCartBadge(); }
         function updateCartBadge() {
             document.getElementById('cart-badge').innerText = cart.length;
             document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none';
         }
-
-        // --- CONTROLE DE VOLTAR ---
-        window.addEventListener('popstate', () => closeModals(false));
-        function pushModalState() { history.pushState({ modal: true }, ""); }
 
         auth.onAuthStateChanged(user => {
             const authUI = document.getElementById('auth-ui');
@@ -206,19 +193,49 @@
             listenToProducts();
         });
 
-        function saveToRTDB() {
-            const name = document.getElementById('p-name').value;
-            if (name) {
-                const ref = database.ref('produtos').push();
-                ref.set({
-                    id: ref.key,
-                    category: document.getElementById('p-category').value || "Geral",
-                    name: name,
-                    price: document.getElementById('p-price').value.replace(',', '.'),
-                    colors: document.getElementById('p-colors').value,
-                    desc: document.getElementById('p-desc').value
-                }).then(() => { closeModals(); alert("Item criado!"); });
+        // --- GESTÃO DE ESTOQUE E PEDIDOS ---
+        async function processSale(totalPedido, userData, payment) {
+            const orderId = database.ref('pedidos').push().key;
+            const timestamp = new Date().toLocaleString('pt-BR');
+
+            // 1. Gravar Pedido no Dashboard
+            const orderData = {
+                id: orderId,
+                data: timestamp,
+                cliente: userData,
+                pagamento: payment,
+                itens: cart,
+                total: totalPedido,
+                status: "Aguardando Pagamento"
+            };
+
+            await database.ref(`pedidos/${orderId}`).set(orderData);
+
+            // 2. Baixar Estoque Real
+            for (const item of cart) {
+                const prodRef = database.ref(`produtos/${item.productId}/variants/${item.color}/stock`);
+                const snap = await prodRef.once('value');
+                let stockStr = snap.val() || "";
+                
+                // Ex: "P:10, M:5" -> ["P:10", " M:5"]
+                let stockParts = stockStr.split(',').map(s => s.trim());
+                let newStockParts = stockParts.map(part => {
+                    let [size, qty] = part.split(':');
+                    if (size.trim() === item.size) {
+                        let finalQty = Math.max(0, parseInt(qty) - item.qty);
+                        return `${size}:${finalQty}`;
+                    }
+                    return part;
+                });
+
+                await prodRef.set(newStockParts.join(', '));
             }
+
+            // 3. WhatsApp e Limpar
+            sendWhatsApp(totalPedido, userData, payment);
+            cart = [];
+            saveCart();
+            closeModals();
         }
 
         function listenToProducts() {
@@ -269,7 +286,7 @@
                         <h4 style="color:var(--jj-brown); font-size:0.65rem; margin-bottom:8px">COR: ${c.toUpperCase()}</h4>
                         <input type="file" onchange="uploadVariantImg('${p.id}', '${c}', this)" style="font-size:0.6rem; margin-bottom:8px">
                         <img src="${v.img}" id="prev-${c}" style="width:50px; display:${v.img ? 'block' : 'none'}; border-radius:5px; height: 50px; object-fit: cover;">
-                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Ex: P:5, M:10">
+                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Ex: P:10, M:5">
                     </div>`;
                 }).join('');
                 body.innerHTML = `<div style="grid-column: 1/-1"><h3>EDITAR</h3><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><input type="text" id="e-cat" class="edit-field" value="${p.category}"></div><textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>${variantEditors}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR</button></div>`;
@@ -284,37 +301,19 @@
         function updateUserModalView(p, color) {
             const body = document.getElementById('details-body');
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "https://via.placeholder.com/300?text=J&J+Art", stock: "" };
-            const stockMap = {}; if(v.stock) v.stock.split(',').forEach(item => { const [t, q] = item.split(':'); if(t && q) stockMap[t.trim()] = q.trim(); });
-            const sizeOptions = Object.keys(stockMap).map(s => `<option value="${s}">${s}</option>`).join('');
+            const stockMap = {}; 
+            if(v.stock) v.stock.split(',').forEach(item => { const [t, q] = item.split(':'); if(t && q && parseInt(q) > 0) stockMap[t.trim()] = q.trim(); });
+            
+            const sizeOptions = Object.keys(stockMap).map(s => `<option value="${s}">${s} (${stockMap[s]} disponíveis)</option>`).join('');
             const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="switchColor('${c.trim()}')"></div>`).join('');
-            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:15px"><label style="font-size:0.6rem; font-weight:700">COR: ${color.toUpperCase()}</label><div class="color-selector">${colorDots}</div><label style="font-size:0.6rem; font-weight:700">TAMANHO:</label><select id="u-size" class="user-input">${sizeOptions || '<option disabled>Indisponível</option>'}</select><label style="font-size:0.6rem; font-weight:700">QTD:</label><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-weight:800; font-size:1.4rem; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}')">ADICIONAR À LISTA</button></div>`;
+            
+            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:15px"><label style="font-size:0.6rem; font-weight:700">COR: ${color.toUpperCase()}</label><div class="color-selector">${colorDots}</div><label style="font-size:0.6rem; font-weight:700">TAMANHO:</label><select id="u-size" class="user-input">${sizeOptions || '<option disabled>Esgotado nesta cor</option>'}</select><label style="font-size:0.6rem; font-weight:700">QTD:</label><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-weight:800; font-size:1.4rem; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.id}', '${p.name}', '${p.price}')">ADICIONAR À LISTA</button></div>`;
         }
 
-        function switchColor(color) { selectedColor = color; updateUserModalView(currentProduct, color); }
-
-        function uploadVariantImg(pid, color, input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    database.ref(`produtos/${pid}/variants/${color}/img`).set(e.target.result);
-                    const prev = document.getElementById(`prev-${color}`);
-                    if(prev) { prev.src = e.target.result; prev.style.display = 'block'; }
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function updateProductAll(id) {
-            const updates = { name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, colors: document.getElementById('e-colors').value, category: document.getElementById('e-cat').value, desc: document.getElementById('e-desc').value };
-            document.querySelectorAll('.v-stock').forEach(input => database.ref(`produtos/${id}/variants/${input.dataset.color}/stock`).set(input.value));
-            database.ref('produtos/'+id).update(updates).then(() => { alert("Atualizado!"); closeModals(); });
-        }
-
-        function addToCart(name, price) {
+        function addToCart(id, name, price) {
             const size = document.getElementById('u-size').value;
-            if(!size || size.includes("Indisponível")) return alert("Selecione um tamanho.");
-            cart.push({ name, price: parseFloat(price), size, color: selectedColor, qty: parseInt(document.getElementById('u-qty').value) });
+            if(!size || size.includes("Esgotado")) return alert("Indisponível.");
+            cart.push({ productId: id, name, price: parseFloat(price), size, color: selectedColor, qty: parseInt(document.getElementById('u-qty').value) });
             saveCart();
             closeModals();
         }
@@ -323,54 +322,84 @@
             const body = document.getElementById('details-body');
             let total = 0;
             const savedName = localStorage.getItem('jj_user_name') || "";
-            const savedPay = localStorage.getItem('jj_user_pay') || "Pix";
-
-            let list = cart.map((i, idx) => { 
-                total += (i.price * i.qty); 
-                return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br><span style="color:var(--jj-brown)">${i.color} | ${i.size} | Qtd: ${i.qty}</span><br><b>R$ ${(i.price * i.qty).toFixed(2)}</b><button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button></div>`; 
-            }).join('');
-            
-            body.innerHTML = `<div style="grid-column: span 2"><h2 style="margin-bottom:20px">MINHA LISTA</h2><div style="max-height:250px; overflow-y:auto; margin-bottom:20px">${list || '<p>Lista vazia.</p>'}</div><div style="padding:15px; background:var(--jj-yellow-main); border-radius:15px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome Completo" value="${savedName}" onchange="localStorage.setItem('jj_user_name', this.value)"><select id="u-payment" class="user-input" onchange="localStorage.setItem('jj_user_pay', this.value)"><option value="Pix" ${savedPay==='Pix'?'selected':''}>Pix</option><option value="Cartão" ${savedPay==='Cartão'?'selected':''}>Cartão de Crédito</option><option value="Boleto" ${savedPay==='Boleto'?'selected':''}>Boleto</option></select><button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp(${total})">FINALIZAR NO WHATSAPP</button></div>`;
+            let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative;"><b>${i.name}</b><br><small>${i.color} | ${i.size} | Qtd: ${i.qty}</small><br><b>R$ ${(i.price * i.qty).toFixed(2)}</b><button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer;">&times;</button></div>`; }).join('');
+            body.innerHTML = `<div style="grid-column: span 2"><h2>MINHA LISTA</h2><div style="max-height:250px; overflow-y:auto; margin-bottom:20px">${list || '<p>Lista vazia.</p>'}</div><div style="padding:15px; background:var(--jj-yellow-main); border-radius:15px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome Completo" value="${savedName}" onchange="localStorage.setItem('jj_user_name', this.value)"><select id="u-payment" class="user-input"><option value="Pix">Pix</option><option value="Cartão">Cartão de Crédito</option><option value="Boleto">Boleto</option></select><button class="card-btn-fix" style="position:static; width:100%" onclick="processSale(${total}, document.getElementById('u-final-name').value, document.getElementById('u-payment').value)">FINALIZAR COMPRA</button></div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
             pushModalState();
         }
 
-        function sendWhatsApp(totalPedido) {
-            const user = document.getElementById('u-final-name').value;
-            const payment = document.getElementById('u-payment').value;
-            if(!user) return alert("Informe seu nome.");
+        function sendWhatsApp(totalPedido, user, payment) {
             let msg = `*PEDIDO J&J ART COLLECTION*\n----------------------------\n*Cliente:* ${user}\n*Pagamento:* ${payment}\n\n*ITENS:*\n`;
-            cart.forEach((i, idx) => msg += `${idx+1}. *${i.name}*\n   • ${i.color} / ${i.size}\n   • Qtd: ${i.qty} x R$ ${i.price.toFixed(2)}\n\n`);
-            msg += `----------------------------\n*TOTAL:* R$ ${totalPedido.toFixed(2)}\n\nVolte sempre em nossa loja!\nhttps://pablinxd24.github.io/JJ`;
+            cart.forEach((i, idx) => msg += `${idx+1}. *${i.name}*\n   • ${i.color} / ${i.size} (Qtd: ${i.qty})\n\n`);
+            msg += `----------------------------\n*TOTAL:* R$ ${totalPedido.toFixed(2)}\n\nhttps://pablinxd24.github.io/JJ`;
             window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        // --- ADMIN VIEWS ---
+        function showAdminView(view) {
+            const container = document.getElementById('admin-view-content');
+            if (view === 'create') {
+                container.innerHTML = `<input type="text" id="p-category" class="edit-field" placeholder="Categoria"><input type="text" id="p-name" class="edit-field" placeholder="Nome"><input type="text" id="p-price" class="edit-field" placeholder="Preço"><input type="text" id="p-colors" class="edit-field" placeholder="Cores"><textarea id="p-desc" class="edit-field" placeholder="Descrição"></textarea><button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CRIAR ITEM</button>`;
+            } else if (view === 'orders') {
+                database.ref('pedidos').limitToLast(10).on('value', snap => {
+                    let orders = snap.val();
+                    let html = `<div style="max-height:400px; overflow-y:auto">`;
+                    if(orders) {
+                        Object.values(orders).reverse().forEach(o => {
+                            html += `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.7rem; box-shadow: 4px 4px 8px var(--shadow-dark)">
+                                <b>ID: ${o.id.slice(-5)}</b> - ${o.data}<br>
+                                <b>Cliente:</b> ${o.cliente} | <b>Total:</b> R$ ${o.total.toFixed(2)}<br>
+                                <small>${o.itens.map(i => i.name).join(', ')}</small>
+                            </div>`;
+                        });
+                    } else { html += "<p>Nenhum pedido ainda.</p>"; }
+                    html += `</div>`;
+                    container.innerHTML = html;
+                });
+            }
+        }
+
+        // --- UTIL ---
+        function switchColor(color) { selectedColor = color; updateUserModalView(currentProduct, color); }
         function filterCat(cat) {
             document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
             if(event) event.target.classList.add('active');
             document.querySelectorAll('.cat-group').forEach(g => g.style.display = (cat === 'all' || g.classList.contains(`cat-${cat.replace(/\s+/g, '-')}`)) ? 'block' : 'none');
         }
-
         function loginGoogle() { auth.signInWithPopup(provider); }
         function logout() { auth.signOut(); }
+        function saveToRTDB() {
+            const name = document.getElementById('p-name').value;
+            if (name) {
+                const ref = database.ref('produtos').push();
+                ref.set({ id: ref.key, category: document.getElementById('p-category').value || "Geral", name: name, price: document.getElementById('p-price').value.replace(',', '.'), colors: document.getElementById('p-colors').value, desc: document.getElementById('p-desc').value }).then(() => { closeModals(); alert("Criado!"); });
+            }
+        }
+        function updateProductAll(id) {
+            const updates = { name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, colors: document.getElementById('e-colors').value, category: document.getElementById('e-cat').value, desc: document.getElementById('e-desc').value };
+            document.querySelectorAll('.v-stock').forEach(input => database.ref(`produtos/${id}/variants/${input.dataset.color}/stock`).set(input.value));
+            database.ref('produtos/'+id).update(updates).then(() => { alert("Atualizado!"); closeModals(); });
+        }
+        function uploadVariantImg(pid, color, input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => database.ref(`produtos/${pid}/variants/${color}/img`).set(e.target.result);
+                reader.readAsDataURL(file);
+            }
+        }
         function deleteProduct(id) { if(confirm("Apagar?")) database.ref('produtos/'+id).remove(); }
-        function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); pushModalState(); }
-        
+        function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); showAdminView('create'); pushModalState(); }
         function closeModals(shouldGoBack = true) {
-            document.querySelectorAll('.modal').forEach(m => {
-                m.classList.remove('active');
-                setTimeout(() => m.style.display = 'none', 400);
-            });
+            document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(() => m.style.display = 'none', 400); });
             if (shouldGoBack && history.state && history.state.modal) history.back();
         }
+        function pushModalState() { history.pushState({ modal: true }, ""); }
 
         if (window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');
-            window.onmousemove = (e) => { 
-                dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px'; 
-                out.style.left = (e.clientX - 16) +'px'; out.style.top = (e.clientY - 16) +'px'; 
-            };
+            window.onmousemove = (e) => { dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px'; out.style.left = (e.clientX - 16) +'px'; out.style.top = (e.clientY - 16) +'px'; };
         }
     </script>
 </body>

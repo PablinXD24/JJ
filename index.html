@@ -25,16 +25,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            background-color: var(--jj-bg); 
-            font-family: var(--font-sans); 
-            color: var(--jj-text); 
-            overflow-x: hidden; 
-            cursor: none; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh;
-        }
+        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); overflow-x: hidden; cursor: none; display: flex; flex-direction: column; min-height: 100vh; }
 
         /* Cursor Custom */
         .cursor-dot { position: fixed; width: 8px; height: 8px; background: var(--jj-yellow-main); border-radius: 50%; z-index: 10000; pointer-events: none; }
@@ -96,24 +87,22 @@
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 2.2rem; cursor: pointer; color: var(--jj-brown); z-index: 10; }
 
-        /* Floating Buttons */
+        /* UI elements */
+        .edit-field, .user-input { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-family: inherit; font-size: 0.8rem; }
         .float-btn { position: fixed; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: 0.3s; }
         #cart-btn-floating { bottom: 30px; left: 30px; display: none; }
         #scan-btn-floating { bottom: 30px; left: 110px; color: var(--jj-brown); }
         #admin-btn { bottom: 30px; right: 30px; background: var(--jj-yellow-main); display: none; }
         #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-        /* Inputs & UI Elements */
-        .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; }
-        .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 20px; border-radius: 15px; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); font-weight: 700; font-size: 0.65rem; color: var(--jj-brown); cursor: pointer; }
-        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .color-dot-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.15); }
+        /* Scanner specific */
+        #reader { width: 100%; border-radius: 30px; overflow: hidden; background: #000; }
+        .scan-opt-card { background: var(--jj-bg); padding: 25px; border-radius: 35px; box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light); cursor: pointer; transition: 0.3s; text-align: center; }
+        .scan-opt-card:active { transform: scale(0.95); box-shadow: inset 4px 4px 8px var(--shadow-dark); }
 
-        /* Scanner Container */
-        #reader { width: 100%; border-radius: 30px; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
-        .scan-action-card { background: var(--jj-bg); padding: 20px; border-radius: 30px; text-align: center; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); transition: 0.3s; cursor: pointer; }
-        .scan-action-card:active { box-shadow: inset 4px 4px 8px var(--shadow-dark); }
+        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .color-dot-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.1); }
 
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
@@ -132,7 +121,7 @@
 
     <nav class="main-nav">
         <img src="jjvidro.png" alt="Logo J&J" class="logo-img">
-        <div id="auth-ui"><button class="jj-btn-ghost" onclick="loginGoogle()">ENTRAR</button></div>
+        <div id="auth-ui"></div>
     </nav>
 
     <div class="category-nav" id="cat-nav-list">
@@ -164,23 +153,21 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 600px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            <div style="display:flex; gap:10px; margin-bottom:25px">
+            <div style="display:flex; gap:10px; margin-bottom:20px">
                 <button class="cat-filter-btn active" id="tab-novo" onclick="switchAdminTab('novo')">Novo Item</button>
-                <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Token</button>
+                <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Token Pedido</button>
             </div>
             <div id="admin-create-section">
-                <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
-                <input type="text" id="p-name" class="edit-field" placeholder="Nome">
-                <input type="text" id="p-price" class="edit-field" placeholder="Preço">
-                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Preto, Azul)">
-                <textarea id="p-desc" class="edit-field" placeholder="Descrição"></textarea>
-                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CRIAR ITEM</button>
+                <input type="text" id="p-category" class="edit-field" placeholder="Categoria (Ex: Esculturas)">
+                <input type="text" id="p-name" class="edit-field" placeholder="Nome da Peça">
+                <input type="text" id="p-price" class="edit-field" placeholder="Preço (Ex: 1500.00)">
+                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Prata, Preto)">
+                <textarea id="p-desc" class="edit-field" placeholder="Descrição da obra..."></textarea>
+                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">PUBLICAR PEÇA</button>
             </div>
             <div id="admin-dashboard-section" style="display:none">
-                <div style="display:flex; gap:10px; margin-bottom:20px">
-                    <input type="text" id="search-token" class="edit-field" placeholder="Token Ex: jj1234">
-                    <button class="jj-btn-ghost" onclick="searchOrderByToken()">BUSCAR</button>
-                </div>
+                <input type="text" id="search-token" class="edit-field" placeholder="Digite o Token (Ex: jj1234)">
+                <button class="card-btn-fix" onclick="searchOrderByToken()" style="position:static; width:100%; margin-bottom:20px">BUSCAR</button>
                 <div id="token-result-area"></div>
             </div>
         </div>
@@ -198,101 +185,75 @@
         };
 
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
+        const auth = firebase.auth(), database = firebase.database();
         const provider = new firebase.auth.GoogleAuthProvider();
-        const ADM_EMAIL = "pablo11ssousa2@gmail.com";
-        const WPP_NUM = "5511998937643";
+        const ADM_EMAIL = "pablo11ssousa2@gmail.com", WPP_NUM = "5511998937643";
         
         let cart = JSON.parse(localStorage.getItem('jj_cart')) || [];
-        let currentProduct = null, selectedColor = "";
-        let html5QrCode = null;
+        let currentProduct = null, selectedColor = "", html5QrCode = null;
 
         window.onload = () => { updateCartBadge(); listenToProducts(); };
 
+        auth.onAuthStateChanged(user => {
+            const ui = document.getElementById('auth-ui');
+            if(user) {
+                ui.innerHTML = `<span style="font-size:0.6rem; font-weight:700">${user.displayName.split(' ')[0]}</span> <button class="cat-filter-btn" onclick="auth.signOut()" style="padding:4px 10px; font-size:0.5rem; margin-left:5px">Sair</button>`;
+                if(user.email === ADM_EMAIL) document.getElementById('admin-btn').style.display = 'flex';
+            } else {
+                ui.innerHTML = `<button class="cat-filter-btn" onclick="auth.signInWithPopup(provider)">ENTRAR</button>`;
+            }
+        });
+
         function saveCart() { localStorage.setItem('jj_cart', JSON.stringify(cart)); updateCartBadge(); }
         function updateCartBadge() { 
-            const badge = document.getElementById('cart-badge');
-            badge.innerText = cart.length; 
+            document.getElementById('cart-badge').innerText = cart.length; 
             document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none'; 
         }
 
-        auth.onAuthStateChanged(user => {
-            const authUI = document.getElementById('auth-ui');
-            if (user) {
-                authUI.innerHTML = `<span style="font-size:0.65rem; font-weight:700">${user.displayName.split(' ')[0]}</span><button class="jj-btn-ghost" onclick="logout()" style="margin-left:10px">SAIR</button>`;
-                if (user.email === ADM_EMAIL) document.getElementById('admin-btn').style.display = 'flex';
-            } else { authUI.innerHTML = `<button class="jj-btn-ghost" onclick="loginGoogle()">ENTRAR</button>`; }
-        });
-
-        // --- SCANNER CORE ---
+        // --- SCANNER ---
         function openScanner() {
             const body = document.getElementById('details-body');
-            body.innerHTML = `
-                <div style="grid-column: 1/-1; text-align:center">
-                    <h3 style="margin-bottom:15px; letter-spacing:2px">SCANNER DE PEÇAS</h3>
-                    <div id="reader"></div>
-                    <p style="margin-top:15px; font-size:0.6rem; color:var(--jj-brown); font-weight:700">APONTE PARA O CÓDIGO DE BARRAS</p>
-                </div>`;
-            
+            body.innerHTML = `<div style="grid-column: 1/-1; text-align:center"><h3>SCANNER J&J</h3><div id="reader" style="margin:20px 0"></div><p style="font-size:0.6rem; font-weight:700">APONTE PARA O CÓDIGO DA PEÇA</p></div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
-
             html5QrCode = new Html5Qrcode("reader");
-            const config = { fps: 15, qrbox: { width: 250, height: 150 } };
-
-            html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
+            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (txt) => {
                 stopScanner();
-                showScanOptions(decodedText);
+                handleScannedCode(txt);
             });
         }
 
-        function stopScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => { html5QrCode = null; }).catch(err => console.error(err));
-            }
-        }
+        function stopScanner() { if(html5QrCode) html5QrCode.stop().then(()=>html5QrCode=null); }
 
-        function showScanOptions(code) {
+        function handleScannedCode(code) {
             database.ref('produtos').once('value', snap => {
                 const products = snap.val();
-                let found = null;
-                for (let key in products) { if (key === code || products[key].barcode === code) { found = products[key]; break; } }
-                
-                if (found) {
+                let p = null;
+                for(let k in products) { if(k === code || products[k].barcode === code) { p = products[k]; break; } }
+                if(p) {
                     const body = document.getElementById('details-body');
                     body.innerHTML = `
-                        <div style="grid-column: 1/-1; text-align:center">
-                            <h2 style="margin-bottom:5px">${found.name}</h2>
-                            <p style="color:var(--jj-brown); font-weight:700; margin-bottom:30px">R$ ${found.price}</p>
-                            
+                        <div style="grid-column:1/-1; text-align:center">
+                            <h2>${p.name}</h2><p style="margin-bottom:30px">R$ ${p.price}</p>
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
-                                <div class="scan-action-card" onclick="openDetails(JSON.parse('${JSON.stringify(found).replace(/'/g, "\\'")}'))">
-                                    <div style="font-size:2rem; margin-bottom:10px">👁️</div>
-                                    <div style="font-size:0.7rem; font-weight:700">VER DETALHES</div>
-                                </div>
-                                <div class="scan-action-card" onclick="quickSell(JSON.parse('${JSON.stringify(found).replace(/'/g, "\\'")}'))" style="background:var(--jj-yellow-main)">
-                                    <div style="font-size:2rem; margin-bottom:10px">💰</div>
-                                    <div style="font-size:0.7rem; font-weight:700">VENDA RÁPIDA</div>
-                                </div>
+                                <div class="scan-opt-card" onclick="openDetails(JSON.parse('${JSON.stringify(p).replace(/'/g, "\\'")}'))">👁️<br>DETALHES</div>
+                                <div class="scan-opt-card" style="background:var(--jj-yellow-main)" onclick="quickAdd('${p.id}')">💰<br>COMPRAR</div>
                             </div>
                         </div>`;
-                } else {
-                    alert("Código não reconhecido no sistema.");
-                    closeModals();
-                }
+                } else { alert("Peça não encontrada."); closeModals(); }
             });
         }
 
-        function quickSell(p) {
-            const firstColor = p.colors ? p.colors.split(',')[0].trim() : "Única";
-            cart.push({ name: p.name, price: parseFloat(p.price), size: "Padrão", color: firstColor, qty: 1 });
-            saveCart();
-            alert("Item adicionado à sua lista!");
-            openCartModal();
+        function quickAdd(id) {
+            database.ref('produtos/'+id).once('value', snap => {
+                const p = snap.val();
+                const color = p.colors ? p.colors.split(',')[0].trim() : "Única";
+                cart.push({ name: p.name, price: parseFloat(p.price), color, size: "Padrão", qty: 1 });
+                saveCart(); alert("Adicionado!"); openCartModal();
+            });
         }
 
-        // --- DATABASE & LISTING ---
+        // --- CORE FUNCTIONS ---
         function listenToProducts() {
             database.ref('produtos').on('value', snap => {
                 const data = snap.val();
@@ -300,7 +261,7 @@
                 const catNav = document.getElementById('cat-nav-list');
                 main.innerHTML = "";
                 catNav.innerHTML = `<button class="cat-filter-btn active" onclick="filterCat('all')">Todos</button>`;
-                if (data) {
+                if(data) {
                     const products = Object.values(data);
                     const cats = [...new Set(products.map(p => p.category))];
                     cats.forEach(cat => {
@@ -311,15 +272,15 @@
                         main.appendChild(section);
                         products.filter(p => p.category === cat).forEach(p => {
                             const firstColor = p.colors ? p.colors.split(',')[0].trim() : "";
-                            const displayImg = (p.variants && p.variants[firstColor] && p.variants[firstColor].img) ? p.variants[firstColor].img : "https://via.placeholder.com/300?text=J&J+Art";
+                            const img = (p.variants && p.variants[firstColor]) ? p.variants[firstColor].img : "jjvidro2.png";
                             const card = document.createElement('div');
                             card.className = 'product-card';
                             card.onclick = () => openDetails(p);
                             card.innerHTML = `
-                                ${auth.currentUser?.email === ADM_EMAIL ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.5rem; color:var(--jj-brown); cursor:pointer; z-index:20">&times;</button>` : ''}
-                                <div class="img-sculpt-frame"><img src="${displayImg}"></div>
-                                <div class="card-info"><h3>${p.name}</h3><div class="price">R$ ${p.price}</div></div>
-                                <button class="card-btn-fix">EXPLORAR PEÇA</button>`;
+                                ${auth.currentUser?.email === ADM_EMAIL ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.5rem; color:var(--jj-brown); z-index:20">&times;</button>` : ''}
+                                <div class="img-sculpt-frame"><img src="${img}"></div>
+                                <h3>${p.name}</h3><div style="font-weight:700">R$ ${p.price}</div>
+                                <button class="card-btn-fix">DETALHES</button>`;
                             document.getElementById(`cat-container-${cat.replace(/\s+/g, '-')}`).appendChild(card);
                         });
                     });
@@ -333,144 +294,149 @@
             const colors = p.colors ? p.colors.split(',').map(c => c.trim()) : [];
             selectedColor = colors[0] || "";
 
-            if (auth.currentUser?.email === ADM_EMAIL) {
-                let variantEditors = colors.map(c => {
+            if(auth.currentUser?.email === ADM_EMAIL) {
+                // MODO EDIÇÃO COMPLETO
+                let variantEditor = colors.map(c => {
                     const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "" };
-                    return `<div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.02); border-radius:15px; border:1px solid rgba(0,0,0,0.05)">
-                        <h4 style="color:var(--jj-brown); font-size:0.6rem; margin-bottom:8px">VARIANTE: ${c.toUpperCase()}</h4>
-                        <input type="file" onchange="uploadVariantImg('${p.id}', '${c}', this)" style="font-size:0.6rem; margin-bottom:8px">
-                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Estoque ex: P:2, M:5">
+                    return `<div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:10px">
+                        <label style="font-size:0.6rem; font-weight:700">COR: ${c.toUpperCase()}</label>
+                        <input type="file" onchange="uploadImg('${p.id}', '${c}', this)" style="display:block; margin:10px 0; font-size:0.7rem">
+                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Estoque (Ex: P:2, M:5)">
                     </div>`;
                 }).join('');
 
                 body.innerHTML = `
                     <div style="grid-column: 1/-1">
-                        <h3>MODO EDITOR</h3>
-                        <div style="text-align:center; margin:15px 0; background:white; padding:15px; border-radius:25px">
+                        <h3 style="margin-bottom:20px">EDITOR DE PRODUTO</h3>
+                        <div style="background:white; padding:20px; border-radius:30px; text-align:center; margin-bottom:20px">
                             <svg id="barcode-canvas"></svg>
-                            <p style="font-size:0.5rem; letter-spacing:2px; margin-top:5px">${p.id}</p>
+                            <p style="font-size:0.5rem; margin-top:5px; opacity:0.6">${p.id}</p>
                         </div>
-                        <input type="text" id="e-name" class="edit-field" value="${p.name}">
-                        <input type="text" id="e-price" class="edit-field" value="${p.price}">
-                        <textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>
-                        ${variantEditors}
-                        <button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR DADOS</button>
+                        <input type="text" id="e-cat" class="edit-field" value="${p.category}" placeholder="Categoria">
+                        <input type="text" id="e-name" class="edit-field" value="${p.name}" placeholder="Nome">
+                        <input type="text" id="e-price" class="edit-field" value="${p.price}" placeholder="Preço">
+                        <input type="text" id="e-colors" class="edit-field" value="${p.colors}" placeholder="Cores separadas por vírgula">
+                        <textarea id="e-desc" class="edit-field" style="height:100px">${p.desc || ''}</textarea>
+                        <h4 style="font-size:0.7rem; margin:15px 0">FOTOS E ESTOQUE POR COR</h4>
+                        ${variantEditor}
+                        <button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button>
                     </div>`;
-                
-                setTimeout(() => { JsBarcode("#barcode-canvas", p.id, { format: "CODE128", width: 1.5, height: 40, displayValue: false }); }, 100);
-
-            } else { updateUserModalView(p, selectedColor); }
-            
+                setTimeout(() => JsBarcode("#barcode-canvas", p.id, { format: "CODE128", width: 1.5, height: 45, displayValue: false }), 100);
+            } else {
+                renderUserView(p, selectedColor);
+            }
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
-            pushModalState();
         }
 
-        function updateUserModalView(p, color) {
+        function renderUserView(p, color) {
             const body = document.getElementById('details-body');
-            const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "https://via.placeholder.com/300?text=J&J+Art", stock: "" };
-            const stockMap = {}; if(v.stock) v.stock.split(',').forEach(item => { const parts = item.split(':'); if(parts.length===2) stockMap[parts[0].trim()] = parts[1].trim(); });
-            const sizeOptions = Object.keys(stockMap).map(s => `<option value="${s}">${s} (${stockMap[s]} disp.)</option>`).join('');
-            const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="switchColor('${c.trim()}')"></div>`).join('');
+            const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "jjvidro2.png", stock: "" };
+            const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
+            const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="renderUserView(currentProduct, '${c.trim()}')"></div>`).join('');
             
             body.innerHTML = `
                 <div class="img-sculpt-frame"><img src="${v.img}"></div>
                 <div>
-                    <h2 style="letter-spacing:2px">${p.name}</h2>
-                    <p style="font-size:0.7rem; margin:15px 0; opacity:0.8; line-height:1.4">${p.desc || ''}</p>
+                    <h2>${p.name}</h2>
+                    <p style="font-size:0.75rem; margin:15px 0; opacity:0.8">${p.desc || ''}</p>
                     <div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px">
                         <div class="color-selector">${colorDots}</div>
-                        <select id="u-size" class="user-input">${sizeOptions || '<option disabled>Tamanho Único</option>'}</select>
+                        <select id="u-size" class="user-input">${stockArr.map(s => `<option value="${s.split(':')[0]}">${s}</option>`).join('') || '<option>Padrão</option>'}</select>
                         <input type="number" id="u-qty" class="user-input" value="1" min="1">
                     </div>
-                    <div style="font-weight:800; font-size:1.4rem; margin-bottom:15px; color:var(--jj-brown)">R$ ${p.price}</div>
-                    <button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}')">ADICIONAR À LISTA</button>
+                    <div style="font-size:1.5rem; font-weight:800; margin-bottom:15px">R$ ${p.price}</div>
+                    <button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR À LISTA</button>
                 </div>`;
         }
 
-        // Funções de Suporte
-        function switchColor(color) { selectedColor = color; updateUserModalView(currentProduct, color); }
-        function switchAdminTab(tab) {
-            document.getElementById('admin-create-section').style.display = tab === 'novo' ? 'block' : 'none';
-            document.getElementById('admin-dashboard-section').style.display = tab === 'dash' ? 'block' : 'none';
-            document.getElementById('tab-novo').classList.toggle('active', tab === 'novo');
-            document.getElementById('tab-dash').classList.toggle('active', tab === 'dash');
+        // --- ACTIONS ---
+        function updateProductAll(id) {
+            const upd = { 
+                category: document.getElementById('e-cat').value,
+                name: document.getElementById('e-name').value, 
+                price: document.getElementById('e-price').value, 
+                colors: document.getElementById('e-colors').value, 
+                desc: document.getElementById('e-desc').value 
+            };
+            document.querySelectorAll('.v-stock').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/stock`).set(i.value));
+            database.ref('produtos/'+id).update(upd).then(() => { alert("Atualizado!"); closeModals(); });
         }
 
-        function addToCart(name, price) {
-            const size = document.getElementById('u-size').value;
-            cart.push({ name, price: parseFloat(price), size, color: selectedColor, qty: parseInt(document.getElementById('u-qty').value) });
+        function uploadImg(pid, color, input) {
+            if(input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => database.ref(`produtos/${pid}/variants/${color}/img`).set(e.target.result);
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addToCart(name, price, color) {
+            cart.push({ name, price: parseFloat(price), color, size: document.getElementById('u-size').value, qty: parseInt(document.getElementById('u-qty').value) });
             saveCart(); closeModals();
         }
 
         function openCartModal() {
             const body = document.getElementById('details-body');
             let total = 0;
-            let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br><span style="color:var(--jj-brown)">${i.color} | ${i.size} | Qtd: ${i.qty}</span><br><b>R$ ${(i.price * i.qty).toFixed(2)}</b><button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button></div>`; }).join('');
-            body.innerHTML = `<div style="grid-column: span 2"><h2 style="margin-bottom:20px; letter-spacing:2px">MINHA LISTA</h2><div style="max-height:250px; overflow-y:auto; margin-bottom:20px">${list || '<p>Lista vazia.</p>'}</div><div style="padding:15px; background:var(--jj-yellow-main); border-radius:20px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome"><button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp(${total})">FINALIZAR PEDIDO</button></div>`;
+            let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.7rem; position:relative"><b>${i.name}</b> (${i.color})<br>Qtd: ${i.qty} - R$ ${(i.price*i.qty).toFixed(2)}<button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:10px; top:10px; border:none; background:none; cursor:pointer">×</button></div>` }).join('');
+            body.innerHTML = `<div style="grid-column: 1/-1"><h2>MINHA LISTA</h2><div style="margin:20px 0">${list || 'Vazio'}</div><div style="background:var(--jj-yellow-main); padding:15px; border-radius:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome" style="margin-top:15px"><button class="card-btn-fix" style="position:static; width:100%" onclick="finishOrder(${total})">FECHAR PEDIDO</button></div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
-            pushModalState();
         }
 
-        function sendWhatsApp(totalPedido) {
+        function finishOrder(total) {
             const user = document.getElementById('u-final-name').value;
-            if(!user) return alert("Informe seu nome.");
-            const token = "jj" + Math.floor(1000 + Math.random() * 9000);
-            let resumoStr = "";
-            let msg = `*PEDIDO J&J ART COLLECTION*\n*TOKEN:* ${token}\n*Cliente:* ${user}\n\n*ITENS:*\n`;
-            cart.forEach(i => { msg += `• ${i.qty}x ${i.name} (${i.color}/${i.size})\n`; resumoStr += `${i.qty}x ${i.name} (${i.color}/${i.size}); `; });
-            msg += `\n*TOTAL:* R$ ${totalPedido.toFixed(2)}`;
-            database.ref('pedidos/' + token).set({ token, cliente: user, total: totalPedido, resumo: resumoStr, data: new Date().toLocaleString('pt-BR') })
-            .finally(() => { cart = []; saveCart(); window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank'); });
+            if(!user) return alert("Nome?");
+            const token = "jj" + Math.floor(1000 + Math.random()*9000);
+            let msg = `*PEDIDO J&J*\n*Token:* ${token}\n*Cliente:* ${user}\n\n`;
+            cart.forEach(i => msg += `• ${i.qty}x ${i.name} (${i.color}) - R$ ${i.price}\n`);
+            msg += `\n*Total:* R$ ${total.toFixed(2)}`;
+            database.ref('pedidos/'+token).set({ token, cliente: user, total, data: new Date().toLocaleString() })
+            .finally(() => { cart = []; saveCart(); window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`); });
         }
 
         function saveToRTDB() {
-            const name = document.getElementById('p-name').value;
-            if (name) {
-                const ref = database.ref('produtos').push();
-                ref.set({ id: ref.key, barcode: ref.key, category: document.getElementById('p-category').value || "Geral", name, price: document.getElementById('p-price').value.replace(',', '.'), colors: document.getElementById('p-colors').value, desc: document.getElementById('p-desc').value })
-                .then(() => { closeModals(); alert("Peça Criada!"); });
-            }
+            const n = document.getElementById('p-name').value;
+            if(!n) return;
+            const ref = database.ref('produtos').push();
+            ref.set({ id: ref.key, barcode: ref.key, category: document.getElementById('p-category').value, name: n, price: document.getElementById('p-price').value, colors: document.getElementById('p-colors').value, desc: document.getElementById('p-desc').value })
+            .then(() => { closeModals(); alert("Criado!"); });
         }
 
-        function updateProductAll(id) {
-            const updates = { name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, desc: document.getElementById('e-desc').value };
-            document.querySelectorAll('.v-stock').forEach(input => database.ref(`produtos/${id}/variants/${input.dataset.color}/stock`).set(input.value));
-            database.ref('produtos/'+id).update(updates).then(() => { alert("Atualizado!"); closeModals(); });
+        function searchOrderByToken() {
+            const t = document.getElementById('search-token').value.trim();
+            database.ref('pedidos/'+t).once('value', snap => {
+                const p = snap.val();
+                document.getElementById('token-result-area').innerHTML = p ? `<div style="background:white; padding:20px; border-radius:20px"><b>Cliente:</b> ${p.cliente}<br><b>Total:</b> R$ ${p.total}<br><b>Data:</b> ${p.data}</div>` : 'Não encontrado.';
+            });
         }
 
-        function uploadVariantImg(pid, color, input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => database.ref(`produtos/${pid}/variants/${color}/img`).set(e.target.result);
-                reader.readAsDataURL(file);
-            }
+        function switchAdminTab(t) {
+            document.getElementById('admin-create-section').style.display = t === 'novo' ? 'block' : 'none';
+            document.getElementById('admin-dashboard-section').style.display = t === 'dash' ? 'block' : 'none';
+            document.getElementById('tab-novo').classList.toggle('active', t==='novo');
+            document.getElementById('tab-dash').classList.toggle('active', t==='dash');
         }
 
-        function filterCat(cat) {
+        function filterCat(c) {
             document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
             if(event) event.target.classList.add('active');
-            document.querySelectorAll('.cat-group').forEach(g => g.style.display = (cat === 'all' || g.classList.contains(`cat-${cat.replace(/\s+/g, '-')}`)) ? 'block' : 'none');
+            document.querySelectorAll('.cat-group').forEach(g => g.style.display = (c==='all' || g.classList.contains('cat-'+c.replace(/\s+/g, '-'))) ? 'block' : 'none');
         }
 
-        function loginGoogle() { auth.signInWithPopup(provider); }
-        function logout() { auth.signOut(); }
-        function deleteProduct(id) { if(confirm("Apagar?")) database.ref('produtos/'+id).remove(); }
-        function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); pushModalState(); }
-        
-        function closeModals(shouldGoBack = true) {
+        function closeModals() {
             stopScanner();
-            document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(() => m.style.display = 'none', 400); });
-            if (shouldGoBack && history.state && history.state.modal) history.back();
+            document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 400); });
         }
-        function pushModalState() { history.pushState({ modal: true }, ""); }
+
+        function deleteProduct(id) { if(confirm("Apagar?")) database.ref('produtos/'+id).remove(); }
+        function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'), 10); }
 
         // Cursor
-        if (window.innerWidth > 768) {
+        if(window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');
-            window.onmousemove = (e) => { dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px'; out.style.left = (e.clientX - 16) +'px'; out.style.top = (e.clientY - 16) +'px'; };
+            window.onmousemove = (e) => { dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px'; out.style.left = (e.clientX-16)+'px'; out.style.top = (e.clientY-16)+'px'; };
         }
     </script>
 </body>

@@ -154,28 +154,27 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 600px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            
             <div style="display:flex; gap:10px; margin-bottom:25px; overflow-x: auto; padding-bottom:10px;">
                 <button class="cat-filter-btn active" id="tab-novo" onclick="switchAdminTab('novo')">Novo Item</button>
                 <button class="cat-filter-btn" id="tab-caixa" onclick="switchAdminTab('caixa')">Caixa</button>
                 <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Pedidos</button>
             </div>
-
+            
             <div id="admin-create-section">
                 <button class="card-btn-fix" onclick="window.location.href='dash.html'" style="position:static; width:100%; margin-bottom: 25px; background: var(--jj-brown); color: white;">
                     📊 ACESSAR DASHBOARD AVANÇADO
                 </button>
-                
-                <div style="height: 1px; background: rgba(0,0,0,0.1); margin-bottom: 25px;"></div>
+
+                <div style="height: 1px; background: rgba(0,0,0,0.05); margin-bottom: 25px;"></div>
 
                 <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
                 <input type="text" id="p-name" class="edit-field" placeholder="Nome do Item">
                 <input type="text" id="p-price" class="edit-field" placeholder="Preço (00.00)">
                 <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Transparente)">
                 <textarea id="p-desc" class="edit-field" placeholder="Descrição da Obra"></textarea>
+                
                 <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
             </div>
-
             <div id="admin-caixa-section" style="display:none">
                 <div class="cashier-stats">
                     <div class="stat-card"><div class="stat-label">Vendas</div><div class="stat-val" id="stat-count">0</div></div>
@@ -184,7 +183,6 @@
                 <h4 style="font-size: 0.7rem; margin-bottom: 15px; color: var(--jj-brown);">HISTÓRICO DE VENDAS</h4>
                 <div id="cashier-history" style="max-height: 350px; overflow-y: auto;"></div>
             </div>
-
             <div id="admin-dashboard-section" style="display:none">
                 <input type="text" id="search-token" class="edit-field" placeholder="Digite o Token (Ex: jj1234)">
                 <button class="card-btn-fix" onclick="searchOrderByToken()" style="position:static; width:100%">LOCALIZAR PEDIDO</button>

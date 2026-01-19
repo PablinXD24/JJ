@@ -146,7 +146,7 @@
             
             <div style="display:flex; gap:10px; margin-bottom:25px">
                 <button class="cat-filter-btn active" id="tab-novo" onclick="switchAdminTab('novo')">Novo Item</button>
-                <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Dashboard WPP</button>
+                <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Consultar Token</button>
             </div>
 
             <div id="admin-create-section">
@@ -160,9 +160,14 @@
             </div>
 
             <div id="admin-dashboard-section" style="display:none">
-                <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">HISTÓRICO DE PEDIDOS</h2>
-                <div id="admin-pedidos-list" style="display:flex; flex-direction:column; gap:15px">
-                    </div>
+                <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">BUSCAR PEDIDO POR TOKEN</h2>
+                <div style="display:flex; gap:10px; margin-bottom:20px">
+                    <input type="text" id="search-token" class="edit-field" placeholder="Digite o Token do Pedido" style="margin-bottom:0">
+                    <button class="jj-btn-ghost" onclick="searchOrderByToken()" style="box-shadow: 4px 4px 8px var(--shadow-dark);">BUSCAR</button>
+                </div>
+                <div id="token-result-area" style="min-height: 100px;">
+                    <p style="font-size:0.7rem; opacity:0.6; text-align:center">Insira o token enviado no WhatsApp para ver os detalhes.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -203,9 +208,6 @@
             document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none';
         }
 
-        window.addEventListener('popstate', () => closeModals(false));
-        function pushModalState() { history.pushState({ modal: true }, ""); }
-
         auth.onAuthStateChanged(user => {
             const authUI = document.getElementById('auth-ui');
             if (user) {
@@ -222,24 +224,39 @@
             document.getElementById('admin-dashboard-section').style.display = tab === 'dash' ? 'block' : 'none';
             document.getElementById('tab-novo').classList.toggle('active', tab === 'novo');
             document.getElementById('tab-dash').classList.toggle('active', tab === 'dash');
-            if(tab === 'dash') listenToOrders();
         }
 
-        function listenToOrders() {
-            const list = document.getElementById('admin-pedidos-list');
-            database.ref('pedidos').orderByChild('timestamp').on('value', snap => {
-                const data = snap.val();
-                if(!data) { list.innerHTML = "<p style='font-size:0.7rem'>Sem pedidos registrados.</p>"; return; }
-                let html = "";
-                Object.values(data).reverse().forEach(p => {
-                    html += `
-                    <div style="padding:15px; background:white; border-radius:20px; box-shadow:4px 4px 8px var(--shadow-dark); font-size:0.75rem">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:5px"><b>${p.cliente}</b> <span>${p.data}</span></div>
-                        <div style="color:var(--jj-brown); font-weight:600">Total: R$ ${p.total.toFixed(2)} (${p.pagamento})</div>
-                        <div style="margin-top:5px; font-size:0.65rem; opacity:0.8">${p.resumo}</div>
-                    </div>`;
-                });
-                list.innerHTML = html;
+        // --- FUNÇÃO DE BUSCA POR TOKEN ---
+        function searchOrderByToken() {
+            const token = document.getElementById('search-token').value.trim().toUpperCase();
+            const resultArea = document.getElementById('token-result-area');
+            if(!token) return;
+
+            resultArea.innerHTML = "<p style='font-size:0.7rem'>Buscando...</p>";
+
+            database.ref('pedidos/' + token).once('value', snap => {
+                const p = snap.val();
+                if(!p) {
+                    resultArea.innerHTML = "<p style='font-size:0.7rem; color:red'>Token não encontrado.</p>";
+                    return;
+                }
+
+                resultArea.innerHTML = `
+                    <div style="padding:20px; background:white; border-radius:25px; box-shadow:4px 4px 15px var(--shadow-dark); font-size:0.75rem">
+                        <div style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px">
+                            <b style="color:var(--jj-brown)">CLIENTE:</b> ${p.cliente}<br>
+                            <b style="color:var(--jj-brown)">DATA:</b> ${p.data}<br>
+                            <b style="color:var(--jj-brown)">PAGAMENTO:</b> ${p.pagamento}
+                        </div>
+                        <div style="margin-bottom:10px">
+                            <b style="color:var(--jj-brown)">ITENS:</b><br>
+                            ${p.resumo.split(';').join('<br>')}
+                        </div>
+                        <div style="font-size:1rem; font-weight:800; color:var(--jj-yellow-main)">
+                            TOTAL: R$ ${p.total.toFixed(2)}
+                        </div>
+                    </div>
+                `;
             });
         }
 
@@ -373,30 +390,35 @@
             pushModalState();
         }
 
+        // --- FUNÇÃO ATUALIZADA COM GERAÇÃO DE TOKEN ---
         function sendWhatsApp(totalPedido) {
             const user = document.getElementById('u-final-name').value;
             const payment = document.getElementById('u-payment').value;
             if(!user) return alert("Informe seu nome.");
             
+            // Gera um Token Curto (Ex: JJ-A7B2)
+            const token = "JJ-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+            
             let resumoStr = "";
-            let msg = `*PEDIDO J&J ART COLLECTION*\n----------------------------\n*Cliente:* ${user}\n*Pagamento:* ${payment}\n\n*ITENS:*\n`;
+            let msg = `*PEDIDO J&J ART COLLECTION*\n----------------------------\n*TOKEN:* ${token}\n*Cliente:* ${user}\n*Pagamento:* ${payment}\n\n*ITENS:*\n`;
             cart.forEach((i, idx) => {
-                msg += `${idx+1}. *${i.name}*\n   • ${i.color} / ${i.size}\n   • Qtd: ${i.qty} x R$ ${i.price.toFixed(2)}\n\n`;
+                msg += `${idx+1}. *${i.name}*\n   • ${i.color} / ${i.size}\n   • Qtd: ${i.qty}\n\n`;
                 resumoStr += `${i.qty}x ${i.name} (${i.color}/${i.size}); `;
             });
-            msg += `----------------------------\n*TOTAL:* R$ ${totalPedido.toFixed(2)}\n\nVolte sempre em nossa loja!\nhttps://pablinxd24.github.io/JJ`;
+            msg += `----------------------------\n*TOTAL:* R$ ${totalPedido.toFixed(2)}\n\nEnvie este token para o vendedor!`;
 
-            // SALVAR NO DASHBOARD ANTES DE ENVIAR
-            database.ref('pedidos').push({
+            // Salva no Firebase usando o TOKEN como chave
+            database.ref('pedidos/' + token).set({
+                token: token,
                 cliente: user,
                 total: totalPedido,
                 pagamento: payment,
                 resumo: resumoStr,
-                data: new Date().toLocaleString('pt-BR'),
-                timestamp: firebase.database.ServerValue.TIMESTAMP
+                data: new Date().toLocaleString('pt-BR')
+            }).then(() => {
+                cart = []; saveCart();
+                window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
             });
-
-            window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function filterCat(cat) {
@@ -417,6 +439,8 @@
             });
             if (shouldGoBack && history.state && history.state.modal) history.back();
         }
+
+        function pushModalState() { history.pushState({ modal: true }, ""); }
 
         if (window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');

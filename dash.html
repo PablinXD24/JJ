@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | Executive BI</title>
+    <title>J&J | BI Executive Experience</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -23,114 +23,105 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); }
+        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); min-height: 100vh; overflow-x: hidden; }
 
-        #login-screen { position: fixed; inset: 0; background: var(--jj-bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: var(--jj-bg); padding: 50px; border-radius: 50px; box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light); text-align: center; }
+        #login-screen { position: fixed; inset: 0; background: var(--jj-bg); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: var(--jj-bg); padding: 50px; border-radius: 50px; box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light); text-align: center; max-width: 400px; width: 100%; }
 
         #dash-content { display: none; padding: 30px 5%; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         .logo-img { height: 45px; }
 
-        /* GRID PRINCIPAL */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        
-        .card { 
-            background: var(--jj-bg); padding: 25px; border-radius: 35px; 
-            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light); 
-        }
+        .btn-jj { padding: 15px 30px; border-radius: 20px; border: none; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s; background: var(--jj-yellow-main); color: var(--jj-text); box-shadow: 5px 5px 15px rgba(255, 200, 0, 0.3); }
 
-        .stat-val { font-size: 1.5rem; font-weight: 700; color: var(--jj-brown); margin-top: 5px; }
-        .stat-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; }
-
-        /* PROGRESS BAR (META) */
-        .goal-container { grid-column: span 2; display: flex; flex-direction: column; justify-content: center; }
-        .progress-bg { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; margin-top: 15px; overflow: hidden; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1); }
+        /* Metas de Venda Visual */
+        .meta-container { background: var(--jj-bg); padding: 30px; border-radius: 35px; box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light); margin-bottom: 30px; }
+        .progress-bar { height: 12px; background: rgba(0,0,0,0.05); border-radius: 10px; margin: 15px 0; overflow: hidden; box-shadow: inset 2px 2px 5px var(--shadow-dark); }
         .progress-fill { height: 100%; background: var(--jj-yellow-main); width: 0%; transition: 1s ease-out; }
 
-        /* CHARTS */
-        .charts-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-bottom: 30px; }
-        
-        /* ALERTAS E LISTAS */
-        .list-container { max-height: 300px; overflow-y: auto; margin-top: 15px; }
-        .list-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 12px; border-radius: 15px; background: rgba(255,255,255,0.5); 
-            margin-bottom: 8px; font-size: 0.75rem; 
-        }
-        .badge-alert { background: #ff4444; color: white; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 0.6rem; }
-        .badge-vip { background: var(--jj-brown); color: white; padding: 2px 8px; border-radius: 8px; font-size: 0.6rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .stat-card { background: var(--jj-bg); padding: 25px; border-radius: 35px; box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light); text-align: center; }
+        .stat-val { font-size: 1.5rem; font-weight: 700; color: var(--jj-brown); }
+        .stat-label { font-size: 0.6rem; text-transform: uppercase; opacity: 0.5; letter-spacing: 2px; font-weight: 700; margin-bottom: 5px; }
 
-        .btn-jj {
-            padding: 12px 25px; border-radius: 15px; border: none; font-weight: 700; 
-            text-transform: uppercase; cursor: pointer; background: var(--jj-yellow-main); 
-            box-shadow: 4px 4px 10px rgba(255, 200, 0, 0.3); font-size: 0.7rem;
-        }
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .card-glass { background: var(--jj-bg); padding: 30px; border-radius: 40px; box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light); }
 
-        @media (max-width: 1024px) {
-            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-            .charts-section { grid-template-columns: 1fr; }
-        }
+        .edit-input { width: 100%; background: transparent; border: none; padding: 8px; border-radius: 8px; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); font-size: 0.75rem; font-family: inherit; margin: 5px 0; outline: none; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .data-table th { text-align: left; padding: 12px; font-size: 0.65rem; color: var(--jj-brown); text-transform: uppercase; }
+        .data-table td { padding: 12px; border-top: 1px solid rgba(0,0,0,0.05); font-size: 0.75rem; }
+
+        .low-stock-alert { color: #d9534f; font-weight: 700; font-size: 0.6rem; display: block; margin-top: 5px; }
+
+        @media (max-width: 1000px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <img src="jjvidro.png" style="height: 50px; margin-bottom: 20px;">
-            <p style="font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 20px;">AUTHENTICATION REQUIRED</p>
-            <button class="btn-jj" onclick="login()">Acessar como Pablo</button>
+            <img src="jjvidro.png" style="height: 60px; margin-bottom: 30px;">
+            <h2 style="font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 25px;">ACESSO EXECUTIVO</h2>
+            <button class="btn-jj" onclick="login()">AUTENTICAR ADM</button>
+            <p id="err" style="color:#d9534f; font-size:0.6rem; margin-top:20px; display:none;">Acesso não autorizado.</p>
         </div>
     </div>
 
     <div id="dash-content">
         <header class="header">
             <img src="jjvidro.png" class="logo-img">
-            <div style="text-align: right">
-                <span id="user-info" style="font-size: 0.7rem; font-weight: 700; margin-right: 15px;"></span>
-                <button onclick="logout()" style="background:none; border:none; cursor:pointer; font-weight:700; color:var(--jj-brown); font-size:0.6rem">LOGOUT</button>
+            <div style="text-align: right;">
+                <p id="adm-user" style="font-weight: 700; font-size: 0.75rem; color: var(--jj-brown);"></p>
+                <button onclick="logout()" style="background:none; border:none; cursor:pointer; font-size:0.6rem; font-weight:700; opacity:0.5;">ENCERRAR SESSÃO</button>
             </div>
         </header>
 
-        <div class="dashboard-grid">
-            <div class="card goal-container">
-                <div style="display:flex; justify-content:space-between">
-                    <span class="stat-label">Meta Mensal (R$ 15.000)</span>
-                    <span class="stat-label" id="goal-percent">0%</span>
+        <div class="meta-container">
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                <div class="stat-label">Progresso Meta Mensal (R$ 15.000)</div>
+                <div id="meta-perc" style="font-weight:700; color:var(--jj-brown); font-size:0.9rem;">0%</div>
+            </div>
+            <div class="progress-bar"><div id="meta-fill" class="progress-fill"></div></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Faturamento</div><div id="total-faturamento" class="stat-val">R$ 0,00</div></div>
+            <div class="stat-card"><div class="stat-label">Ticket Médio</div><div id="ticket-medio" class="stat-val">R$ 0,00</div></div>
+            <div class="stat-card"><div class="stat-label">Conversão Pedidos</div><div id="total-pedidos" class="stat-val">0</div></div>
+            <div class="stat-card"><div class="stat-label">Acervo Ativo</div><div id="total-itens" class="stat-val">0</div></div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card-glass">
+                <h3 class="stat-label" style="margin-bottom:20px; font-size:0.75rem;">Histórico e Edição de Vendas (CRM)</h3>
+                <div style="max-height: 450px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Pedido</th>
+                                <th>Cliente VIP</th>
+                                <th>Valor (R$)</th>
+                                <th>Pagamento</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
                 </div>
-                <div class="progress-bg"><div id="goal-bar" class="progress-fill"></div></div>
             </div>
-            <div class="card">
-                <span class="stat-label">Receita Acumulada</span>
-                <div class="stat-val" id="total-revenue">R$ 0,00</div>
-            </div>
-            <div class="card">
-                <span class="stat-label">Ticket Médio</span>
-                <div class="stat-val" id="avg-ticket">R$ 0,00</div>
-            </div>
-        </div>
 
-        <div class="charts-section">
-            <div class="card">
-                <span class="stat-label">Vendas por Categoria e Cor</span>
-                <canvas id="mainChart" style="margin-top:20px"></canvas>
-            </div>
-            <div class="card">
-                <span class="stat-label">🚨 Alertas de Estoque Baixo</span>
-                <div class="list-container" id="stock-alerts">
-                    </div>
-            </div>
-        </div>
-
-        <div class="charts-section" style="grid-template-columns: 1fr 1fr">
-            <div class="card">
-                <span class="stat-label">🏆 Clientes VIP (Top Compradores)</span>
-                <div class="list-container" id="vip-list"></div>
-            </div>
-            <div class="card">
-                <span class="stat-label">Gestão de Pedidos Recentes</span>
-                <div class="list-container" id="order-management"></div>
+            <div style="display:flex; flex-direction:column; gap:30px;">
+                <div class="card-glass">
+                    <h3 class="stat-label" style="margin-bottom:15px; font-size:0.7rem;">Tendência de Cores</h3>
+                    <canvas id="colorChart" height="200"></canvas>
+                </div>
+                <div class="card-glass">
+                    <h3 class="stat-label" style="margin-bottom:15px; font-size:0.7rem;">Alertas de Reposição</h3>
+                    <div id="stock-alerts" style="display:flex; flex-direction:column; gap:10px;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -148,115 +139,113 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), database = firebase.database();
-        const ADM_EMAIL = "pablo11ssousa2@gmail.com";
-        const META_VALOR = 15000;
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const ADM = "pablo11ssousa2@gmail.com";
+        const META_VAL = 15000.00;
 
-        function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+        function login() { auth.signInWithPopup(provider).catch(() => {}); }
         function logout() { auth.signOut().then(() => window.location.reload()); }
 
         auth.onAuthStateChanged(user => {
-            if(user && user.email === ADM_EMAIL) {
+            if(user && user.email === ADM) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dash-content').style.display = 'block';
-                document.getElementById('user-info').innerText = user.displayName.toUpperCase();
-                initAnalytics();
-            } else if(user) {
-                alert("Acesso não autorizado.");
+                document.getElementById('adm-user').innerText = user.displayName;
+                startTracking();
+            } else if (user) {
+                document.getElementById('err').style.display = 'block';
                 auth.signOut();
             }
         });
 
-        function initAnalytics() {
-            // Monitorar Produtos (Alertas de Estoque)
+        function startTracking() {
+            // Monitoramento de Produtos (Saúde do Estoque)
             database.ref('produtos').on('value', snap => {
                 const prods = snap.val() || {};
-                const alertDiv = document.getElementById('stock-alerts');
-                alertDiv.innerHTML = "";
-                
-                Object.values(prods).forEach(p => {
-                    // Simulação de lógica de estoque baixo baseada na string de stock (ex: P:1, M:0)
-                    if(p.variants) {
-                        Object.entries(p.variants).forEach(([color, data]) => {
-                            if(data.stock && (data.stock.includes(':0') || data.stock.includes(':1'))) {
-                                alertDiv.innerHTML += `
-                                    <div class="list-item">
-                                        <span><b>${p.name}</b> (${color})</span>
-                                        <span class="badge-alert">REPOR</span>
-                                    </div>
-                                `;
-                            }
-                        });
-                    }
-                });
+                document.getElementById('total-itens').innerText = Object.keys(prods).length;
+                renderStockAlerts(Object.values(prods));
             });
 
-            // Monitorar Pedidos (Financeiro e VIPs)
+            // Monitoramento de Vendas (Financeiro e CRM)
             database.ref('pedidos').on('value', snap => {
                 const pedidos = Object.values(snap.val() || {});
                 processFinance(pedidos);
-                processVIPs(pedidos);
-                processRecentOrders(pedidos);
+                renderOrdersTable(pedidos.reverse());
             });
         }
 
-        function processFinance(pedidos) {
+        function processFinance(data) {
             let total = 0;
-            pedidos.forEach(p => total += parseFloat(p.total));
+            const colorsCount = {};
+            data.forEach(p => {
+                total += parseFloat(p.total);
+                // Sugestão 4: Extrair cores das strings de itens
+                const match = p.itens_resumo?.match(/\((.*?)\)/);
+                if(match) colorsCount[match[1]] = (colorsCount[match[1]] || 0) + 1;
+            });
+
+            document.getElementById('total-faturamento').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('total-pedidos').innerText = data.length;
+            document.getElementById('ticket-medio').innerText = `R$ ${data.length ? (total/data.length).toFixed(2) : '0,00'}`;
             
-            document.getElementById('total-revenue').innerText = `R$ ${total.toLocaleString('pt-BR')}`;
-            document.getElementById('avg-ticket').innerText = `R$ ${(total/pedidos.length || 0).toFixed(2)}`;
-            
-            const percent = Math.min((total / META_VALOR) * 100, 100);
-            document.getElementById('goal-bar').style.width = percent + '%';
-            document.getElementById('goal-percent').innerText = Math.floor(percent) + '%';
+            // Atualizar Meta Visual
+            const perc = Math.min((total / META_VAL) * 100, 100).toFixed(1);
+            document.getElementById('meta-fill').style.width = perc + "%";
+            document.getElementById('meta-perc').innerText = perc + "%";
+
+            renderColorChart(colorsCount);
         }
 
-        function processVIPs(pedidos) {
-            const clients = {};
-            pedidos.forEach(p => clients[p.cliente] = (clients[p.cliente] || 0) + parseFloat(p.total));
-            
-            const sorted = Object.entries(clients).sort((a,b) => b[1] - a[1]).slice(0, 5);
-            const vipDiv = document.getElementById('vip-list');
-            vipDiv.innerHTML = sorted.map(c => `
-                <div class="list-item">
-                    <span>${c[0]}</span>
-                    <span class="badge-vip">R$ ${c[1].toFixed(2)}</span>
-                </div>
+        function renderOrdersTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = data.map(o => `
+                <tr>
+                    <td><b>${o.token}</b></td>
+                    <td><input class="edit-input" value="${o.cliente}" onchange="editEntry('${o.token}', 'cliente', this.value)"></td>
+                    <td><input class="edit-input" value="${o.total}" onchange="editEntry('${o.token}', 'total', this.value)"></td>
+                    <td><span style="font-size:0.6rem; font-weight:700; opacity:0.7">${o.pagamento}</span></td>
+                    <td><button onclick="deleteEntry('${o.token}')" style="border:none; background:none; cursor:pointer;">🗑️</button></td>
+                </tr>
             `).join('');
         }
 
-        function processRecentOrders(pedidos) {
-            const div = document.getElementById('order-management');
-            div.innerHTML = pedidos.reverse().slice(0, 10).map(p => `
-                <div class="list-item">
-                    <span><b>${p.token}</b> - ${p.cliente}</span>
-                    <button onclick="deleteOrder('${p.token}')" style="background:none; border:none; cursor:pointer">🗑️</button>
-                </div>
-            `).join('');
+        function renderStockAlerts(prods) {
+            const container = document.getElementById('stock-alerts');
+            container.innerHTML = "";
+            prods.forEach(p => {
+                // Simulação de check de estoque baixo nas variantes
+                const hasLowStock = JSON.stringify(p.variants || {}).includes(":1") || JSON.stringify(p.variants || {}).includes(":0");
+                if(hasLowStock) {
+                    container.innerHTML += `
+                        <div style="padding:15px; border-radius:15px; background:rgba(0,0,0,0.02); display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.7rem; font-weight:600;">${p.name}</span>
+                            <span class="low-stock-alert">REPOR IMEDIATO</span>
+                        </div>
+                    `;
+                }
+            });
         }
 
-        function deleteOrder(token) { if(confirm("Remover permanentemente?")) database.ref('pedidos/'+token).remove(); }
+        let chartRef;
+        function renderColorChart(data) {
+            const ctx = document.getElementById('colorChart').getContext('2d');
+            if(chartRef) chartRef.destroy();
+            chartRef = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        backgroundColor: ['#FFC800', '#834A29', '#1a1a1a', '#A3B1C6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { cutout: '80%', plugins: { legend: { position: 'bottom', labels: { font: { size: 9, family: 'Montserrat' } } } } }
+            });
+        }
 
-        // Gráfico de Exemplo
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
-                datasets: [{
-                    label: 'Crescimento de Vendas',
-                    data: [12, 19, 15, 25, 32],
-                    borderColor: '#FFC800',
-                    tension: 0.4,
-                    fill: true,
-                    backgroundColor: 'rgba(255, 200, 0, 0.1)'
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: { y: { display: false }, x: { grid: { display: false } } }
-            }
-        });
+        function editEntry(token, key, val) { database.ref(`pedidos/${token}`).update({ [key]: val }); }
+        function deleteEntry(token) { if(confirm("Apagar registro permanentemente?")) database.ref(`pedidos/${token}`).remove(); }
     </script>
 </body>
 </html>

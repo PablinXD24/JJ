@@ -40,7 +40,7 @@
         .cat-filter-btn { padding: 8px 20px; border-radius: 15px; border: none; background: var(--jj-bg); box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); font-size: 0.7rem; font-weight: 700; color: var(--jj-brown); cursor: pointer; white-space: nowrap; text-transform: uppercase; transition: 0.3s; }
         .cat-filter-btn.active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); color: var(--jj-yellow-main); }
 
-        /* Cards */
+        /* Cards & Container */
         .content-wrapper { padding: 20px 0 60px 0; flex: 1; }
         .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; color: var(--jj-brown); position: relative; }
         .category-title::after { content: ''; position: absolute; left: 0; bottom: -8px; width: 40px; height: 3px; background: var(--jj-yellow-main); border-radius: 2px; }
@@ -78,7 +78,7 @@
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 2.2rem; cursor: pointer; color: var(--jj-brown); z-index: 10; }
 
-        /* Floating Buttons - Ocultos por padrão */
+        /* Floating Buttons */
         .float-btn { position: fixed; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 24px; transition: 0.3s; }
         #cart-btn-floating { bottom: 30px; left: 30px; }
         #scan-btn-floating { bottom: 30px; left: 110px; color: var(--jj-brown); display: none !important; }
@@ -87,9 +87,16 @@
 
         .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; }
         
-        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .color-dot-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.1); }
+        /* Scan Choices */
+        .scan-choice-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; margin-bottom: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-edit { background: var(--jj-brown); color: white; }
+        .btn-quick { background: var(--jj-yellow-main); color: var(--jj-text); }
+
+        /* Estilo Caixa */
+        .cashier-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--jj-bg); padding: 15px; border-radius: 20px; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); text-align: center; }
+        .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--jj-brown); }
+        .stat-label { font-size: 0.6rem; opacity: 0.6; text-transform: uppercase; }
 
         footer {
             position: relative; background-image: url('jjvidro2.png'); background-size: cover; background-position: center;
@@ -98,11 +105,6 @@
         footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); z-index: 1; }
         .footer-content { position: relative; z-index: 2; }
         .footer-copy { font-size: 0.6rem; color: rgba(255,255,255,0.6); letter-spacing: 2px; text-transform: uppercase; }
-
-        /* Escolha Pós Scan */
-        .scan-choice-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; margin-bottom: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-        .btn-edit { background: var(--jj-brown); color: white; }
-        .btn-quick { background: var(--jj-yellow-main); color: var(--jj-text); }
 
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
@@ -153,21 +155,40 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 600px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            <div style="display:flex; gap:10px; margin-bottom:20px">
+            
+            <div style="display:flex; gap:10px; margin-bottom:25px; overflow-x: auto; padding-bottom:10px;">
                 <button class="cat-filter-btn active" id="tab-novo" onclick="switchAdminTab('novo')">Novo Item</button>
-                <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Consultar Pedido</button>
+                <button class="cat-filter-btn" id="tab-caixa" onclick="switchAdminTab('caixa')">Caixa</button>
+                <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Pedidos</button>
             </div>
+
             <div id="admin-create-section">
                 <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
-                <input type="text" id="p-name" class="edit-field" placeholder="Nome">
-                <input type="text" id="p-price" class="edit-field" placeholder="Preço">
-                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Preto)">
-                <textarea id="p-desc" class="edit-field" placeholder="Descrição"></textarea>
-                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">ADICIONAR</button>
+                <input type="text" id="p-name" class="edit-field" placeholder="Nome do Item">
+                <input type="text" id="p-price" class="edit-field" placeholder="Preço (00.00)">
+                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Transparente)">
+                <textarea id="p-desc" class="edit-field" placeholder="Descrição da Obra"></textarea>
+                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
             </div>
+
+            <div id="admin-caixa-section" style="display:none">
+                <div class="cashier-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Vendas Hoje</div>
+                        <div class="stat-val" id="stat-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Bruto</div>
+                        <div class="stat-val" id="stat-total">R$ 0,00</div>
+                    </div>
+                </div>
+                <h4 style="font-size: 0.7rem; margin-bottom: 15px; color: var(--jj-brown);">ÚLTIMAS MOVIMENTAÇÕES</h4>
+                <div id="cashier-history" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+
             <div id="admin-dashboard-section" style="display:none">
-                <input type="text" id="search-token" class="edit-field" placeholder="Token do Pedido">
-                <button class="card-btn-fix" onclick="searchOrderByToken()" style="position:static; width:100%">BUSCAR</button>
+                <input type="text" id="search-token" class="edit-field" placeholder="Digite o Token (Ex: jj1234)">
+                <button class="card-btn-fix" onclick="searchOrderByToken()" style="position:static; width:100%">LOCALIZAR PEDIDO</button>
                 <div id="token-result-area" style="margin-top:20px"></div>
             </div>
         </div>
@@ -190,9 +211,9 @@
         const ADM_EMAIL = "pablo11ssousa2@gmail.com", WPP_NUM = "5511998937643";
         
         let cart = JSON.parse(localStorage.getItem('jj_cart')) || [];
-        let currentProduct = null, selectedColor = "", html5QrCode = null;
+        let currentProduct = null, html5QrCode = null;
 
-        window.onload = () => { updateCartBadge(); listenToProducts(); };
+        window.onload = () => { updateCartBadge(); listenToProducts(); updateCashierStats(); };
 
         auth.onAuthStateChanged(user => {
             const ui = document.getElementById('auth-ui');
@@ -243,9 +264,9 @@
             body.innerHTML = `
                 <div style="grid-column: 1/-1; text-align:center">
                     <h2 style="margin-bottom:10px">${p.name}</h2>
-                    <p style="margin-bottom:30px; opacity:0.6">O que deseja fazer?</p>
-                    <button class="scan-choice-btn btn-edit" onclick='openDetails(${JSON.stringify(p)})'>EDITAR ITEM</button>
-                    <button class="scan-choice-btn btn-quick" onclick='quickAdd("${p.name}", "${p.price}", "${p.colors}")'>VENDA RÁPIDA</button>
+                    <p style="margin-bottom:30px; opacity:0.6">Ação rápida para Administrador</p>
+                    <button class="scan-choice-btn btn-edit" onclick='openDetails(${JSON.stringify(p)})'>EDITAR PRODUTO</button>
+                    <button class="scan-choice-btn btn-quick" onclick='quickAdd("${p.name}", "${p.price}", "${p.colors}")'>VENDA DIRETA (CAIXA)</button>
                 </div>`;
         }
 
@@ -253,8 +274,8 @@
             const firstColor = colors.split(',')[0].trim();
             cart.push({ name, price: parseFloat(price), color: firstColor, size: "Padrão", qty: 1 });
             saveCart();
-            alert("Adicionado ao carrinho!");
             closeModals();
+            openCartModal(); // Abre o carrinho para finalizar
         }
 
         function stopScanner() { if(html5QrCode) html5QrCode.stop().then(()=>html5QrCode=null); }
@@ -293,11 +314,31 @@
             });
         }
 
+        function updateCashierStats() {
+            database.ref('pedidos').on('value', snap => {
+                const pedidos = snap.val();
+                let total = 0, count = 0;
+                let html = "";
+                if(pedidos) {
+                    Object.values(pedidos).reverse().forEach(p => {
+                        count++;
+                        total += parseFloat(p.total);
+                        html += `<div style="padding:12px; background:white; border-radius:12px; margin-bottom:8px; font-size:0.65rem; box-shadow: 2px 2px 5px rgba(0,0,0,0.03)">
+                            <b>${p.token}</b> - ${p.cliente}<br>R$ ${p.total} | ${p.data.split(',')[0]}
+                        </div>`;
+                    });
+                }
+                document.getElementById('stat-count').innerText = count;
+                document.getElementById('stat-total').innerText = `R$ ${total.toFixed(2)}`;
+                document.getElementById('cashier-history').innerHTML = html || "Sem vendas hoje.";
+            });
+        }
+
         function openDetails(p) {
             currentProduct = p;
             const body = document.getElementById('details-body');
             const colors = p.colors ? p.colors.split(',').map(c => c.trim()) : [];
-            selectedColor = colors[0] || "";
+            let selectedCol = colors[0] || "";
 
             if(auth.currentUser?.email === ADM_EMAIL) {
                 let variantEditor = colors.map(c => {
@@ -326,7 +367,7 @@
                     </div>`;
                 setTimeout(() => JsBarcode("#barcode-canvas", p.id, { format: "CODE128", width: 1.5, height: 40, displayValue: false }), 100);
             } else {
-                renderUserView(p, selectedColor);
+                renderUserView(p, selectedCol);
             }
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
@@ -376,19 +417,19 @@
             const body = document.getElementById('details-body');
             let total = 0;
             let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.7rem; position:relative; box-shadow:4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br>R$ ${(i.price*i.qty).toFixed(2)}<button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer">×</button></div>` }).join('');
-            body.innerHTML = `<div style="grid-column: 1/-1"><h2>PEDIDO</h2><div style="margin:20px 0">${list}</div><div style="background:var(--jj-yellow-main); padding:15px; border-radius:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome" style="margin-top:15px"><button class="card-btn-fix" style="position:static; width:100%" onclick="finishOrder(${total})">WHATSAPP</button></div>`;
+            body.innerHTML = `<div style="grid-column: 1/-1"><h2>PEDIDO</h2><div style="margin:20px 0">${list}</div><div style="background:var(--jj-yellow-main); padding:15px; border-radius:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome do Cliente" style="margin-top:15px"><button class="card-btn-fix" style="position:static; width:100%" onclick="finishOrder(${total})">FINALIZAR E ENVIAR WHATSAPP</button></div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
         function finishOrder(total) {
             const user = document.getElementById('u-final-name').value;
-            if(!user) return alert("Seu nome?");
+            if(!user) return alert("Nome do cliente é obrigatório.");
             const token = "jj" + Math.floor(1000 + Math.random()*9000);
-            let msg = `*PEDIDO J&J*\n*Token:* ${token}\n*Cliente:* ${user}\n\n`;
+            let msg = `*J&J ART COLLECTION*\n*Venda:* ${token}\n*Cliente:* ${user}\n\n`;
             cart.forEach(i => msg += `• ${i.qty}x ${i.name} (${i.color}) - R$ ${i.price}\n`);
             msg += `\n*Total:* R$ ${total.toFixed(2)}`;
-            database.ref('pedidos/'+token).set({ token, cliente: user, total, data: new Date().toLocaleString() })
+            database.ref('pedidos/'+token).set({ token, cliente: user, total: total.toFixed(2), data: new Date().toLocaleString() })
             .finally(() => { cart = []; saveCart(); window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`); });
         }
 
@@ -397,21 +438,24 @@
             if(!n) return;
             const ref = database.ref('produtos').push();
             ref.set({ id: ref.key, barcode: ref.key, category: document.getElementById('p-category').value, name: n, price: document.getElementById('p-price').value, colors: document.getElementById('p-colors').value, desc: document.getElementById('p-desc').value })
-            .then(() => { closeModals(); alert("Sucesso!"); });
+            .then(() => { closeModals(); alert("Item cadastrado!"); });
         }
 
         function searchOrderByToken() {
             const t = document.getElementById('search-token').value.trim();
             database.ref('pedidos/'+t).once('value', snap => {
                 const p = snap.val();
-                document.getElementById('token-result-area').innerHTML = p ? `<div style="background:white; padding:20px; border-radius:20px; font-size:0.75rem"><b>Cliente:</b> ${p.cliente}<br><b>Total:</b> R$ ${p.total}<br><b>Data:</b> ${p.data}</div>` : 'Não encontrado.';
+                document.getElementById('token-result-area').innerHTML = p ? `<div style="background:white; padding:20px; border-radius:20px; font-size:0.75rem"><b>Cliente:</b> ${p.cliente}<br><b>Total:</b> R$ ${p.total}<br><b>Data:</b> ${p.data}</div>` : 'Token não encontrado.';
             });
         }
 
         function switchAdminTab(t) {
             document.getElementById('admin-create-section').style.display = t === 'novo' ? 'block' : 'none';
+            document.getElementById('admin-caixa-section').style.display = t === 'caixa' ? 'block' : 'none';
             document.getElementById('admin-dashboard-section').style.display = t === 'dash' ? 'block' : 'none';
+            
             document.getElementById('tab-novo').classList.toggle('active', t==='novo');
+            document.getElementById('tab-caixa').classList.toggle('active', t==='caixa');
             document.getElementById('tab-dash').classList.toggle('active', t==='dash');
         }
 
@@ -422,7 +466,7 @@
         }
 
         function closeModals() { stopScanner(); document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 400); }); }
-        function deleteProduct(id) { if(confirm("Apagar?")) database.ref('produtos/'+id).remove(); }
+        function deleteProduct(id) { if(confirm("Remover este item do catálogo?")) database.ref('produtos/'+id).remove(); }
         function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'), 10); }
 
         if(window.innerWidth > 768) {

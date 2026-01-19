@@ -66,7 +66,6 @@
             box-shadow: 6px 6px 15px rgba(255, 200, 0, 0.35); text-transform: uppercase;
         }
 
-        /* Footer */
         footer {
             position: relative; background-image: url('jjvidro2.png'); background-size: cover; background-position: center;
             padding: 80px 5% 40px 5%; border-radius: 60px 60px 0 0; overflow: hidden; color: #fff; text-align: center;
@@ -87,14 +86,15 @@
 
         /* UI */
         .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; }
-        .color-dot-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.15); }
-        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 20px; border-radius: 15px; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); font-weight: 700; font-size: 0.65rem; color: var(--jj-brown); cursor: pointer; }
 
         #cart-btn-floating { position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 24px; }
         #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; border: none; background: var(--jj-yellow-main); cursor: pointer; }
+
+        .color-dot-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.15); }
+        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
 
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
@@ -143,7 +143,6 @@
         <div class="modal-overlay" onclick="closeModals()"></div>
         <div class="modal-content" style="max-width: 600px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            
             <div style="display:flex; gap:10px; margin-bottom:25px">
                 <button class="cat-filter-btn active" id="tab-novo" onclick="switchAdminTab('novo')">Novo Item</button>
                 <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Consultar Token</button>
@@ -162,12 +161,10 @@
             <div id="admin-dashboard-section" style="display:none">
                 <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">BUSCAR PEDIDO POR TOKEN</h2>
                 <div style="display:flex; gap:10px; margin-bottom:20px">
-                    <input type="text" id="search-token" class="edit-field" placeholder="Digite o Token do Pedido" style="margin-bottom:0">
-                    <button class="jj-btn-ghost" onclick="searchOrderByToken()" style="box-shadow: 4px 4px 8px var(--shadow-dark);">BUSCAR</button>
+                    <input type="text" id="search-token" class="edit-field" placeholder="Ex: jj1234" style="margin-bottom:0">
+                    <button class="jj-btn-ghost" onclick="searchOrderByToken()">BUSCAR</button>
                 </div>
-                <div id="token-result-area" style="min-height: 100px;">
-                    <p style="font-size:0.7rem; opacity:0.6; text-align:center">Insira o token enviado no WhatsApp para ver os detalhes.</p>
-                </div>
+                <div id="token-result-area"></div>
             </div>
         </div>
     </div>
@@ -193,29 +190,17 @@
         let cart = JSON.parse(localStorage.getItem('jj_cart')) || [];
         let currentProduct = null, selectedColor = "";
 
-        window.onload = () => {
-            updateCartBadge();
-            if(cart.length > 0) document.getElementById('cart-btn-floating').style.display = 'flex';
-        };
+        window.onload = () => { updateCartBadge(); };
 
-        function saveCart() {
-            localStorage.setItem('jj_cart', JSON.stringify(cart));
-            updateCartBadge();
-        }
-
-        function updateCartBadge() {
-            document.getElementById('cart-badge').innerText = cart.length;
-            document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none';
-        }
+        function saveCart() { localStorage.setItem('jj_cart', JSON.stringify(cart)); updateCartBadge(); }
+        function updateCartBadge() { document.getElementById('cart-badge').innerText = cart.length; document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none'; }
 
         auth.onAuthStateChanged(user => {
             const authUI = document.getElementById('auth-ui');
             if (user) {
                 authUI.innerHTML = `<span style="font-size:0.65rem; font-weight:700">${user.displayName}</span><button class="jj-btn-ghost" onclick="logout()" style="margin-left:10px">SAIR</button>`;
                 if (user.email === ADM_EMAIL) document.getElementById('admin-btn').style.display = 'block';
-            } else {
-                authUI.innerHTML = `<button class="jj-btn-ghost" onclick="loginGoogle()">ENTRAR</button>`;
-            }
+            } else { authUI.innerHTML = `<button class="jj-btn-ghost" onclick="loginGoogle()">ENTRAR</button>`; }
             listenToProducts();
         });
 
@@ -226,37 +211,22 @@
             document.getElementById('tab-dash').classList.toggle('active', tab === 'dash');
         }
 
-        // --- FUNÇÃO DE BUSCA POR TOKEN ---
         function searchOrderByToken() {
-            const token = document.getElementById('search-token').value.trim().toUpperCase();
+            const token = document.getElementById('search-token').value.trim().toLowerCase(); // Busca em minúscula
             const resultArea = document.getElementById('token-result-area');
             if(!token) return;
-
             resultArea.innerHTML = "<p style='font-size:0.7rem'>Buscando...</p>";
-
             database.ref('pedidos/' + token).once('value', snap => {
                 const p = snap.val();
-                if(!p) {
-                    resultArea.innerHTML = "<p style='font-size:0.7rem; color:red'>Token não encontrado.</p>";
-                    return;
-                }
-
+                if(!p) { resultArea.innerHTML = "<p style='font-size:0.7rem; color:red'>Token não encontrado.</p>"; return; }
                 resultArea.innerHTML = `
                     <div style="padding:20px; background:white; border-radius:25px; box-shadow:4px 4px 15px var(--shadow-dark); font-size:0.75rem">
-                        <div style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px">
-                            <b style="color:var(--jj-brown)">CLIENTE:</b> ${p.cliente}<br>
-                            <b style="color:var(--jj-brown)">DATA:</b> ${p.data}<br>
-                            <b style="color:var(--jj-brown)">PAGAMENTO:</b> ${p.pagamento}
-                        </div>
-                        <div style="margin-bottom:10px">
-                            <b style="color:var(--jj-brown)">ITENS:</b><br>
-                            ${p.resumo.split(';').join('<br>')}
-                        </div>
-                        <div style="font-size:1rem; font-weight:800; color:var(--jj-yellow-main)">
-                            TOTAL: R$ ${p.total.toFixed(2)}
-                        </div>
-                    </div>
-                `;
+                        <b style="color:var(--jj-brown)">CLIENTE:</b> ${p.cliente}<br>
+                        <b style="color:var(--jj-brown)">PAGAMENTO:</b> ${p.pagamento}<br>
+                        <b style="color:var(--jj-brown)">DATA:</b> ${p.data}<br><br>
+                        <b style="color:var(--jj-brown)">ITENS:</b><br>${p.resumo.split(';').join('<br>')}<br>
+                        <b style="font-size:1rem; color:var(--jj-yellow-main)">TOTAL: R$ ${p.total.toFixed(2)}</b>
+                    </div>`;
             });
         }
 
@@ -264,14 +234,7 @@
             const name = document.getElementById('p-name').value;
             if (name) {
                 const ref = database.ref('produtos').push();
-                ref.set({
-                    id: ref.key,
-                    category: document.getElementById('p-category').value || "Geral",
-                    name: name,
-                    price: document.getElementById('p-price').value.replace(',', '.'),
-                    colors: document.getElementById('p-colors').value,
-                    desc: document.getElementById('p-desc').value
-                }).then(() => { closeModals(); alert("Item criado!"); });
+                ref.set({ id: ref.key, category: document.getElementById('p-category').value || "Geral", name: name, price: document.getElementById('p-price').value.replace(',', '.'), colors: document.getElementById('p-colors').value, desc: document.getElementById('p-desc').value }).then(() => { closeModals(); alert("Item criado!"); });
             }
         }
 
@@ -282,7 +245,6 @@
                 const catNav = document.getElementById('cat-nav-list');
                 main.innerHTML = "";
                 catNav.innerHTML = `<button class="cat-filter-btn active" onclick="filterCat('all')">Todos</button>`;
-                
                 if (data) {
                     const products = Object.values(data);
                     const cats = [...new Set(products.map(p => p.category))];
@@ -315,21 +277,18 @@
             const body = document.getElementById('details-body');
             const colors = p.colors ? p.colors.split(',').map(c => c.trim()) : [];
             selectedColor = colors[0] || "";
-
             if (auth.currentUser?.email === ADM_EMAIL) {
                 let variantEditors = colors.map(c => {
                     const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "" };
                     return `<div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.02); border-radius:15px; border:1px solid rgba(0,0,0,0.05)">
-                        <h4 style="color:var(--jj-brown); font-size:0.65rem; margin-bottom:8px">GESTÃO ESTOQUE: ${c.toUpperCase()}</h4>
+                        <h4 style="color:var(--jj-brown); font-size:0.65rem; margin-bottom:8px">ESTOQUE ${c.toUpperCase()}</h4>
                         <input type="file" onchange="uploadVariantImg('${p.id}', '${c}', this)" style="font-size:0.6rem; margin-bottom:8px">
-                        <img src="${v.img}" id="prev-${c}" style="width:50px; display:${v.img ? 'block' : 'none'}; border-radius:5px; height: 50px; object-fit: cover; margin-bottom:8px">
-                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Ex: P:5, M:10, G:2">
+                        <img src="${v.img}" id="prev-${c}" style="width:50px; display:${v.img ? 'block' : 'none'}; border-radius:5px; margin-bottom:8px">
+                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="P:5, M:10">
                     </div>`;
                 }).join('');
-                body.innerHTML = `<div style="grid-column: 1/-1"><h3>EDITAR PRODUTO & ESTOQUE</h3><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><input type="text" id="e-cat" class="edit-field" value="${p.category}"></div><textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>${variantEditors}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button></div>`;
-            } else {
-                updateUserModalView(p, selectedColor);
-            }
+                body.innerHTML = `<div style="grid-column: 1/-1"><h3>EDITAR PRODUTO</h3><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><input type="text" id="e-cat" class="edit-field" value="${p.category}"></div><textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>${variantEditors}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR</button></div>`;
+            } else { updateUserModalView(p, selectedColor); }
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
             pushModalState();
@@ -369,35 +328,27 @@
             const size = document.getElementById('u-size').value;
             if(!size || size.includes("Indisponível")) return alert("Selecione um tamanho.");
             cart.push({ name, price: parseFloat(price), size, color: selectedColor, qty: parseInt(document.getElementById('u-qty').value) });
-            saveCart();
-            closeModals();
+            saveCart(); closeModals();
         }
 
         function openCartModal() {
             const body = document.getElementById('details-body');
             let total = 0;
-            const savedName = localStorage.getItem('jj_user_name') || "";
-            const savedPay = localStorage.getItem('jj_user_pay') || "Pix";
-
-            let list = cart.map((i, idx) => { 
-                total += (i.price * i.qty); 
-                return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br><span style="color:var(--jj-brown)">${i.color} | ${i.size} | Qtd: ${i.qty}</span><br><b>R$ ${(i.price * i.qty).toFixed(2)}</b><button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button></div>`; 
-            }).join('');
-            
-            body.innerHTML = `<div style="grid-column: span 2"><h2 style="margin-bottom:20px">MINHA LISTA</h2><div style="max-height:250px; overflow-y:auto; margin-bottom:20px">${list || '<p>Lista vazia.</p>'}</div><div style="padding:15px; background:var(--jj-yellow-main); border-radius:15px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome Completo" value="${savedName}" onchange="localStorage.setItem('jj_user_name', this.value)"><select id="u-payment" class="user-input" onchange="localStorage.setItem('jj_user_pay', this.value)"><option value="Pix" ${savedPay==='Pix'?'selected':''}>Pix</option><option value="Cartão" ${savedPay==='Cartão'?'selected':''}>Cartão de Crédito</option><option value="Boleto" ${savedPay==='Boleto'?'selected':''}>Boleto</option></select><button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp(${total})">FINALIZAR NO WHATSAPP</button></div>`;
+            let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br><span style="color:var(--jj-brown)">${i.color} | ${i.size} | Qtd: ${i.qty}</span><br><b>R$ ${(i.price * i.qty).toFixed(2)}</b><button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button></div>`; }).join('');
+            body.innerHTML = `<div style="grid-column: span 2"><h2 style="margin-bottom:20px">MINHA LISTA</h2><div style="max-height:250px; overflow-y:auto; margin-bottom:20px">${list || '<p>Vazio.</p>'}</div><div style="padding:15px; background:var(--jj-yellow-main); border-radius:15px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome"><select id="u-payment" class="user-input"><option value="Pix">Pix</option><option value="Cartão">Cartão</option></select><button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp(${total})">FINALIZAR NO WHATSAPP</button></div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
             pushModalState();
         }
 
-        // --- FUNÇÃO ATUALIZADA COM GERAÇÃO DE TOKEN ---
+        // --- FUNÇÃO ATUALIZADA COM PADRÃO jj + 4 NÚMEROS ---
         function sendWhatsApp(totalPedido) {
             const user = document.getElementById('u-final-name').value;
             const payment = document.getElementById('u-payment').value;
             if(!user) return alert("Informe seu nome.");
             
-            // Gera um Token Curto (Ex: JJ-A7B2)
-            const token = "JJ-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+            // Prefixo jj minúsculo + 4 números aleatórios
+            const token = "jj" + Math.floor(1000 + Math.random() * 9000);
             
             let resumoStr = "";
             let msg = `*PEDIDO J&J ART COLLECTION*\n----------------------------\n*TOKEN:* ${token}\n*Cliente:* ${user}\n*Pagamento:* ${payment}\n\n*ITENS:*\n`;
@@ -405,17 +356,12 @@
                 msg += `${idx+1}. *${i.name}*\n   • ${i.color} / ${i.size}\n   • Qtd: ${i.qty}\n\n`;
                 resumoStr += `${i.qty}x ${i.name} (${i.color}/${i.size}); `;
             });
-            msg += `----------------------------\n*TOTAL:* R$ ${totalPedido.toFixed(2)}\n\nEnvie este token para o vendedor!`;
+            msg += `----------------------------\n*TOTAL:* R$ ${totalPedido.toFixed(2)}`;
 
-            // Salva no Firebase usando o TOKEN como chave
             database.ref('pedidos/' + token).set({
-                token: token,
-                cliente: user,
-                total: totalPedido,
-                pagamento: payment,
-                resumo: resumoStr,
-                data: new Date().toLocaleString('pt-BR')
-            }).then(() => {
+                token, cliente: user, total: totalPedido, pagamento: payment, resumo: resumoStr, data: new Date().toLocaleString('pt-BR')
+            }).catch(e => console.log("Erro Firebase:", e))
+            .finally(() => {
                 cart = []; saveCart();
                 window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
             });
@@ -427,27 +373,19 @@
             document.querySelectorAll('.cat-group').forEach(g => g.style.display = (cat === 'all' || g.classList.contains(`cat-${cat.replace(/\s+/g, '-')}`)) ? 'block' : 'none');
         }
 
-        function loginGoogle() { auth.signInWithPopup(provider); }
+        function loginGoogle() { auth.signInWithPopup(provider).catch(e => console.error(e)); }
         function logout() { auth.signOut(); }
         function deleteProduct(id) { if(confirm("Apagar?")) database.ref('produtos/'+id).remove(); }
         function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); pushModalState(); }
-        
         function closeModals(shouldGoBack = true) {
-            document.querySelectorAll('.modal').forEach(m => {
-                m.classList.remove('active');
-                setTimeout(() => m.style.display = 'none', 400);
-            });
+            document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(() => m.style.display = 'none', 400); });
             if (shouldGoBack && history.state && history.state.modal) history.back();
         }
-
         function pushModalState() { history.pushState({ modal: true }, ""); }
 
         if (window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');
-            window.onmousemove = (e) => { 
-                dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px'; 
-                out.style.left = (e.clientX - 16) +'px'; out.style.top = (e.clientY - 16) +'px'; 
-            };
+            window.onmousemove = (e) => { dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px'; out.style.left = (e.clientX - 16) +'px'; out.style.top = (e.clientY - 16) +'px'; };
         }
     </script>
 </body>

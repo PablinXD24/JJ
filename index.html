@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | Art Collection</title>
+    <title>J&J | LOJAS</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -21,7 +21,6 @@
             --font-sans: 'Montserrat', sans-serif;
         }
 
-        /* Reset e Base */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); overflow-x: hidden; cursor: none; display: flex; flex-direction: column; min-height: 100vh; }
 
@@ -33,13 +32,12 @@
         .main-nav { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(248, 249, 250, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         .logo-img { height: 50px; width: auto; }
         
-        /* Categorias */
         .category-nav { display: flex; gap: 15px; overflow-x: auto; padding: 15px 5%; scrollbar-width: none; background: var(--jj-bg); position: sticky; top: 80px; z-index: 90; }
         .category-nav::-webkit-scrollbar { display: none; }
         .cat-filter-btn { padding: 8px 20px; border-radius: 15px; border: none; background: var(--jj-bg); box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); font-size: 0.7rem; font-weight: 700; color: var(--jj-brown); cursor: pointer; white-space: nowrap; text-transform: uppercase; transition: 0.3s; }
         .cat-filter-btn.active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); color: var(--jj-yellow-main); }
 
-        /* Cards */
+        /* Content */
         .content-wrapper { padding: 20px 0 60px 0; flex: 1; }
         .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; color: var(--jj-brown); position: relative; }
         .category-title::after { content: ''; position: absolute; left: 0; bottom: -8px; width: 40px; height: 3px; background: var(--jj-yellow-main); border-radius: 2px; }
@@ -68,7 +66,7 @@
             box-shadow: 6px 6px 15px rgba(255, 200, 0, 0.35); text-transform: uppercase;
         }
 
-        /* Footer com imagem */
+        /* Footer */
         footer {
             position: relative; background-image: url('jjvidro2.png'); background-size: cover; background-position: center;
             padding: 80px 5% 40px 5%; border-radius: 60px 60px 0 0; overflow: hidden; color: #fff; text-align: center;
@@ -89,17 +87,16 @@
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 2.2rem; cursor: pointer; color: var(--jj-brown); }
 
-        /* Botões Flutuantes */
-        #cart-btn-floating { position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 24px; }
-        #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; border: none; background: var(--jj-yellow-main); cursor: pointer; }
-
-        /* UI Elements Adicionais */
+        /* UI */
+        .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; }
         .color-dot-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
         .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.15); }
         .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .jj-btn-ghost { background: var(--jj-bg); border: none; padding: 10px 20px; border-radius: 15px; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); font-weight: 700; font-size: 0.65rem; color: var(--jj-brown); cursor: pointer; }
-        .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; }
+
+        #cart-btn-floating { position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 24px; }
+        #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        #admin-btn { display: none; position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1500; font-size: 32px; border: none; background: var(--jj-yellow-main); cursor: pointer; }
 
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
@@ -156,7 +153,7 @@
             <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">CRIAR NOVO ITEM</h2>
             <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
             <input type="text" id="p-name" class="edit-field" placeholder="Nome">
-            <input type="text" id="p-price" class="edit-field" placeholder="Preço (Apenas Números)">
+            <input type="text" id="p-price" class="edit-field" placeholder="Preço">
             <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Preto, Azul)">
             <textarea id="p-desc" class="edit-field" placeholder="Descrição"></textarea>
             <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CRIAR ITEM</button>
@@ -182,7 +179,15 @@
         const WPP_NUM = "5511998937643";
         let cart = [], currentProduct = null, selectedColor = "";
 
-        // AUTH
+        // --- CONTROLE DE VOLTAR (MOBILE FIX) ---
+        window.addEventListener('popstate', function() {
+            closeModals(false); // Fecha o modal sem empurrar um novo estado no histórico
+        });
+
+        function pushModalState() {
+            history.pushState({ modal: true }, "");
+        }
+
         function loginGoogle() { auth.signInWithPopup(provider); }
         function logout() { auth.signOut(); }
 
@@ -197,7 +202,6 @@
             listenToProducts();
         });
 
-        // ADMIN
         function saveToRTDB() {
             const name = document.getElementById('p-name').value;
             if (name) {
@@ -224,31 +228,22 @@
                 if (data) {
                     const products = Object.values(data);
                     const cats = [...new Set(products.map(p => p.category))];
-                    
                     cats.forEach(cat => {
                         catNav.innerHTML += `<button class="cat-filter-btn" onclick="filterCat('${cat}')">${cat}</button>`;
                         const section = document.createElement('div');
                         section.className = `cat-group cat-${cat.replace(/\s+/g, '-')}`;
                         section.innerHTML = `<h2 class="category-title">${cat}</h2><div class="carousel-container" id="cat-container-${cat.replace(/\s+/g, '-')}"></div>`;
                         main.appendChild(section);
-                        
                         products.filter(p => p.category === cat).forEach(p => {
                             const firstColor = p.colors ? p.colors.split(',')[0].trim() : "";
-                            const displayImg = (p.variants && p.variants[firstColor] && p.variants[firstColor].img) 
-                                ? p.variants[firstColor].img 
-                                : "https://via.placeholder.com/300?text=J&J+Art";
-
+                            const displayImg = (p.variants && p.variants[firstColor] && p.variants[firstColor].img) ? p.variants[firstColor].img : "https://via.placeholder.com/300?text=J&J+Art";
                             const card = document.createElement('div');
                             card.className = 'product-card';
                             card.onclick = () => openDetails(p);
                             card.innerHTML = `
                                 ${auth.currentUser?.email === ADM_EMAIL ? `<button onclick="event.stopPropagation(); deleteProduct('${p.id}')" style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.5rem; color:var(--jj-brown); cursor:pointer; z-index:20">&times;</button>` : ''}
                                 <div class="img-sculpt-frame"><img src="${displayImg}"></div>
-                                <div class="card-info">
-                                    <span class="card-label">Exclusivo</span>
-                                    <h3>${p.name}</h3>
-                                    <div class="price">R$ ${p.price}</div>
-                                </div>
+                                <div class="card-info"><h3>${p.name}</h3><div class="price">R$ ${p.price}</div></div>
                                 <button class="card-btn-fix">VER DETALHES</button>`;
                             document.getElementById(`cat-container-${cat.replace(/\s+/g, '-')}`).appendChild(card);
                         });
@@ -257,7 +252,6 @@
             });
         }
 
-        // MODAL DETALHES
         function openDetails(p) {
             currentProduct = p;
             const body = document.getElementById('details-body');
@@ -268,105 +262,55 @@
             if (isAdm) {
                 let variantEditors = colors.map(c => {
                     const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "" };
-                    return `
-                    <div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.02); border-radius:15px; border:1px solid rgba(0,0,0,0.05)">
+                    return `<div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.02); border-radius:15px; border:1px solid rgba(0,0,0,0.05)">
                         <h4 style="color:var(--jj-brown); font-size:0.65rem; margin-bottom:8px">COR: ${c.toUpperCase()}</h4>
                         <input type="file" onchange="uploadVariantImg('${p.id}', '${c}', this)" style="font-size:0.6rem; margin-bottom:8px">
-                        <img src="${v.img}" id="prev-${c}" style="width:50px; display:${v.img ? 'block' : 'none'}; border-radius:5px; margin-bottom:8px; height: 50px; object-fit: cover;">
+                        <img src="${v.img}" id="prev-${c}" style="width:50px; display:${v.img ? 'block' : 'none'}; border-radius:5px; height: 50px; object-fit: cover;">
                         <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Ex: P:5, M:10">
                     </div>`;
                 }).join('');
-
-                body.innerHTML = `
-                    <div style="grid-column: 1 / -1">
-                        <h3 style="margin-bottom:15px">EDITAR PRODUTO</h3>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
-                            <input type="text" id="e-name" class="edit-field" value="${p.name}">
-                            <input type="text" id="e-price" class="edit-field" value="${p.price}">
-                            <input type="text" id="e-colors" class="edit-field" value="${p.colors}">
-                            <input type="text" id="e-cat" class="edit-field" value="${p.category}">
-                        </div>
-                        <textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>
-                        <h4 style="font-size:0.7rem; margin:10px 0">ESTOQUE E FOTOS POR COR:</h4>
-                        <div style="max-height: 300px; overflow-y: auto;">${variantEditors}</div>
-                        <button class="card-btn-fix" style="position:static; width:100%; margin-top:15px" onclick="updateProductAll('${p.id}')">SALVAR TUDO</button>
-                    </div>`;
+                body.innerHTML = `<div style="grid-column: 1/-1"><h3>EDITAR PRODUTO</h3><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><input type="text" id="e-cat" class="edit-field" value="${p.category}"></div><textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>${variantEditors}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR</button></div>`;
             } else {
                 updateUserModalView(p, selectedColor);
             }
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
+            pushModalState();
         }
 
         function updateUserModalView(p, color) {
             const body = document.getElementById('details-body');
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "https://via.placeholder.com/300?text=J&J+Art", stock: "" };
-            
-            const stockMap = {};
-            if(v.stock) v.stock.split(',').forEach(item => { const [t, q] = item.split(':'); if(t && q) stockMap[t.trim()] = q.trim(); });
-            
+            const stockMap = {}; if(v.stock) v.stock.split(',').forEach(item => { const [t, q] = item.split(':'); if(t && q) stockMap[t.trim()] = q.trim(); });
             const sizeOptions = Object.keys(stockMap).map(s => `<option value="${s}">${s}</option>`).join('');
-            const colorDots = p.colors.split(',').map(c => {
-                const cl = c.trim();
-                return `<div class="color-dot-btn ${cl === color ? 'selected' : ''}" style="background:${cl}" onclick="switchColor('${cl}')"></div>`;
-            }).join('');
-
-            body.innerHTML = `
-                <div class="img-sculpt-frame"><img id="main-view-img" src="${v.img}"></div>
-                <div>
-                    <h2 style="color:var(--jj-brown)">${p.name}</h2>
-                    <p style="font-size:0.75rem; color:#666; margin:10px 0 20px 0">${p.desc || ''}</p>
-                    <div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:15px">
-                        <label style="font-size:0.6rem; font-weight:700">COR: ${color.toUpperCase()}</label>
-                        <div class="color-selector" style="margin-top:8px">${colorDots}</div>
-                        <label style="font-size:0.6rem; font-weight:700">TAMANHO:</label>
-                        <select id="u-size" class="user-input">${sizeOptions || '<option disabled>Indisponível</option>'}</select>
-                        <label style="font-size:0.6rem; font-weight:700">QUANTIDADE:</label>
-                        <input type="number" id="u-qty" class="user-input" value="1" min="1">
-                    </div>
-                    <div style="font-weight:800; font-size:1.4rem; margin-bottom:15px">R$ ${p.price}</div>
-                    <button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}')">ADICIONAR À LISTA</button>
-                </div>`;
+            const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="switchColor('${c.trim()}')"></div>`).join('');
+            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:15px"><label style="font-size:0.6rem; font-weight:700">COR: ${color.toUpperCase()}</label><div class="color-selector">${colorDots}</div><label style="font-size:0.6rem; font-weight:700">TAMANHO:</label><select id="u-size" class="user-input">${sizeOptions || '<option disabled>Indisponível</option>'}</select><label style="font-size:0.6rem; font-weight:700">QTD:</label><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-weight:800; font-size:1.4rem; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}')">ADICIONAR À LISTA</button></div>`;
         }
 
-        function switchColor(color) { 
-            selectedColor = color; 
-            updateUserModalView(currentProduct, color); 
-        }
+        function switchColor(color) { selectedColor = color; updateUserModalView(currentProduct, color); }
 
         function uploadVariantImg(pid, color, input) {
             const file = input.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const base64 = e.target.result;
-                    database.ref(`produtos/${pid}/variants/${color}/img`).set(base64);
+                    database.ref(`produtos/${pid}/variants/${color}/img`).set(e.target.result);
                     const prev = document.getElementById(`prev-${color}`);
-                    if(prev) { prev.src = base64; prev.style.display = 'block'; }
+                    if(prev) { prev.src = e.target.result; prev.style.display = 'block'; }
                 };
                 reader.readAsDataURL(file);
             }
         }
 
         function updateProductAll(id) {
-            const updates = {
-                name: document.getElementById('e-name').value,
-                price: document.getElementById('e-price').value,
-                colors: document.getElementById('e-colors').value,
-                category: document.getElementById('e-cat').value,
-                desc: document.getElementById('e-desc').value
-            };
-            document.querySelectorAll('.v-stock').forEach(input => {
-                const color = input.dataset.color;
-                database.ref(`produtos/${id}/variants/${color}/stock`).set(input.value);
-            });
+            const updates = { name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, colors: document.getElementById('e-colors').value, category: document.getElementById('e-cat').value, desc: document.getElementById('e-desc').value };
+            document.querySelectorAll('.v-stock').forEach(input => database.ref(`produtos/${id}/variants/${input.dataset.color}/stock`).set(input.value));
             database.ref('produtos/'+id).update(updates).then(() => { alert("Atualizado!"); closeModals(); });
         }
 
-        // CARRINHO
         function addToCart(name, price) {
             const size = document.getElementById('u-size').value;
-            if(!size || size.includes("Indisponível")) return alert("Indisponível.");
+            if(!size || size.includes("Indisponível")) return alert("Selecione um tamanho.");
             cart.push({ name, price: parseFloat(price), size, color: selectedColor, qty: parseInt(document.getElementById('u-qty').value) });
             document.getElementById('cart-badge').innerText = cart.length;
             document.getElementById('cart-btn-floating').style.display = 'flex';
@@ -376,74 +320,42 @@
         function openCartModal() {
             const body = document.getElementById('details-body');
             let total = 0;
-            let list = cart.map((i, idx) => {
-                total += (i.price * i.qty);
-                return `
-                <div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.05)">
-                    <b>${i.name}</b><br>
-                    <span style="color:var(--jj-brown)">${i.color} | ${i.size} | Qtd: ${i.qty}</span><br>
-                    <div style="margin-top:5px; font-weight:700">R$ ${(i.price * i.qty).toFixed(2)}</div>
-                    <button onclick="cart.splice(${idx},1); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button>
-                </div>`;
-            }).join('');
-            
-            body.innerHTML = `
-                <div style="grid-column: span 2">
-                    <h2 style="margin-bottom:20px; color:var(--jj-brown)">MINHA LISTA</h2>
-                    <div style="max-height: 250px; overflow-y: auto; margin-bottom:20px">${list || '<p>Lista vazia.</p>'}</div>
-                    <div style="padding:15px; background:var(--jj-yellow-main); border-radius:15px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div>
-                    
-                    <input type="text" id="u-final-name" class="user-input" placeholder="Seu Nome Completo">
-                    <label style="font-size:0.6rem; font-weight:700">FORMA DE PAGAMENTO:</label>
-                    <select id="u-payment" class="user-input">
-                        <option value="Pix">Pix</option>
-                        <option value="Cartão de Crédito">Cartão de Crédito</option>
-                        <option value="Boleto">Boleto</option>
-                    </select>
-
-                    <button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp(${total})">FINALIZAR NO WHATSAPP</button>
-                </div>`;
+            let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br><span style="color:var(--jj-brown)">${i.color} | ${i.size} | Qtd: ${i.qty}</span><br><b>R$ ${(i.price * i.qty).toFixed(2)}</b><button onclick="cart.splice(${idx},1); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button></div>`; }).join('');
+            body.innerHTML = `<div style="grid-column: span 2"><h2 style="margin-bottom:20px">MINHA LISTA</h2><div style="max-height:250px; overflow-y:auto; margin-bottom:20px">${list || '<p>Lista vazia.</p>'}</div><div style="padding:15px; background:var(--jj-yellow-main); border-radius:15px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome Completo"><select id="u-payment" class="user-input"><option value="Pix">Pix</option><option value="Cartão">Cartão de Crédito</option><option value="Boleto">Boleto</option></select><button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp(${total})">FINALIZAR NO WHATSAPP</button></div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
-            if(cart.length === 0) document.getElementById('cart-btn-floating').style.display = 'none';
+            pushModalState();
         }
 
         function sendWhatsApp(totalPedido) {
             const user = document.getElementById('u-final-name').value;
             const payment = document.getElementById('u-payment').value;
-            if(!user) return alert("Por favor, informe seu nome.");
-            
-            let msg = `*PEDIDO J&J ART COLLECTION*\n`;
-            msg += `----------------------------\n`;
-            msg += `*Cliente:* ${user}\n`;
-            msg += `*Pagamento:* ${payment}\n\n`;
-            msg += `*ITENS DO PEDIDO:*\n`;
-            
-            cart.forEach((i, index) => {
-                msg += `${index + 1}. *${i.name}*\n`;
-                msg += `   • Cor: ${i.color} / Tamanho: ${i.size}\n`;
-                msg += `   • Qtd: ${i.qty} x R$ ${i.price.toFixed(2)}\n\n`;
-            });
-            
-            msg += `----------------------------\n`;
-            msg += `*TOTAL DO PEDIDO:* R$ ${totalPedido.toFixed(2)}\n\n`;
-            msg += `Volte sempre para mais compras em nossa loja!\n`;
-            msg += `https://pablinxd24.github.io/JJ`;
-            
+            if(!user) return alert("Informe seu nome.");
+            let msg = `*PEDIDO J&J ART COLLECTION*\n----------------------------\n*Cliente:* ${user}\n*Pagamento:* ${payment}\n\n*ITENS:*\n`;
+            cart.forEach((i, idx) => msg += `${idx+1}. *${i.name}*\n   • ${i.color} / ${i.size}\n   • Qtd: ${i.qty} x R$ ${i.price.toFixed(2)}\n\n`);
+            msg += `----------------------------\n*TOTAL:* R$ ${totalPedido.toFixed(2)}\n\nVolte sempre em nossa loja!\nhttps://pablinxd24.github.io/JJ`;
             window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // UTIL
         function filterCat(cat) {
             document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
             if(event) event.target.classList.add('active');
-            document.querySelectorAll('.cat-group').forEach(g => {
-                g.style.display = (cat === 'all' || g.classList.contains(`cat-${cat.replace(/\s+/g, '-')}`)) ? 'block' : 'none';
-            });
+            document.querySelectorAll('.cat-group').forEach(g => g.style.display = (cat === 'all' || g.classList.contains(`cat-${cat.replace(/\s+/g, '-')}`)) ? 'block' : 'none');
         }
-        function deleteProduct(id) { if(confirm("Apagar permanentemente?")) database.ref('produtos/'+id).remove(); }
-        function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); }
-        function closeModals() { document.querySelectorAll('.modal').forEach(m=>{m.classList.remove('active'); setTimeout(()=>m.style.display='none',400);}); }
+
+        function deleteProduct(id) { if(confirm("Apagar?")) database.ref('produtos/'+id).remove(); }
+        function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); pushModalState(); }
+        
+        function closeModals(shouldGoBack = true) {
+            document.querySelectorAll('.modal').forEach(m => {
+                m.classList.remove('active');
+                setTimeout(() => m.style.display = 'none', 400);
+            });
+            // Se fechamos o modal via botão X ou clique fora, removemos o estado do histórico para evitar o botão voltar fantasma
+            if (shouldGoBack && history.state && history.state.modal) {
+                history.back();
+            }
+        }
 
         if (window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');

@@ -78,6 +78,9 @@
         #cart-btn-floating { bottom: 30px; left: 30px; }
         #scan-btn-floating { bottom: 30px; left: 110px; color: var(--jj-brown); }
         #admin-btn { bottom: 30px; right: 30px; background: var(--jj-yellow-main); }
+        /* BOTÃO DASHBOARD (BOLINHA ACIMA DO +) */
+        #dash-btn-floating { bottom: 105px; right: 30px; background: var(--jj-brown); color: white; font-size: 20px; }
+        
         #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
         .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; font-family: inherit; }
@@ -140,6 +143,8 @@
 
     <button id="cart-btn-floating" class="float-btn" onclick="openCartModal()">🛒 <div id="cart-badge">0</div></button>
     <button id="scan-btn-floating" class="float-btn" onclick="openScanner()">📷</button>
+    
+    <button id="dash-btn-floating" class="float-btn" onclick="window.location.href='dash.html'">📊</button>
     <button id="admin-btn" class="float-btn" onclick="openAdmin()">+</button>
 
     <div id="details-modal" class="modal">
@@ -161,20 +166,14 @@
             </div>
             
             <div id="admin-create-section">
-                <button class="card-btn-fix" onclick="window.location.href='dash.html'" style="position:static; width:100%; margin-bottom: 25px; background: var(--jj-brown); color: white;">
-                    📊 ACESSAR DASHBOARD AVANÇADO
-                </button>
-
-                <div style="height: 1px; background: rgba(0,0,0,0.05); margin-bottom: 25px;"></div>
-
                 <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
                 <input type="text" id="p-name" class="edit-field" placeholder="Nome do Item">
                 <input type="text" id="p-price" class="edit-field" placeholder="Preço (00.00)">
                 <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Transparente)">
                 <textarea id="p-desc" class="edit-field" placeholder="Descrição da Obra"></textarea>
-                
                 <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
             </div>
+
             <div id="admin-caixa-section" style="display:none">
                 <div class="cashier-stats">
                     <div class="stat-card"><div class="stat-label">Vendas</div><div class="stat-val" id="stat-count">0</div></div>
@@ -183,6 +182,7 @@
                 <h4 style="font-size: 0.7rem; margin-bottom: 15px; color: var(--jj-brown);">HISTÓRICO DE VENDAS</h4>
                 <div id="cashier-history" style="max-height: 350px; overflow-y: auto;"></div>
             </div>
+
             <div id="admin-dashboard-section" style="display:none">
                 <input type="text" id="search-token" class="edit-field" placeholder="Digite o Token (Ex: jj1234)">
                 <button class="card-btn-fix" onclick="searchOrderByToken()" style="position:static; width:100%">LOCALIZAR PEDIDO</button>
@@ -215,13 +215,20 @@
         auth.onAuthStateChanged(user => {
             const ui = document.getElementById('auth-ui');
             const btnAdmin = document.getElementById('admin-btn');
+            const btnDash = document.getElementById('dash-btn-floating');
             const btnScan = document.getElementById('scan-btn-floating');
             if(user) {
                 ui.innerHTML = `<span style="font-size:0.6rem; font-weight:700">${user.displayName.split(' ')[0]}</span> <button class="cat-filter-btn" onclick="auth.signOut()" style="padding:4px 10px; font-size:0.5rem; margin-left:5px">Sair</button>`;
-                if(user.email === ADM_EMAIL) { btnAdmin.style.display = 'flex'; btnScan.style.display = 'flex'; }
+                if(user.email === ADM_EMAIL) { 
+                    btnAdmin.style.display = 'flex'; 
+                    btnDash.style.display = 'flex';
+                    btnScan.style.display = 'flex'; 
+                }
             } else {
                 ui.innerHTML = `<button class="cat-filter-btn" onclick="auth.signInWithPopup(provider)">ENTRAR</button>`;
-                btnAdmin.style.display = 'none'; btnScan.style.display = 'none';
+                btnAdmin.style.display = 'none'; 
+                btnDash.style.display = 'none';
+                btnScan.style.display = 'none';
             }
         });
 

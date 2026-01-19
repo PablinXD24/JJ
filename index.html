@@ -141,15 +141,29 @@
 
     <div id="admin-modal" class="modal">
         <div class="modal-overlay" onclick="closeModals()"></div>
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content" style="max-width: 600px;">
             <button class="close-btn" onclick="closeModals()">&times;</button>
-            <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">CRIAR NOVO ITEM</h2>
-            <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
-            <input type="text" id="p-name" class="edit-field" placeholder="Nome">
-            <input type="text" id="p-price" class="edit-field" placeholder="Preço">
-            <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Preto, Azul)">
-            <textarea id="p-desc" class="edit-field" placeholder="Descrição"></textarea>
-            <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CRIAR ITEM</button>
+            
+            <div style="display:flex; gap:10px; margin-bottom:25px">
+                <button class="cat-filter-btn active" id="tab-novo" onclick="switchAdminTab('novo')">Novo Item</button>
+                <button class="cat-filter-btn" id="tab-dash" onclick="switchAdminTab('dash')">Dashboard WPP</button>
+            </div>
+
+            <div id="admin-create-section">
+                <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">CRIAR NOVO ITEM</h2>
+                <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
+                <input type="text" id="p-name" class="edit-field" placeholder="Nome">
+                <input type="text" id="p-price" class="edit-field" placeholder="Preço">
+                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Preto, Azul)">
+                <textarea id="p-desc" class="edit-field" placeholder="Descrição"></textarea>
+                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CRIAR ITEM</button>
+            </div>
+
+            <div id="admin-dashboard-section" style="display:none">
+                <h2 style="margin-bottom:20px; font-size:1rem; color:var(--jj-brown)">HISTÓRICO DE PEDIDOS</h2>
+                <div id="admin-pedidos-list" style="display:flex; flex-direction:column; gap:15px">
+                    </div>
+            </div>
         </div>
     </div>
 
@@ -171,11 +185,9 @@
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
         const WPP_NUM = "5511998937643";
         
-        // --- PERSISTÊNCIA DE DADOS ---
         let cart = JSON.parse(localStorage.getItem('jj_cart')) || [];
         let currentProduct = null, selectedColor = "";
 
-        // Inicializar badge do carrinho
         window.onload = () => {
             updateCartBadge();
             if(cart.length > 0) document.getElementById('cart-btn-floating').style.display = 'flex';
@@ -191,7 +203,6 @@
             document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none';
         }
 
-        // --- CONTROLE DE VOLTAR ---
         window.addEventListener('popstate', () => closeModals(false));
         function pushModalState() { history.pushState({ modal: true }, ""); }
 
@@ -205,6 +216,32 @@
             }
             listenToProducts();
         });
+
+        function switchAdminTab(tab) {
+            document.getElementById('admin-create-section').style.display = tab === 'novo' ? 'block' : 'none';
+            document.getElementById('admin-dashboard-section').style.display = tab === 'dash' ? 'block' : 'none';
+            document.getElementById('tab-novo').classList.toggle('active', tab === 'novo');
+            document.getElementById('tab-dash').classList.toggle('active', tab === 'dash');
+            if(tab === 'dash') listenToOrders();
+        }
+
+        function listenToOrders() {
+            const list = document.getElementById('admin-pedidos-list');
+            database.ref('pedidos').orderByChild('timestamp').on('value', snap => {
+                const data = snap.val();
+                if(!data) { list.innerHTML = "<p style='font-size:0.7rem'>Sem pedidos registrados.</p>"; return; }
+                let html = "";
+                Object.values(data).reverse().forEach(p => {
+                    html += `
+                    <div style="padding:15px; background:white; border-radius:20px; box-shadow:4px 4px 8px var(--shadow-dark); font-size:0.75rem">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px"><b>${p.cliente}</b> <span>${p.data}</span></div>
+                        <div style="color:var(--jj-brown); font-weight:600">Total: R$ ${p.total.toFixed(2)} (${p.pagamento})</div>
+                        <div style="margin-top:5px; font-size:0.65rem; opacity:0.8">${p.resumo}</div>
+                    </div>`;
+                });
+                list.innerHTML = html;
+            });
+        }
 
         function saveToRTDB() {
             const name = document.getElementById('p-name').value;
@@ -266,13 +303,13 @@
                 let variantEditors = colors.map(c => {
                     const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "" };
                     return `<div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.02); border-radius:15px; border:1px solid rgba(0,0,0,0.05)">
-                        <h4 style="color:var(--jj-brown); font-size:0.65rem; margin-bottom:8px">COR: ${c.toUpperCase()}</h4>
+                        <h4 style="color:var(--jj-brown); font-size:0.65rem; margin-bottom:8px">GESTÃO ESTOQUE: ${c.toUpperCase()}</h4>
                         <input type="file" onchange="uploadVariantImg('${p.id}', '${c}', this)" style="font-size:0.6rem; margin-bottom:8px">
-                        <img src="${v.img}" id="prev-${c}" style="width:50px; display:${v.img ? 'block' : 'none'}; border-radius:5px; height: 50px; object-fit: cover;">
-                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Ex: P:5, M:10">
+                        <img src="${v.img}" id="prev-${c}" style="width:50px; display:${v.img ? 'block' : 'none'}; border-radius:5px; height: 50px; object-fit: cover; margin-bottom:8px">
+                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Ex: P:5, M:10, G:2">
                     </div>`;
                 }).join('');
-                body.innerHTML = `<div style="grid-column: 1/-1"><h3>EDITAR</h3><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><input type="text" id="e-cat" class="edit-field" value="${p.category}"></div><textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>${variantEditors}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR</button></div>`;
+                body.innerHTML = `<div style="grid-column: 1/-1"><h3>EDITAR PRODUTO & ESTOQUE</h3><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><input type="text" id="e-cat" class="edit-field" value="${p.category}"></div><textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>${variantEditors}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button></div>`;
             } else {
                 updateUserModalView(p, selectedColor);
             }
@@ -284,8 +321,8 @@
         function updateUserModalView(p, color) {
             const body = document.getElementById('details-body');
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "https://via.placeholder.com/300?text=J&J+Art", stock: "" };
-            const stockMap = {}; if(v.stock) v.stock.split(',').forEach(item => { const [t, q] = item.split(':'); if(t && q) stockMap[t.trim()] = q.trim(); });
-            const sizeOptions = Object.keys(stockMap).map(s => `<option value="${s}">${s}</option>`).join('');
+            const stockMap = {}; if(v.stock) v.stock.split(',').forEach(item => { const parts = item.split(':'); if(parts.length===2) stockMap[parts[0].trim()] = parts[1].trim(); });
+            const sizeOptions = Object.keys(stockMap).map(s => `<option value="${s}">${s} (${stockMap[s]} disp.)</option>`).join('');
             const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="switchColor('${c.trim()}')"></div>`).join('');
             body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:15px"><label style="font-size:0.6rem; font-weight:700">COR: ${color.toUpperCase()}</label><div class="color-selector">${colorDots}</div><label style="font-size:0.6rem; font-weight:700">TAMANHO:</label><select id="u-size" class="user-input">${sizeOptions || '<option disabled>Indisponível</option>'}</select><label style="font-size:0.6rem; font-weight:700">QTD:</label><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-weight:800; font-size:1.4rem; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}')">ADICIONAR À LISTA</button></div>`;
         }
@@ -340,9 +377,25 @@
             const user = document.getElementById('u-final-name').value;
             const payment = document.getElementById('u-payment').value;
             if(!user) return alert("Informe seu nome.");
+            
+            let resumoStr = "";
             let msg = `*PEDIDO J&J ART COLLECTION*\n----------------------------\n*Cliente:* ${user}\n*Pagamento:* ${payment}\n\n*ITENS:*\n`;
-            cart.forEach((i, idx) => msg += `${idx+1}. *${i.name}*\n   • ${i.color} / ${i.size}\n   • Qtd: ${i.qty} x R$ ${i.price.toFixed(2)}\n\n`);
+            cart.forEach((i, idx) => {
+                msg += `${idx+1}. *${i.name}*\n   • ${i.color} / ${i.size}\n   • Qtd: ${i.qty} x R$ ${i.price.toFixed(2)}\n\n`;
+                resumoStr += `${i.qty}x ${i.name} (${i.color}/${i.size}); `;
+            });
             msg += `----------------------------\n*TOTAL:* R$ ${totalPedido.toFixed(2)}\n\nVolte sempre em nossa loja!\nhttps://pablinxd24.github.io/JJ`;
+
+            // SALVAR NO DASHBOARD ANTES DE ENVIAR
+            database.ref('pedidos').push({
+                cliente: user,
+                total: totalPedido,
+                pagamento: payment,
+                resumo: resumoStr,
+                data: new Date().toLocaleString('pt-BR'),
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
             window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 

@@ -27,11 +27,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); overflow-x: hidden; cursor: none; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* Cursor Custom */
         .cursor-dot { position: fixed; width: 8px; height: 8px; background: var(--jj-yellow-main); border-radius: 50%; z-index: 10000; pointer-events: none; }
         .cursor-outline { position: fixed; width: 40px; height: 40px; border: 2px solid var(--jj-yellow-main); border-radius: 50%; z-index: 9999; pointer-events: none; transition: 0.1s; }
 
-        /* Nav */
         .main-nav { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; background: rgba(248, 249, 250, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         .logo-img { height: 50px; width: auto; }
         
@@ -40,7 +38,6 @@
         .cat-filter-btn { padding: 8px 20px; border-radius: 15px; border: none; background: var(--jj-bg); box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); font-size: 0.7rem; font-weight: 700; color: var(--jj-brown); cursor: pointer; white-space: nowrap; text-transform: uppercase; transition: 0.3s; }
         .cat-filter-btn.active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); color: var(--jj-yellow-main); }
 
-        /* Cards & Container */
         .content-wrapper { padding: 20px 0 60px 0; flex: 1; }
         .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; color: var(--jj-brown); position: relative; }
         .category-title::after { content: ''; position: absolute; left: 0; bottom: -8px; width: 40px; height: 3px; background: var(--jj-yellow-main); border-radius: 2px; }
@@ -69,7 +66,6 @@
             box-shadow: 6px 6px 15px rgba(255, 200, 0, 0.35); text-transform: uppercase;
         }
 
-        /* Modais */
         .modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
         .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); }
@@ -78,8 +74,7 @@
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 2.2rem; cursor: pointer; color: var(--jj-brown); z-index: 10; }
 
-        /* Floating Buttons */
-        .float-btn { position: fixed; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 24px; transition: 0.3s; }
+        .float-btn { position: fixed; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -4px -4px 8px var(--shadow-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 24px; transition: 0.3s; }
         #cart-btn-floating { bottom: 30px; left: 30px; }
         #scan-btn-floating { bottom: 30px; left: 110px; color: var(--jj-brown); display: none !important; }
         #admin-btn { bottom: 30px; right: 30px; background: var(--jj-yellow-main); display: none !important; }
@@ -87,12 +82,10 @@
 
         .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; }
         
-        /* Scan Choices */
         .scan-choice-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; margin-bottom: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
         .btn-edit { background: var(--jj-brown); color: white; }
         .btn-quick { background: var(--jj-yellow-main); color: var(--jj-text); }
 
-        /* Estilo Caixa */
         .cashier-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--jj-bg); padding: 15px; border-radius: 20px; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); text-align: center; }
         .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--jj-brown); }
@@ -114,6 +107,10 @@
             body { cursor: auto; }
             #scan-btn-floating { left: auto; right: 110px; }
         }
+
+        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; }
+        .color-dot-btn { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.2); }
     </style>
 </head>
 <body>
@@ -240,7 +237,6 @@
             document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none'; 
         }
 
-        // --- SCANNER COM OPÇÕES ---
         function openScanner() {
             if(auth.currentUser?.email !== ADM_EMAIL) return;
             const body = document.getElementById('details-body');
@@ -275,7 +271,7 @@
             cart.push({ name, price: parseFloat(price), color: firstColor, size: "Padrão", qty: 1 });
             saveCart();
             closeModals();
-            openCartModal(); // Abre o carrinho para finalizar
+            openCartModal(); 
         }
 
         function stopScanner() { if(html5QrCode) html5QrCode.stop().then(()=>html5QrCode=null); }
@@ -324,7 +320,7 @@
                         count++;
                         total += parseFloat(p.total);
                         html += `<div style="padding:12px; background:white; border-radius:12px; margin-bottom:8px; font-size:0.65rem; box-shadow: 2px 2px 5px rgba(0,0,0,0.03)">
-                            <b>${p.token}</b> - ${p.cliente}<br>R$ ${p.total} | ${p.data.split(',')[0]}
+                            <b>${p.token}</b> - ${p.cliente}<br>R$ ${p.total} | ${p.pagamento || 'N/A'}<br><span style="opacity:0.6">${p.data.split(',')[0]}</span>
                         </div>`;
                     });
                 }
@@ -416,21 +412,81 @@
         function openCartModal() {
             const body = document.getElementById('details-body');
             let total = 0;
-            let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.7rem; position:relative; box-shadow:4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br>R$ ${(i.price*i.qty).toFixed(2)}<button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer">×</button></div>` }).join('');
-            body.innerHTML = `<div style="grid-column: 1/-1"><h2>PEDIDO</h2><div style="margin:20px 0">${list}</div><div style="background:var(--jj-yellow-main); padding:15px; border-radius:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome do Cliente" style="margin-top:15px"><button class="card-btn-fix" style="position:static; width:100%" onclick="finishOrder(${total})">FINALIZAR E ENVIAR WHATSAPP</button></div>`;
+            let list = cart.map((i, idx) => { 
+                total += (i.price * i.qty); 
+                return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.7rem; position:relative; box-shadow:4px 4px 10px rgba(0,0,0,0.05)">
+                    <b>${i.name}</b> (${i.color}) - ${i.size}<br>R$ ${(i.price*i.qty).toFixed(2)} (${i.qty}x)
+                    <button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer">×</button>
+                </div>` 
+            }).join('');
+
+            body.innerHTML = `
+                <div style="grid-column: 1/-1">
+                    <h2>REVISAR PEDIDO</h2>
+                    <div style="margin:20px 0">${list}</div>
+                    <div style="background:var(--jj-yellow-main); padding:15px; border-radius:15px; font-weight:700; text-align:right; margin-bottom:15px">TOTAL: R$ ${total.toFixed(2)}</div>
+                    
+                    <label style="font-size:0.6rem; font-weight:700; opacity:0.6">NOME DO CLIENTE</label>
+                    <input type="text" id="u-final-name" class="user-input" placeholder="Ex: João Silva">
+                    
+                    <label style="font-size:0.6rem; font-weight:700; opacity:0.6">FORMA DE PAGAMENTO</label>
+                    <select id="u-final-pay" class="user-input">
+                        <option value="PIX">PIX</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="Dinheiro">Dinheiro / Espécie</option>
+                    </select>
+
+                    <button class="card-btn-fix" style="position:static; width:100%" onclick="finishOrder(${total})">ENVIAR PEDIDO AO WHATSAPP</button>
+                </div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
         function finishOrder(total) {
             const user = document.getElementById('u-final-name').value;
+            const payMethod = document.getElementById('u-final-pay').value;
             if(!user) return alert("Nome do cliente é obrigatório.");
+            
             const token = "jj" + Math.floor(1000 + Math.random()*9000);
-            let msg = `*J&J ART COLLECTION*\n*Venda:* ${token}\n*Cliente:* ${user}\n\n`;
-            cart.forEach(i => msg += `• ${i.qty}x ${i.name} (${i.color}) - R$ ${i.price}\n`);
-            msg += `\n*Total:* R$ ${total.toFixed(2)}`;
-            database.ref('pedidos/'+token).set({ token, cliente: user, total: total.toFixed(2), data: new Date().toLocaleString() })
-            .finally(() => { cart = []; saveCart(); window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`); });
+            const dataHora = new Date().toLocaleString('pt-BR');
+
+            // --- Formatação Mensagem WhatsApp ---
+            let msg = `✨ *J&J ART COLLECTION* ✨\n`;
+            msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `🆔 *PEDIDO:* #${token}\n`;
+            msg += `👤 *CLIENTE:* ${user}\n`;
+            msg += `📅 *DATA:* ${dataHora}\n`;
+            msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+            msg += `🛍️ *ITENS:* \n`;
+            
+            cart.forEach(i => {
+                msg += `• *${i.name}*\n`;
+                msg += `  🎨 Cor: ${i.color} | 📏 Tam: ${i.size}\n`;
+                msg += `  💰 ${i.qty}x R$ ${i.price.toFixed(2)} = *R$ ${(i.qty*i.price).toFixed(2)}*\n\n`;
+            });
+
+            msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `💳 *PAGAMENTO:* ${payMethod}\n`;
+            msg += `💰 *TOTAL GERAL: R$ ${total.toFixed(2)}*\n`;
+            msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+            msg += `_Obrigado por escolher J&J Art!_`;
+
+            // Salva no banco de dados com detalhes extras
+            database.ref('pedidos/'+token).set({ 
+                token, 
+                cliente: user, 
+                total: total.toFixed(2), 
+                pagamento: payMethod,
+                itens: cart,
+                data: dataHora 
+            })
+            .finally(() => { 
+                cart = []; 
+                saveCart(); 
+                window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`); 
+                closeModals();
+            });
         }
 
         function saveToRTDB() {
@@ -445,7 +501,19 @@
             const t = document.getElementById('search-token').value.trim();
             database.ref('pedidos/'+t).once('value', snap => {
                 const p = snap.val();
-                document.getElementById('token-result-area').innerHTML = p ? `<div style="background:white; padding:20px; border-radius:20px; font-size:0.75rem"><b>Cliente:</b> ${p.cliente}<br><b>Total:</b> R$ ${p.total}<br><b>Data:</b> ${p.data}</div>` : 'Token não encontrado.';
+                if(p) {
+                    let itensHtml = p.itens ? p.itens.map(i => `<div style="margin-left:10px; opacity:0.7">• ${i.qty}x ${i.name} (${i.color})</div>`).join('') : '';
+                    document.getElementById('token-result-area').innerHTML = `
+                    <div style="background:white; padding:20px; border-radius:20px; font-size:0.75rem">
+                        <b>Cliente:</b> ${p.cliente}<br>
+                        <b>Pagamento:</b> ${p.pagamento || 'Não informado'}<br>
+                        <b>Itens:</b><br>${itensHtml}
+                        <b>Total:</b> R$ ${p.total}<br>
+                        <small>${p.data}</small>
+                    </div>`;
+                } else {
+                    document.getElementById('token-result-area').innerHTML = 'Token não encontrado.';
+                }
             });
         }
 

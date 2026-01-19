@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | Ultra Admin Dashboard</title>
+    <title>J&J | Private Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -23,110 +22,103 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); padding-bottom: 50px; }
+        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); padding: 20px; }
 
         /* Login */
         #login-screen { position: fixed; inset: 0; background: var(--jj-bg); z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: var(--jj-bg); padding: 50px; border-radius: 50px; box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light); text-align: center; }
 
-        #dash-content { display: none; padding: 30px 5%; }
+        #dash-content { display: none; max-width: 1200px; margin: 0 auto; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .logo-img { height: 45px; }
-
-        /* Containers Neumorphic */
         .card-jj { 
             background: var(--jj-bg); padding: 30px; border-radius: 40px; 
             box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
-            margin-bottom: 30px;
+            margin-bottom: 30px; position: relative;
         }
 
-        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--jj-brown); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .section-title::before { content: ''; width: 4px; height: 15px; background: var(--jj-yellow-main); border-radius: 2px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .logo-img { height: 40px; }
 
-        /* Progress Bar Meta */
-        .meta-box { margin-bottom: 40px; }
-        .bar-bg { height: 15px; background: #e0e5ec; border-radius: 20px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); overflow: hidden; margin-top: 10px; }
-        .bar-fill { height: 100%; width: 0%; background: var(--jj-yellow-main); transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        /* Meta Editável */
+        .meta-val { background: transparent; border: none; border-bottom: 2px solid var(--jj-yellow-main); font-size: 1.5rem; font-weight: 700; color: var(--jj-brown); width: 150px; outline: none; text-align: right; }
+        .bar-bg { height: 12px; background: #e0e5ec; border-radius: 10px; box-shadow: inset 3px 3px 6px var(--shadow-dark); margin: 20px 0; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; background: var(--jj-yellow-main); transition: 1s ease-in-out; }
 
-        /* Inputs de Edição */
-        .edit-field {
-            width: 100%; border: none; background: transparent; padding: 8px; font-family: inherit; font-size: 0.8rem;
-            border-radius: 10px; box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
-            outline: none; transition: 0.3s;
+        /* Inputs de Edição Direta */
+        .edit-input { width: 100%; border: none; background: transparent; padding: 10px; border-radius: 10px; box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light); font-family: inherit; font-size: 0.85rem; outline: none; }
+        .edit-input:focus { color: var(--jj-brown); font-weight: 600; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; font-size: 0.7rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 15px; border-top: 1px solid rgba(0,0,0,0.05); }
+
+        /* Notificação direta WhatsApp */
+        #wpp-trigger {
+            display: none; position: fixed; bottom: 30px; right: 30px; z-index: 999;
+            background: #25D366; color: white; padding: 20px; border-radius: 50px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2); cursor: pointer; font-weight: 700;
+            animation: pulse 2s infinite;
         }
-        .edit-field:focus { box-shadow: inset 1px 1px 2px var(--shadow-dark); color: var(--jj-brown); font-weight: 600; }
 
-        /* Tabelas */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 12px; font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; }
-        td { padding: 12px; border-top: 1px solid rgba(0,0,0,0.05); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        .btn-action { border: none; background: none; cursor: pointer; font-size: 1rem; transition: 0.2s; }
-        .btn-action:hover { transform: scale(1.2); }
-
-        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .mini-card { background: var(--jj-bg); padding: 20px; border-radius: 25px; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); text-align: center; }
-
-        @media (max-width: 768px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+        .btn-del { background: none; border: none; cursor: pointer; font-size: 1.2rem; filter: grayscale(1); transition: 0.3s; }
+        .btn-del:hover { filter: grayscale(0); transform: scale(1.2); }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <img src="jjvidro.png" style="height: 50px; margin-bottom: 20px;">
-            <p style="font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 20px;">ACESSO RESTRITO AO ADM</p>
-            <button onclick="login()" style="padding: 15px 30px; border-radius: 20px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer;">ENTRAR COM GOOGLE</button>
+            <img src="jjvidro.png" style="height: 60px; margin-bottom: 30px;">
+            <button onclick="login()" style="padding: 15px 30px; border-radius: 20px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer;">ENTRAR COMO ADM</button>
         </div>
+    </div>
+
+    <div id="wpp-trigger" onclick="sendDirectWpp()">
+        🚀 META ALCANÇADA! ENVIAR AVISO
     </div>
 
     <div id="dash-content">
         <header class="header">
             <img src="jjvidro.png" class="logo-img">
-            <div style="text-align: right">
-                <p id="adm-name" style="font-size: 0.8rem; font-weight: 700;"></p>
-                <span id="notif-status" style="font-size: 0.6rem; color: green; font-weight: 700;">● Notificações WPP Ativas</span>
-            </div>
+            <h2 style="font-size: 0.8rem; letter-spacing: 3px; color: var(--jj-brown);">SISTEMA DE GESTÃO J&J</h2>
         </header>
 
-        <div class="card-jj meta-box">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <div class="card-jj">
+            <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                 <div>
-                    <h3 class="section-title">Meta de Vendas</h3>
-                    <p style="font-size: 0.65rem; opacity: 0.6;">Aviso enviado ao WhatsApp a cada 10% de progresso</p>
+                    <p style="font-size: 0.7rem; font-weight: 700; opacity: 0.5;">META ATUAL (R$)</p>
+                    <input type="number" id="input-meta" class="meta-val" onchange="saveMeta(this.value)">
                 </div>
-                <h2 id="meta-perc-text" style="color: var(--jj-brown);">0%</h2>
+                <div style="text-align: right;">
+                    <p id="txt-perc" style="font-size: 1.5rem; font-weight: 700; color: var(--jj-brown);">0%</p>
+                    <p id="txt-total" style="font-size: 0.7rem; font-weight: 600; opacity: 0.6;">R$ 0,00 acumulados</p>
+                </div>
             </div>
-            <div class="bar-bg"><div id="meta-bar" class="bar-fill"></div></div>
-        </div>
-
-        <div class="stats-row">
-            <div class="mini-card"><p style="font-size:0.6rem; font-weight:700; opacity:0.5;">RECEITA</p><div id="stat-rev" style="font-weight:700; color:var(--jj-brown);">R$ 0</div></div>
-            <div class="mini-card"><p style="font-size:0.6rem; font-weight:700; opacity:0.5;">PEDIDOS</p><div id="stat-count" style="font-weight:700; color:var(--jj-brown);">0</div></div>
-            <div class="mini-card"><p style="font-size:0.6rem; font-weight:700; opacity:0.5;">ITENS</p><div id="stat-stock" style="font-weight:700; color:var(--jj-brown);">0</div></div>
+            <div class="bar-bg"><div id="bar-fill" class="bar-fill"></div></div>
         </div>
 
         <div class="card-jj">
-            <h3 class="section-title">Controle Total de Pedidos (CRM)</h3>
+            <h3 style="font-size: 0.75rem; margin-bottom: 20px; letter-spacing: 2px;">VENDAS RECENTES (EDIÇÃO TOTAL)</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>Token</th>
                             <th>Cliente</th>
-                            <th>Total (R$)</th>
-                            <th>Método</th>
-                            <th>Excluir</th>
+                            <th>Valor Bruto</th>
+                            <th>Pagamento</th>
+                            <th></th>
                         </tr>
                     </thead>
-                    <tbody id="pedidos-list"></tbody>
+                    <tbody id="table-pedidos"></tbody>
                 </table>
             </div>
         </div>
 
         <div class="card-jj">
-            <h3 class="section-title">Gerenciar Acervo (Preços e Estoque)</h3>
+            <h3 style="font-size: 0.75rem; margin-bottom: 20px; letter-spacing: 2px;">CONTROLE DE ACERVO</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -134,10 +126,9 @@
                             <th>Produto</th>
                             <th>Preço Base (R$)</th>
                             <th>Categoria</th>
-                            <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="produtos-list"></tbody>
+                    <tbody id="table-produtos"></tbody>
                 </table>
             </div>
         </div>
@@ -156,96 +147,95 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), database = firebase.database();
-        const provider = new firebase.auth.GoogleAuthProvider();
+        const ADM = "pablo11ssousa2@gmail.com";
         
-        const ADM_EMAIL = "pablo11ssousa2@gmail.com";
-        const WHATSAPP_ADM = "55119XXXXXXXX"; // Seu número formatado
-        const VALOR_META = 15000;
-        let ultimaNotificacao = 0;
+        let currentMeta = 15000;
+        let currentTotal = 0;
+        let lastNotifiedStep = 0;
 
-        function login() { auth.signInWithPopup(provider); }
+        function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
 
         auth.onAuthStateChanged(user => {
-            if(user && user.email === ADM_EMAIL) {
+            if(user && user.email === ADM) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dash-content').style.display = 'block';
-                document.getElementById('adm-name').innerText = `Olá, ${user.displayName}`;
-                sync();
-            } else if(user) { alert("Acesso negado."); auth.signOut(); }
+                initData();
+            }
         });
 
-        function sync() {
-            // Sincronizar Pedidos
+        function initData() {
+            // Meta
+            database.ref('configuracoes/meta').on('value', snap => {
+                currentMeta = snap.val() || 15000;
+                document.getElementById('input-meta').value = currentMeta;
+                updateVisuals();
+            });
+
+            // Pedidos
             database.ref('pedidos').on('value', snap => {
                 const pedidos = snap.val() || {};
-                renderPedidos(pedidos);
-                checkMeta(pedidos);
+                renderOrders(pedidos);
+                calculateProgress(pedidos);
             });
 
-            // Sincronizar Produtos
-            database.ref('produtos').on('value', snap => {
-                renderProdutos(snap.val() || {});
-            });
+            // Produtos
+            database.ref('produtos').on('value', snap => renderProducts(snap.val() || {}));
         }
 
-        function renderPedidos(data) {
-            const list = Object.values(data).reverse();
-            let totalRev = 0;
-            document.getElementById('pedidos-list').innerHTML = list.map(p => {
-                totalRev += parseFloat(p.total);
-                return `
-                    <tr>
-                        <td><span style="font-size:0.6rem; background:var(--jj-yellow-main); padding:4px 8px; border-radius:8px; font-weight:700;">${p.token}</span></td>
-                        <td><input class="edit-field" value="${p.cliente}" onchange="update('pedidos/${p.token}', 'cliente', this.value)"></td>
-                        <td><input class="edit-field" value="${p.total}" onchange="update('pedidos/${p.token}', 'total', this.value)"></td>
-                        <td><input class="edit-field" value="${p.pagamento}" onchange="update('pedidos/${p.token}', 'pagamento', this.value)"></td>
-                        <td><button class="btn-action" onclick="del('pedidos/${p.token}')">🗑️</button></td>
-                    </tr>
-                `;
-            }).join('');
-            document.getElementById('stat-rev').innerText = `R$ ${totalRev.toFixed(2)}`;
-            document.getElementById('stat-count').innerText = list.length;
+        function calculateProgress(pedidos) {
+            currentTotal = Object.values(pedidos).reduce((acc, curr) => acc + parseFloat(curr.total || 0), 0);
+            updateVisuals();
         }
 
-        function renderProdutos(data) {
-            const list = Object.entries(data);
-            document.getElementById('stat-stock').innerText = list.length;
-            document.getElementById('produtos-list').innerHTML = list.map(([id, p]) => `
+        function updateVisuals() {
+            const perc = Math.floor((currentTotal / currentMeta) * 100);
+            document.getElementById('bar-fill').style.width = Math.min(perc, 100) + "%";
+            document.getElementById('txt-perc').innerText = perc + "%";
+            document.getElementById('txt-total').innerText = `R$ ${currentTotal.toFixed(2)} acumulados`;
+
+            // Lógica de Notificação Direta (Sem Terceiros)
+            const step = Math.floor(perc / 10) * 10;
+            if(step > lastNotifiedStep && step <= 100 && step > 0) {
+                // Como não queremos terceiros, o Dashboard "acende" um botão flutuante 
+                // para você disparar o WhatsApp com um clique, contornando o bloqueio do browser.
+                document.getElementById('wpp-trigger').style.display = 'block';
+                document.getElementById('wpp-trigger').innerText = `🚀 META DE ${step}% ATINGIDA! ENVIAR`;
+                lastNotifiedStep = step;
+            }
+        }
+
+        function sendDirectWpp() {
+            const msg = `J&J ART COLLECTION:\nPablo, atingiste ${Math.floor((currentTotal / currentMeta) * 100)}% da meta!\nFaturamento: R$ ${currentTotal.toFixed(2)}`;
+            const url = `https://wa.me/55119XXXXXXXX?text=${encodeURIComponent(msg)}`; // Coloque o seu número aqui
+            window.open(url, '_blank');
+            document.getElementById('wpp-trigger').style.display = 'none';
+        }
+
+        function renderOrders(data) {
+            document.getElementById('table-pedidos').innerHTML = Object.values(data).reverse().map(p => `
                 <tr>
-                    <td><input class="edit-field" value="${p.name}" onchange="update('produtos/${id}', 'name', this.value)"></td>
-                    <td><input class="edit-field" value="${p.price}" onchange="update('produtos/${id}', 'price', this.value)"></td>
-                    <td><input class="edit-field" value="${p.category}" onchange="update('produtos/${id}', 'category', this.value)"></td>
-                    <td><button class="btn-action" onclick="alert('Use o site principal para gerenciar imagens e variantes detalhadas.')">ℹ️</button></td>
+                    <td><b>${p.token}</b></td>
+                    <td><input class="edit-input" value="${p.cliente}" onchange="edit('pedidos/${p.token}', 'cliente', this.value)"></td>
+                    <td><input class="edit-input" value="${p.total}" onchange="edit('pedidos/${p.token}', 'total', this.value)"></td>
+                    <td><input class="edit-input" value="${p.pagamento}" onchange="edit('pedidos/${p.token}', 'pagamento', this.value)"></td>
+                    <td><button class="btn-del" onclick="remove('pedidos/${p.token}')">🗑️</button></td>
                 </tr>
             `).join('');
         }
 
-        function checkMeta(pedidos) {
-            const total = Object.values(pedidos).reduce((acc, curr) => acc + parseFloat(curr.total), 0);
-            const perc = Math.floor((total / VALOR_META) * 100);
-            
-            document.getElementById('meta-bar').style.width = Math.min(perc, 100) + "%";
-            document.getElementById('meta-perc-text').innerText = perc + "%";
-
-            // Lógica de Notificação 10%
-            const degrau = Math.floor(perc / 10) * 10;
-            if(degrau > ultimaNotificacao && degrau <= 100) {
-                enviarWpp(degrau, total);
-                ultimaNotificacao = degrau;
-            }
+        function renderProducts(data) {
+            document.getElementById('table-produtos').innerHTML = Object.entries(data).map(([id, p]) => `
+                <tr>
+                    <td><input class="edit-input" value="${p.name}" onchange="edit('produtos/${id}', 'name', this.value)"></td>
+                    <td><input class="edit-input" value="${p.price}" onchange="edit('produtos/${id}', 'price', this.value)"></td>
+                    <td><input class="edit-input" value="${p.category}" onchange="edit('produtos/${id}', 'category', this.value)"></td>
+                </tr>
+            `).join('');
         }
 
-        function enviarWpp(percentual, valor) {
-            const msg = `🚀 *J&J Art Collection:* Pablo, você atingiu ${percentual}% da sua meta! Total atual: R$ ${valor.toFixed(2)}. Vamos pra cima!`;
-            const link = `https://api.whatsapp.com/send?phone=${WHATSAPP_ADM}&text=${encodeURIComponent(msg)}`;
-            
-            // Como é um dashboard administrativo, abre o link em background ou alerta o usuário
-            console.log("NOTIFICAÇÃO WPP:", msg);
-            window.open(link, '_blank');
-        }
-
-        function update(path, key, val) { database.ref(path).update({ [key]: val }); }
-        function del(path) { if(confirm("Confirmar exclusão definitiva?")) database.ref(path).remove(); }
+        function saveMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v)); }
+        function edit(path, key, val) { database.ref(path).update({ [key]: val }); }
+        function remove(path) { if(confirm("Eliminar permanentemente?")) database.ref(path).remove(); }
     </script>
 </body>
 </html>

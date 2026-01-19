@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | Ultimate BI Dashboard</title>
+    <title>J&J | Executive BI</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -25,49 +25,53 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); }
 
-        /* Login Screen */
-        #login-screen { position: fixed; inset: 0; background: var(--jj-bg); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        #login-screen { position: fixed; inset: 0; background: var(--jj-bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .login-card { background: var(--jj-bg); padding: 50px; border-radius: 50px; box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light); text-align: center; }
 
-        /* Layout */
         #dash-content { display: none; padding: 30px 5%; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         
-        /* Grid System */
-        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .logo-img { height: 45px; }
 
-        /* Componentes Neumorphic */
+        /* GRID PRINCIPAL */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        
         .card { 
-            background: var(--jj-bg); padding: 30px; border-radius: 40px; 
-            box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            background: var(--jj-bg); padding: 25px; border-radius: 35px; 
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light); 
         }
 
-        .stat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--jj-brown); opacity: 0.7; margin-bottom: 15px; display: block; }
-        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--jj-text); }
+        .stat-val { font-size: 1.5rem; font-weight: 700; color: var(--jj-brown); margin-top: 5px; }
+        .stat-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; }
 
-        /* Meta Progress Bar */
-        .progress-container { background: var(--shadow-dark); height: 12px; border-radius: 10px; margin: 20px 0; overflow: hidden; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1); }
-        .progress-bar { background: var(--jj-yellow-main); height: 100%; width: 0%; transition: 1s ease-out; }
+        /* PROGRESS BAR (META) */
+        .goal-container { grid-column: span 2; display: flex; flex-direction: column; justify-content: center; }
+        .progress-bg { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; margin-top: 15px; overflow: hidden; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1); }
+        .progress-fill { height: 100%; background: var(--jj-yellow-main); width: 0%; transition: 1s ease-out; }
 
-        /* Inventory Alert */
-        .stock-alert-item { display: flex; align-items: center; gap: 15px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .alert-badge { background: #ff4444; color: white; font-size: 0.5rem; padding: 3px 8px; border-radius: 5px; font-weight: 700; }
+        /* CHARTS */
+        .charts-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-bottom: 30px; }
+        
+        /* ALERTAS E LISTAS */
+        .list-container { max-height: 300px; overflow-y: auto; margin-top: 15px; }
+        .list-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px; border-radius: 15px; background: rgba(255,255,255,0.5); 
+            margin-bottom: 8px; font-size: 0.75rem; 
+        }
+        .badge-alert { background: #ff4444; color: white; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 0.6rem; }
+        .badge-vip { background: var(--jj-brown); color: white; padding: 2px 8px; border-radius: 8px; font-size: 0.6rem; }
 
-        /* VIP List */
-        .vip-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-size: 0.8rem; }
-        .vip-rank { width: 25px; height: 25px; background: var(--jj-yellow-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.6rem; }
-
-        .btn-jj { 
-            padding: 15px 30px; border-radius: 20px; border: none; background: var(--jj-yellow-main); 
-            font-weight: 700; cursor: pointer; box-shadow: 4px 4px 10px rgba(255, 200, 0, 0.3);
+        .btn-jj {
+            padding: 12px 25px; border-radius: 15px; border: none; font-weight: 700; 
+            text-transform: uppercase; cursor: pointer; background: var(--jj-yellow-main); 
+            box-shadow: 4px 4px 10px rgba(255, 200, 0, 0.3); font-size: 0.7rem;
         }
 
-        input.edit-meta { 
-            background: none; border: none; border-bottom: 2px solid var(--jj-yellow-main); 
-            width: 80px; font-family: inherit; font-weight: 800; font-size: 1rem; color: var(--jj-brown);
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-section { grid-template-columns: 1fr; }
         }
-
-        @media (max-width: 768px) { .header { flex-direction: column; gap: 20px; } }
     </style>
 </head>
 <body>
@@ -75,51 +79,58 @@
     <div id="login-screen">
         <div class="login-card">
             <img src="jjvidro.png" style="height: 50px; margin-bottom: 20px;">
-            <h2 style="font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 30px;">BI ADM ACCESS</h2>
-            <button class="btn-jj" onclick="login()">AUTENTICAR PABLO</button>
+            <p style="font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 20px;">AUTHENTICATION REQUIRED</p>
+            <button class="btn-jj" onclick="login()">Acessar como Pablo</button>
         </div>
     </div>
 
     <div id="dash-content">
         <header class="header">
-            <img src="jjvidro.png" style="height: 40px;">
+            <img src="jjvidro.png" class="logo-img">
             <div style="text-align: right">
-                <p id="user-display" style="font-weight: 700; font-size: 0.8rem;"></p>
-                <button onclick="logout()" style="background:none; border:none; color:var(--jj-brown); font-size:0.6rem; cursor:pointer">ENCERRAR SESSÃO</button>
+                <span id="user-info" style="font-size: 0.7rem; font-weight: 700; margin-right: 15px;"></span>
+                <button onclick="logout()" style="background:none; border:none; cursor:pointer; font-weight:700; color:var(--jj-brown); font-size:0.6rem">LOGOUT</button>
             </div>
         </header>
 
-        <div class="main-grid">
-            <div class="card">
-                <span class="stat-label">Meta Mensal (R$)</span>
-                <div style="display:flex; align-items:center; gap:10px">
-                    <span class="stat-val">R$</span>
-                    <input type="number" id="meta-input" class="edit-meta" value="5000" onchange="updateMeta()">
+        <div class="dashboard-grid">
+            <div class="card goal-container">
+                <div style="display:flex; justify-content:space-between">
+                    <span class="stat-label">Meta Mensal (R$ 15.000)</span>
+                    <span class="stat-label" id="goal-percent">0%</span>
                 </div>
-                <div class="progress-container"><div id="meta-bar" class="progress-bar"></div></div>
-                <p id="meta-desc" style="font-size: 0.6rem; opacity: 0.6; font-weight: 700;"></p>
+                <div class="progress-bg"><div id="goal-bar" class="progress-fill"></div></div>
             </div>
-
             <div class="card">
-                <span class="stat-label">Collectors VIP (Top Buyers)</span>
-                <div id="vip-list"></div>
+                <span class="stat-label">Receita Acumulada</span>
+                <div class="stat-val" id="total-revenue">R$ 0,00</div>
             </div>
-
             <div class="card">
-                <span class="stat-label">🚨 Alert: Reposição Necessária</span>
-                <div id="stock-alerts" style="max-height: 150px; overflow-y: auto;"></div>
+                <span class="stat-label">Ticket Médio</span>
+                <div class="stat-val" id="avg-ticket">R$ 0,00</div>
             </div>
         </div>
 
-        <div class="main-grid" style="grid-template-columns: 2fr 1fr;">
+        <div class="charts-section">
             <div class="card">
-                <span class="stat-label">Desempenho por Categoria</span>
-                <canvas id="chartCategories" style="max-height: 300px;"></canvas>
+                <span class="stat-label">Vendas por Categoria e Cor</span>
+                <canvas id="mainChart" style="margin-top:20px"></canvas>
             </div>
-
             <div class="card">
-                <span class="stat-label">Preferência de Cores</span>
-                <canvas id="chartColors"></canvas>
+                <span class="stat-label">🚨 Alertas de Estoque Baixo</span>
+                <div class="list-container" id="stock-alerts">
+                    </div>
+            </div>
+        </div>
+
+        <div class="charts-section" style="grid-template-columns: 1fr 1fr">
+            <div class="card">
+                <span class="stat-label">🏆 Clientes VIP (Top Compradores)</span>
+                <div class="list-container" id="vip-list"></div>
+            </div>
+            <div class="card">
+                <span class="stat-label">Gestão de Pedidos Recentes</span>
+                <div class="list-container" id="order-management"></div>
             </div>
         </div>
     </div>
@@ -137,118 +148,115 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), database = firebase.database();
-        const provider = new firebase.auth.GoogleAuthProvider();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
+        const META_VALOR = 15000;
 
-        function login() { auth.signInWithPopup(provider); }
-        function logout() { auth.signOut().then(() => location.reload()); }
+        function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+        function logout() { auth.signOut().then(() => window.location.reload()); }
 
         auth.onAuthStateChanged(user => {
             if(user && user.email === ADM_EMAIL) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dash-content').style.display = 'block';
-                document.getElementById('user-display').innerText = user.displayName.toUpperCase();
-                initData();
+                document.getElementById('user-info').innerText = user.displayName.toUpperCase();
+                initAnalytics();
+            } else if(user) {
+                alert("Acesso não autorizado.");
+                auth.signOut();
             }
         });
 
-        function initData() {
-            // Meta inicial
-            if(!localStorage.getItem('jj_meta')) localStorage.setItem('jj_meta', 5000);
-            document.getElementById('meta-input').value = localStorage.getItem('jj_meta');
-
-            // Listen Pedidos
-            database.ref('pedidos').on('value', snap => {
-                const pedidos = Object.values(snap.val() || {});
-                processFinances(pedidos);
-                processVIPs(pedidos);
+        function initAnalytics() {
+            // Monitorar Produtos (Alertas de Estoque)
+            database.ref('produtos').on('value', snap => {
+                const prods = snap.val() || {};
+                const alertDiv = document.getElementById('stock-alerts');
+                alertDiv.innerHTML = "";
+                
+                Object.values(prods).forEach(p => {
+                    // Simulação de lógica de estoque baixo baseada na string de stock (ex: P:1, M:0)
+                    if(p.variants) {
+                        Object.entries(p.variants).forEach(([color, data]) => {
+                            if(data.stock && (data.stock.includes(':0') || data.stock.includes(':1'))) {
+                                alertDiv.innerHTML += `
+                                    <div class="list-item">
+                                        <span><b>${p.name}</b> (${color})</span>
+                                        <span class="badge-alert">REPOR</span>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+                });
             });
 
-            // Listen Produtos
-            database.ref('produtos').on('value', snap => {
-                const produtos = Object.values(snap.val() || {});
-                processInventory(produtos);
+            // Monitorar Pedidos (Financeiro e VIPs)
+            database.ref('pedidos').on('value', snap => {
+                const pedidos = Object.values(snap.val() || {});
+                processFinance(pedidos);
+                processVIPs(pedidos);
+                processRecentOrders(pedidos);
             });
         }
 
-        function processFinances(pedidos) {
-            let total = pedidos.reduce((acc, curr) => acc + parseFloat(curr.total), 0);
-            let meta = parseFloat(localStorage.getItem('jj_meta'));
-            let perc = Math.min((total / meta) * 100, 100);
+        function processFinance(pedidos) {
+            let total = 0;
+            pedidos.forEach(p => total += parseFloat(p.total));
             
-            document.getElementById('meta-bar').style.width = perc + '%';
-            document.getElementById('meta-desc').innerText = `R$ ${total.toFixed(2)} ALCANÇADO DE R$ ${meta.toFixed(2)}`;
+            document.getElementById('total-revenue').innerText = `R$ ${total.toLocaleString('pt-BR')}`;
+            document.getElementById('avg-ticket').innerText = `R$ ${(total/pedidos.length || 0).toFixed(2)}`;
             
-            // Gráfico de Categorias (Lógica simplificada)
-            renderCatChart(pedidos);
+            const percent = Math.min((total / META_VALOR) * 100, 100);
+            document.getElementById('goal-bar').style.width = percent + '%';
+            document.getElementById('goal-percent').innerText = Math.floor(percent) + '%';
         }
 
         function processVIPs(pedidos) {
             const clients = {};
             pedidos.forEach(p => clients[p.cliente] = (clients[p.cliente] || 0) + parseFloat(p.total));
             
-            const sorted = Object.entries(clients).sort((a,b) => b[1] - a[1]).slice(0, 4);
-            const list = document.getElementById('vip-list');
-            list.innerHTML = sorted.map((c, i) => `
-                <div class="vip-item">
-                    <div style="display:flex; align-items:center; gap:10px">
-                        <div class="vip-rank">${i+1}</div>
-                        <b>${c[0]}</b>
-                    </div>
-                    <span style="color:var(--jj-brown)">R$ ${c[1].toFixed(2)}</span>
+            const sorted = Object.entries(clients).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            const vipDiv = document.getElementById('vip-list');
+            vipDiv.innerHTML = sorted.map(c => `
+                <div class="list-item">
+                    <span>${c[0]}</span>
+                    <span class="badge-vip">R$ ${c[1].toFixed(2)}</span>
                 </div>
             `).join('');
         }
 
-        function processInventory(produtos) {
-            const alerts = document.getElementById('stock-alerts');
-            alerts.innerHTML = "";
-            const colorCount = {};
-
-            produtos.forEach(p => {
-                // Alerta Estoque (Exemplo: se desc contém "ESGOTANDO") - Você pode vincular ao campo de estoque das variantes
-                if(p.name.length > 15) { // Simulação de critério
-                    alerts.innerHTML += `<div class="stock-alert-item"><span class="alert-badge">LOW</span> <span style="font-size:0.7rem">${p.name}</span></div>`;
-                }
-
-                // Cores
-                if(p.colors) p.colors.split(',').forEach(c => {
-                    let cor = c.trim();
-                    colorCount[cor] = (colorCount[cor] || 0) + 1;
-                });
-            });
-            renderColorChart(colorCount);
+        function processRecentOrders(pedidos) {
+            const div = document.getElementById('order-management');
+            div.innerHTML = pedidos.reverse().slice(0, 10).map(p => `
+                <div class="list-item">
+                    <span><b>${p.token}</b> - ${p.cliente}</span>
+                    <button onclick="deleteOrder('${p.token}')" style="background:none; border:none; cursor:pointer">🗑️</button>
+                </div>
+            `).join('');
         }
 
-        function updateMeta() {
-            localStorage.setItem('jj_meta', document.getElementById('meta-input').value);
-            initData();
-        }
+        function deleteOrder(token) { if(confirm("Remover permanentemente?")) database.ref('pedidos/'+token).remove(); }
 
-        // GRÁFICOS
-        let c1, c2;
-        function renderCatChart(pedidos) {
-            const ctx = document.getElementById('chartCategories').getContext('2d');
-            if(c1) c1.destroy();
-            c1 = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['Vendas Realizadas'], datasets: [{ data: [pedidos.length], backgroundColor: '#FFC800', borderRadius: 10 }] },
-                options: { plugins: { legend: false } }
-            });
-        }
-
-        function renderColorChart(colorData) {
-            const ctx = document.getElementById('chartColors').getContext('2d');
-            if(c2) c2.destroy();
-            c2 = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(colorData),
-                    datasets: [{ data: Object.values(colorData), backgroundColor: ['#834A29', '#FFC800', '#1a1a1a', '#ddd'], borderWidth: 0 }]
-                },
-                options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { font: { size: 8 } } } } }
-            });
-        }
+        // Gráfico de Exemplo
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
+                datasets: [{
+                    label: 'Crescimento de Vendas',
+                    data: [12, 19, 15, 25, 32],
+                    borderColor: '#FFC800',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(255, 200, 0, 0.1)'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { display: false }, x: { grid: { display: false } } }
+            }
+        });
     </script>
 </body>
 </html>

@@ -78,11 +78,11 @@
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 2.2rem; cursor: pointer; color: var(--jj-brown); z-index: 10; }
 
-        /* Floating Buttons - Ajustados para ficarem ocultos */
+        /* Floating Buttons - Ocultos por padrão */
         .float-btn { position: fixed; width: 65px; height: 65px; border-radius: 50%; background: var(--jj-bg); z-index: 1500; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 24px; transition: 0.3s; }
         #cart-btn-floating { bottom: 30px; left: 30px; }
-        #scan-btn-floating { bottom: 30px; left: 110px; color: var(--jj-brown); display: none !important; } /* Forçado oculto no CSS */
-        #admin-btn { bottom: 30px; right: 30px; background: var(--jj-yellow-main); display: none !important; } /* Forçado oculto no CSS */
+        #scan-btn-floating { bottom: 30px; left: 110px; color: var(--jj-brown); display: none !important; }
+        #admin-btn { bottom: 30px; right: 30px; background: var(--jj-yellow-main); display: none !important; }
         #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
         .user-input, .edit-field { width: 100%; background: var(--jj-bg); border: none; padding: 12px; border-radius: 15px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); margin-bottom: 12px; outline: none; font-size: 0.8rem; }
@@ -98,6 +98,11 @@
         footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); z-index: 1; }
         .footer-content { position: relative; z-index: 2; }
         .footer-copy { font-size: 0.6rem; color: rgba(255,255,255,0.6); letter-spacing: 2px; text-transform: uppercase; }
+
+        /* Escolha Pós Scan */
+        .scan-choice-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; margin-bottom: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-edit { background: var(--jj-brown); color: white; }
+        .btn-quick { background: var(--jj-yellow-main); color: var(--jj-text); }
 
         @media (max-width: 768px) {
             .modal { align-items: flex-end; padding: 0; }
@@ -189,7 +194,6 @@
 
         window.onload = () => { updateCartBadge(); listenToProducts(); };
 
-        // --- CONTROLE DE ACESSO ADM CORRIGIDO ---
         auth.onAuthStateChanged(user => {
             const ui = document.getElementById('auth-ui');
             const btnAdmin = document.getElementById('admin-btn');
@@ -197,31 +201,25 @@
             
             if(user) {
                 ui.innerHTML = `<span style="font-size:0.6rem; font-weight:700">${user.displayName.split(' ')[0]}</span> <button class="cat-filter-btn" onclick="auth.signOut()" style="padding:4px 10px; font-size:0.5rem; margin-left:5px">Sair</button>`;
-                
-                // Só exibe se for o ADM logado
                 if(user.email === ADM_EMAIL) {
                     btnAdmin.style.setProperty('display', 'flex', 'important');
                     btnScan.style.setProperty('display', 'flex', 'important');
-                } else {
-                    btnAdmin.style.setProperty('display', 'none', 'important');
-                    btnScan.style.setProperty('display', 'none', 'important');
                 }
             } else {
                 ui.innerHTML = `<button class="cat-filter-btn" onclick="auth.signInWithPopup(provider)">ENTRAR</button>`;
                 btnAdmin.style.setProperty('display', 'none', 'important');
                 btnScan.style.setProperty('display', 'none', 'important');
             }
-            // Recarrega os produtos para atualizar os botões de delete se o ADM logou/deslogou
             listenToProducts();
         });
 
         function saveCart() { localStorage.setItem('jj_cart', JSON.stringify(cart)); updateCartBadge(); }
         function updateCartBadge() { 
-            const badge = document.getElementById('cart-badge');
+            document.getElementById('cart-badge').innerText = cart.length; 
             document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none'; 
-            badge.innerText = cart.length;
         }
 
+        // --- SCANNER COM OPÇÕES ---
         function openScanner() {
             if(auth.currentUser?.email !== ADM_EMAIL) return;
             const body = document.getElementById('details-body');
@@ -235,10 +233,30 @@
                     const products = snap.val();
                     let p = null;
                     for(let k in products) { if(k === txt || products[k].barcode === txt) { p = products[k]; break; } }
-                    if(p) openDetails(p); else { alert("Não encontrado."); closeModals(); }
+                    if(p) showScanChoices(p); else { alert("Não encontrado."); closeModals(); }
                 });
             });
         }
+
+        function showScanChoices(p) {
+            const body = document.getElementById('details-body');
+            body.innerHTML = `
+                <div style="grid-column: 1/-1; text-align:center">
+                    <h2 style="margin-bottom:10px">${p.name}</h2>
+                    <p style="margin-bottom:30px; opacity:0.6">O que deseja fazer?</p>
+                    <button class="scan-choice-btn btn-edit" onclick='openDetails(${JSON.stringify(p)})'>EDITAR ITEM</button>
+                    <button class="scan-choice-btn btn-quick" onclick='quickAdd("${p.name}", "${p.price}", "${p.colors}")'>VENDA RÁPIDA</button>
+                </div>`;
+        }
+
+        function quickAdd(name, price, colors) {
+            const firstColor = colors.split(',')[0].trim();
+            cart.push({ name, price: parseFloat(price), color: firstColor, size: "Padrão", qty: 1 });
+            saveCart();
+            alert("Adicionado ao carrinho!");
+            closeModals();
+        }
+
         function stopScanner() { if(html5QrCode) html5QrCode.stop().then(()=>html5QrCode=null); }
 
         function listenToProducts() {

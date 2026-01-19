@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | LOJAS</title>
+    <title>J&J | Art Collection</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -37,7 +37,7 @@
         .cat-filter-btn { padding: 8px 20px; border-radius: 15px; border: none; background: var(--jj-bg); box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); font-size: 0.7rem; font-weight: 700; color: var(--jj-brown); cursor: pointer; white-space: nowrap; text-transform: uppercase; transition: 0.3s; }
         .cat-filter-btn.active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); color: var(--jj-yellow-main); }
 
-        /* Content */
+        /* Cards */
         .content-wrapper { padding: 20px 0 60px 0; flex: 1; }
         .category-title { margin-left: 5%; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; color: var(--jj-brown); position: relative; }
         .category-title::after { content: ''; position: absolute; left: 0; bottom: -8px; width: 40px; height: 3px; background: var(--jj-yellow-main); border-radius: 2px; }
@@ -74,8 +74,6 @@
         footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); z-index: 1; }
         .footer-content { position: relative; z-index: 2; }
         .footer-logo { height: 70px; margin-bottom: 25px; filter: brightness(0) invert(1); }
-        .footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; }
-        .footer-links a { color: var(--jj-yellow-main); font-size: 0.75rem; text-decoration: none; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
         .footer-copy { font-size: 0.6rem; color: rgba(255,255,255,0.6); letter-spacing: 2px; text-transform: uppercase; }
 
         /* Modais */
@@ -126,11 +124,6 @@
     <footer>
         <div class="footer-content">
             <img src="jjvidro.png" alt="Logo J&J" class="footer-logo">
-            <div class="footer-links">
-                <a href="#">Catálogo</a>
-                <a href="#">Privacidade</a>
-                <a href="#">Suporte</a>
-            </div>
             <p class="footer-copy">© 2025 J&J ART COLLECTION. DESIGNED FOR EXCLUSIVITY.</p>
         </div>
     </footer>
@@ -177,19 +170,30 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
         const WPP_NUM = "5511998937643";
-        let cart = [], currentProduct = null, selectedColor = "";
+        
+        // --- PERSISTÊNCIA DE DADOS ---
+        let cart = JSON.parse(localStorage.getItem('jj_cart')) || [];
+        let currentProduct = null, selectedColor = "";
 
-        // --- CONTROLE DE VOLTAR (MOBILE FIX) ---
-        window.addEventListener('popstate', function() {
-            closeModals(false); // Fecha o modal sem empurrar um novo estado no histórico
-        });
+        // Inicializar badge do carrinho
+        window.onload = () => {
+            updateCartBadge();
+            if(cart.length > 0) document.getElementById('cart-btn-floating').style.display = 'flex';
+        };
 
-        function pushModalState() {
-            history.pushState({ modal: true }, "");
+        function saveCart() {
+            localStorage.setItem('jj_cart', JSON.stringify(cart));
+            updateCartBadge();
         }
 
-        function loginGoogle() { auth.signInWithPopup(provider); }
-        function logout() { auth.signOut(); }
+        function updateCartBadge() {
+            document.getElementById('cart-badge').innerText = cart.length;
+            document.getElementById('cart-btn-floating').style.display = cart.length > 0 ? 'flex' : 'none';
+        }
+
+        // --- CONTROLE DE VOLTAR ---
+        window.addEventListener('popstate', () => closeModals(false));
+        function pushModalState() { history.pushState({ modal: true }, ""); }
 
         auth.onAuthStateChanged(user => {
             const authUI = document.getElementById('auth-ui');
@@ -255,11 +259,10 @@
         function openDetails(p) {
             currentProduct = p;
             const body = document.getElementById('details-body');
-            const isAdm = auth.currentUser?.email === ADM_EMAIL;
             const colors = p.colors ? p.colors.split(',').map(c => c.trim()) : [];
             selectedColor = colors[0] || "";
 
-            if (isAdm) {
+            if (auth.currentUser?.email === ADM_EMAIL) {
                 let variantEditors = colors.map(c => {
                     const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "" };
                     return `<div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.02); border-radius:15px; border:1px solid rgba(0,0,0,0.05)">
@@ -269,7 +272,7 @@
                         <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Ex: P:5, M:10">
                     </div>`;
                 }).join('');
-                body.innerHTML = `<div style="grid-column: 1/-1"><h3>EDITAR PRODUTO</h3><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><input type="text" id="e-cat" class="edit-field" value="${p.category}"></div><textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>${variantEditors}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR</button></div>`;
+                body.innerHTML = `<div style="grid-column: 1/-1"><h3>EDITAR</h3><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><input type="text" id="e-cat" class="edit-field" value="${p.category}"></div><textarea id="e-desc" class="edit-field">${p.desc || ''}</textarea>${variantEditors}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR</button></div>`;
             } else {
                 updateUserModalView(p, selectedColor);
             }
@@ -312,16 +315,22 @@
             const size = document.getElementById('u-size').value;
             if(!size || size.includes("Indisponível")) return alert("Selecione um tamanho.");
             cart.push({ name, price: parseFloat(price), size, color: selectedColor, qty: parseInt(document.getElementById('u-qty').value) });
-            document.getElementById('cart-badge').innerText = cart.length;
-            document.getElementById('cart-btn-floating').style.display = 'flex';
+            saveCart();
             closeModals();
         }
 
         function openCartModal() {
             const body = document.getElementById('details-body');
             let total = 0;
-            let list = cart.map((i, idx) => { total += (i.price * i.qty); return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br><span style="color:var(--jj-brown)">${i.color} | ${i.size} | Qtd: ${i.qty}</span><br><b>R$ ${(i.price * i.qty).toFixed(2)}</b><button onclick="cart.splice(${idx},1); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button></div>`; }).join('');
-            body.innerHTML = `<div style="grid-column: span 2"><h2 style="margin-bottom:20px">MINHA LISTA</h2><div style="max-height:250px; overflow-y:auto; margin-bottom:20px">${list || '<p>Lista vazia.</p>'}</div><div style="padding:15px; background:var(--jj-yellow-main); border-radius:15px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome Completo"><select id="u-payment" class="user-input"><option value="Pix">Pix</option><option value="Cartão">Cartão de Crédito</option><option value="Boleto">Boleto</option></select><button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp(${total})">FINALIZAR NO WHATSAPP</button></div>`;
+            const savedName = localStorage.getItem('jj_user_name') || "";
+            const savedPay = localStorage.getItem('jj_user_pay') || "Pix";
+
+            let list = cart.map((i, idx) => { 
+                total += (i.price * i.qty); 
+                return `<div style="padding:15px; background:white; border-radius:15px; margin-bottom:10px; font-size:0.75rem; position:relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.05)"><b>${i.name}</b><br><span style="color:var(--jj-brown)">${i.color} | ${i.size} | Qtd: ${i.qty}</span><br><b>R$ ${(i.price * i.qty).toFixed(2)}</b><button onclick="cart.splice(${idx},1); saveCart(); openCartModal();" style="position:absolute; right:15px; top:15px; border:none; background:none; cursor:pointer; font-size:1.2rem">&times;</button></div>`; 
+            }).join('');
+            
+            body.innerHTML = `<div style="grid-column: span 2"><h2 style="margin-bottom:20px">MINHA LISTA</h2><div style="max-height:250px; overflow-y:auto; margin-bottom:20px">${list || '<p>Lista vazia.</p>'}</div><div style="padding:15px; background:var(--jj-yellow-main); border-radius:15px; margin-bottom:15px; font-weight:700; text-align:right">TOTAL: R$ ${total.toFixed(2)}</div><input type="text" id="u-final-name" class="user-input" placeholder="Nome Completo" value="${savedName}" onchange="localStorage.setItem('jj_user_name', this.value)"><select id="u-payment" class="user-input" onchange="localStorage.setItem('jj_user_pay', this.value)"><option value="Pix" ${savedPay==='Pix'?'selected':''}>Pix</option><option value="Cartão" ${savedPay==='Cartão'?'selected':''}>Cartão de Crédito</option><option value="Boleto" ${savedPay==='Boleto'?'selected':''}>Boleto</option></select><button class="card-btn-fix" style="position:static; width:100%" onclick="sendWhatsApp(${total})">FINALIZAR NO WHATSAPP</button></div>`;
             document.getElementById('details-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
             pushModalState();
@@ -343,6 +352,8 @@
             document.querySelectorAll('.cat-group').forEach(g => g.style.display = (cat === 'all' || g.classList.contains(`cat-${cat.replace(/\s+/g, '-')}`)) ? 'block' : 'none');
         }
 
+        function loginGoogle() { auth.signInWithPopup(provider); }
+        function logout() { auth.signOut(); }
         function deleteProduct(id) { if(confirm("Apagar?")) database.ref('produtos/'+id).remove(); }
         function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'),10); pushModalState(); }
         
@@ -351,10 +362,7 @@
                 m.classList.remove('active');
                 setTimeout(() => m.style.display = 'none', 400);
             });
-            // Se fechamos o modal via botão X ou clique fora, removemos o estado do histórico para evitar o botão voltar fantasma
-            if (shouldGoBack && history.state && history.state.modal) {
-                history.back();
-            }
+            if (shouldGoBack && history.state && history.state.modal) history.back();
         }
 
         if (window.innerWidth > 768) {

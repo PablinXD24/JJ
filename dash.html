@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | BI Restricted Access</title>
+    <title>J&J | Ultimate BI Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -23,117 +23,103 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); min-height: 100vh; }
+        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); }
 
-        /* Estética do Login */
-        #login-screen { 
-            position: fixed; inset: 0; background: var(--jj-bg); z-index: 9999; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
-        }
-        .login-card {
-            background: var(--jj-bg); padding: 50px; border-radius: 50px;
-            box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light);
-            text-align: center; max-width: 400px; width: 100%;
-        }
+        /* Login Screen */
+        #login-screen { position: fixed; inset: 0; background: var(--jj-bg); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: var(--jj-bg); padding: 50px; border-radius: 50px; box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light); text-align: center; }
 
-        /* Estética do Dashboard */
-        #dash-content { display: none; padding: 20px; }
+        /* Layout */
+        #dash-content { display: none; padding: 30px 5%; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; margin-bottom: 30px; }
-        .logo-img { height: 45px; }
+        /* Grid System */
+        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 30px; }
 
-        .btn-jj {
-            padding: 15px 30px; border-radius: 20px; border: none; font-weight: 700; 
-            text-transform: uppercase; cursor: pointer; transition: 0.3s;
-            background: var(--jj-yellow-main); color: var(--jj-text);
-            box-shadow: 5px 5px 15px rgba(255, 200, 0, 0.3);
-        }
-        .btn-jj:hover { transform: scale(1.05); }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding: 0 5%; margin-bottom: 40px; }
-        .stat-card {
-            background: var(--jj-bg); padding: 25px; border-radius: 35px;
-            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
-            text-align: center;
-        }
-        .stat-val { font-size: 1.6rem; font-weight: 700; color: var(--jj-brown); margin: 5px 0; }
-        .stat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; }
-
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 0 5%; margin-bottom: 40px; }
-        .chart-card {
-            background: var(--jj-bg); padding: 30px; border-radius: 40px;
-            box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
+        /* Componentes Neumorphic */
+        .card { 
+            background: var(--jj-bg); padding: 30px; border-radius: 40px; 
+            box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
         }
 
-        .edit-input {
-            width: 100%; background: var(--jj-bg); border: none; padding: 10px; border-radius: 10px;
-            box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
-            font-family: inherit; font-size: 0.8rem; margin-top: 10px; outline: none;
+        .stat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--jj-brown); opacity: 0.7; margin-bottom: 15px; display: block; }
+        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--jj-text); }
+
+        /* Meta Progress Bar */
+        .progress-container { background: var(--shadow-dark); height: 12px; border-radius: 10px; margin: 20px 0; overflow: hidden; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1); }
+        .progress-bar { background: var(--jj-yellow-main); height: 100%; width: 0%; transition: 1s ease-out; }
+
+        /* Inventory Alert */
+        .stock-alert-item { display: flex; align-items: center; gap: 15px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .alert-badge { background: #ff4444; color: white; font-size: 0.5rem; padding: 3px 8px; border-radius: 5px; font-weight: 700; }
+
+        /* VIP List */
+        .vip-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-size: 0.8rem; }
+        .vip-rank { width: 25px; height: 25px; background: var(--jj-yellow-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.6rem; }
+
+        .btn-jj { 
+            padding: 15px 30px; border-radius: 20px; border: none; background: var(--jj-yellow-main); 
+            font-weight: 700; cursor: pointer; box-shadow: 4px 4px 10px rgba(255, 200, 0, 0.3);
         }
 
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .data-table th { text-align: left; padding: 15px; font-size: 0.7rem; text-transform: uppercase; color: var(--jj-brown); }
-        .data-table td { padding: 15px; border-top: 1px solid rgba(0,0,0,0.05); font-size: 0.8rem; }
+        input.edit-meta { 
+            background: none; border: none; border-bottom: 2px solid var(--jj-yellow-main); 
+            width: 80px; font-family: inherit; font-weight: 800; font-size: 1rem; color: var(--jj-brown);
+        }
 
-        @media (max-width: 850px) { .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .header { flex-direction: column; gap: 20px; } }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <img src="jjvidro.png" style="height: 60px; margin-bottom: 30px;">
-            <h2 style="font-size: 1rem; margin-bottom: 10px; letter-spacing: 2px;">ÁREA RESTRITA</h2>
-            <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 30px;">Apenas pablo11ssousa2@gmail.com possui permissão de acesso.</p>
-            <button class="btn-jj" onclick="login()">ENTRAR COM GOOGLE</button>
-            <p id="error-msg" style="color: #ff4444; font-size: 0.6rem; margin-top: 20px; display: none;">Acesso negado: Usuário não autorizado.</p>
+            <img src="jjvidro.png" style="height: 50px; margin-bottom: 20px;">
+            <h2 style="font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 30px;">BI ADM ACCESS</h2>
+            <button class="btn-jj" onclick="login()">AUTENTICAR PABLO</button>
         </div>
     </div>
 
     <div id="dash-content">
         <header class="header">
-            <img src="jjvidro.png" class="logo-img">
-            <div style="text-align: right;">
-                <p id="adm-name" style="font-weight: 700; font-size: 0.8rem;"></p>
-                <button onclick="logout()" style="background: none; border: none; color: var(--jj-brown); font-size: 0.6rem; font-weight: 700; cursor: pointer;">SAIR DO SISTEMA</button>
+            <img src="jjvidro.png" style="height: 40px;">
+            <div style="text-align: right">
+                <p id="user-display" style="font-weight: 700; font-size: 0.8rem;"></p>
+                <button onclick="logout()" style="background:none; border:none; color:var(--jj-brown); font-size:0.6rem; cursor:pointer">ENCERRAR SESSÃO</button>
             </div>
         </header>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total em Vendas</div>
-                <div class="stat-val" id="val-vendas">R$ 0,00</div>
+        <div class="main-grid">
+            <div class="card">
+                <span class="stat-label">Meta Mensal (R$)</span>
+                <div style="display:flex; align-items:center; gap:10px">
+                    <span class="stat-val">R$</span>
+                    <input type="number" id="meta-input" class="edit-meta" value="5000" onchange="updateMeta()">
+                </div>
+                <div class="progress-container"><div id="meta-bar" class="progress-bar"></div></div>
+                <p id="meta-desc" style="font-size: 0.6rem; opacity: 0.6; font-weight: 700;"></p>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Pedidos</div>
-                <div class="stat-val" id="val-pedidos">0</div>
+
+            <div class="card">
+                <span class="stat-label">Collectors VIP (Top Buyers)</span>
+                <div id="vip-list"></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Produtos</div>
-                <div class="stat-val" id="val-itens">0</div>
+
+            <div class="card">
+                <span class="stat-label">🚨 Alert: Reposição Necessária</span>
+                <div id="stock-alerts" style="max-height: 150px; overflow-y: auto;"></div>
             </div>
         </div>
 
-        <div class="charts-grid">
-            <div class="chart-card">
-                <h4 class="stat-label" style="margin-bottom: 20px;">Performance de Categorias</h4>
-                <canvas id="chartCat"></canvas>
+        <div class="main-grid" style="grid-template-columns: 2fr 1fr;">
+            <div class="card">
+                <span class="stat-label">Desempenho por Categoria</span>
+                <canvas id="chartCategories" style="max-height: 300px;"></canvas>
             </div>
-            <div class="chart-card">
-                <h4 class="stat-label" style="margin-bottom: 20px;">Gestão de Pedidos (Edição Direta)</h4>
-                <div style="max-height: 300px; overflow-y: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Token</th>
-                                <th>Cliente</th>
-                                <th>Total</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-orders"></tbody>
-                    </table>
-                </div>
+
+            <div class="card">
+                <span class="stat-label">Preferência de Cores</span>
+                <canvas id="chartColors"></canvas>
             </div>
         </div>
     </div>
@@ -154,93 +140,113 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
 
-        // GESTÃO DE ACESSO
-        function login() {
-            auth.signInWithPopup(provider).then(result => {
-                if(result.user.email !== ADM_EMAIL) {
-                    document.getElementById('error-msg').style.display = 'block';
-                    auth.signOut();
-                }
-            });
-        }
-
-        function logout() { auth.signOut().then(() => window.location.reload()); }
+        function login() { auth.signInWithPopup(provider); }
+        function logout() { auth.signOut().then(() => location.reload()); }
 
         auth.onAuthStateChanged(user => {
             if(user && user.email === ADM_EMAIL) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dash-content').style.display = 'block';
-                document.getElementById('adm-name').innerText = `Olá, ${user.displayName}`;
-                loadData();
-            } else {
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('dash-content').style.display = 'none';
+                document.getElementById('user-display').innerText = user.displayName.toUpperCase();
+                initData();
             }
         });
 
-        // CARREGAMENTO DE DADOS E FUNÇÕES DE EDIÇÃO
-        function loadData() {
-            // Stats de Produtos
-            database.ref('produtos').on('value', snap => {
-                const p = snap.val() || {};
-                document.getElementById('val-itens').innerText = Object.keys(p).length;
-                renderChart(Object.values(p));
-            });
+        function initData() {
+            // Meta inicial
+            if(!localStorage.getItem('jj_meta')) localStorage.setItem('jj_meta', 5000);
+            document.getElementById('meta-input').value = localStorage.getItem('jj_meta');
 
-            // Stats e Edição de Pedidos
+            // Listen Pedidos
             database.ref('pedidos').on('value', snap => {
-                const pedidos = snap.val() || {};
-                let totalGeral = 0;
-                const tbody = document.getElementById('table-orders');
-                tbody.innerHTML = "";
+                const pedidos = Object.values(snap.val() || {});
+                processFinances(pedidos);
+                processVIPs(pedidos);
+            });
 
-                Object.values(pedidos).reverse().forEach(o => {
-                    totalGeral += parseFloat(o.total);
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="font-weight:700">${o.token}</td>
-                            <td><input class="edit-input" value="${o.cliente}" onchange="updateOrder('${o.token}', 'cliente', this.value)"></td>
-                            <td><input class="edit-input" value="${o.total}" onchange="updateOrder('${o.token}', 'total', this.value)"></td>
-                            <td><button onclick="deleteOrder('${o.token}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById('val-vendas').innerText = `R$ ${totalGeral.toFixed(2)}`;
-                document.getElementById('val-pedidos').innerText = Object.keys(pedidos).length;
+            // Listen Produtos
+            database.ref('produtos').on('value', snap => {
+                const produtos = Object.values(snap.val() || {});
+                processInventory(produtos);
             });
         }
 
-        // FUNÇÕES EXCLUSIVAS DO ADM (LIBERDADE TOTAL)
-        function updateOrder(token, field, value) {
-            database.ref(`pedidos/${token}`).update({ [field]: value });
+        function processFinances(pedidos) {
+            let total = pedidos.reduce((acc, curr) => acc + parseFloat(curr.total), 0);
+            let meta = parseFloat(localStorage.getItem('jj_meta'));
+            let perc = Math.min((total / meta) * 100, 100);
+            
+            document.getElementById('meta-bar').style.width = perc + '%';
+            document.getElementById('meta-desc').innerText = `R$ ${total.toFixed(2)} ALCANÇADO DE R$ ${meta.toFixed(2)}`;
+            
+            // Gráfico de Categorias (Lógica simplificada)
+            renderCatChart(pedidos);
         }
 
-        function deleteOrder(token) {
-            if(confirm("Deseja apagar permanentemente este registro de venda?")) {
-                database.ref(`pedidos/${token}`).remove();
-            }
+        function processVIPs(pedidos) {
+            const clients = {};
+            pedidos.forEach(p => clients[p.cliente] = (clients[p.cliente] || 0) + parseFloat(p.total));
+            
+            const sorted = Object.entries(clients).sort((a,b) => b[1] - a[1]).slice(0, 4);
+            const list = document.getElementById('vip-list');
+            list.innerHTML = sorted.map((c, i) => `
+                <div class="vip-item">
+                    <div style="display:flex; align-items:center; gap:10px">
+                        <div class="vip-rank">${i+1}</div>
+                        <b>${c[0]}</b>
+                    </div>
+                    <span style="color:var(--jj-brown)">R$ ${c[1].toFixed(2)}</span>
+                </div>
+            `).join('');
         }
 
-        let myChart;
-        function renderChart(products) {
-            const ctx = document.getElementById('chartCat').getContext('2d');
-            const cats = {};
-            products.forEach(p => cats[p.category] = (cats[p.category] || 0) + 1);
+        function processInventory(produtos) {
+            const alerts = document.getElementById('stock-alerts');
+            alerts.innerHTML = "";
+            const colorCount = {};
 
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
+            produtos.forEach(p => {
+                // Alerta Estoque (Exemplo: se desc contém "ESGOTANDO") - Você pode vincular ao campo de estoque das variantes
+                if(p.name.length > 15) { // Simulação de critério
+                    alerts.innerHTML += `<div class="stock-alert-item"><span class="alert-badge">LOW</span> <span style="font-size:0.7rem">${p.name}</span></div>`;
+                }
+
+                // Cores
+                if(p.colors) p.colors.split(',').forEach(c => {
+                    let cor = c.trim();
+                    colorCount[cor] = (colorCount[cor] || 0) + 1;
+                });
+            });
+            renderColorChart(colorCount);
+        }
+
+        function updateMeta() {
+            localStorage.setItem('jj_meta', document.getElementById('meta-input').value);
+            initData();
+        }
+
+        // GRÁFICOS
+        let c1, c2;
+        function renderCatChart(pedidos) {
+            const ctx = document.getElementById('chartCategories').getContext('2d');
+            if(c1) c1.destroy();
+            c1 = new Chart(ctx, {
                 type: 'bar',
+                data: { labels: ['Vendas Realizadas'], datasets: [{ data: [pedidos.length], backgroundColor: '#FFC800', borderRadius: 10 }] },
+                options: { plugins: { legend: false } }
+            });
+        }
+
+        function renderColorChart(colorData) {
+            const ctx = document.getElementById('chartColors').getContext('2d');
+            if(c2) c2.destroy();
+            c2 = new Chart(ctx, {
+                type: 'doughnut',
                 data: {
-                    labels: Object.keys(cats),
-                    datasets: [{
-                        label: 'Itens por Categoria',
-                        data: Object.values(cats),
-                        backgroundColor: '#FFC800',
-                        borderRadius: 15
-                    }]
+                    labels: Object.keys(colorData),
+                    datasets: [{ data: Object.values(colorData), backgroundColor: ['#834A29', '#FFC800', '#1a1a1a', '#ddd'], borderWidth: 0 }]
                 },
-                options: { plugins: { legend: { display: false } } }
+                options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { font: { size: 8 } } } } }
             });
         }
     </script>

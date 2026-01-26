@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | Executive Dashboard Pro</title>
+    <title>J&J | Executive Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -15,151 +15,99 @@
             --jj-yellow-main: #FFC800;
             --jj-brown: #834A29;
             --jj-bg: #f0f2f5;
-            --jj-text: #2d3436;
+            --jj-text: #1a1a1a;
             --shadow-dark: rgba(163, 177, 198, 0.5);
             --shadow-light: rgba(255, 255, 255, 0.8);
             --font-sans: 'Montserrat', sans-serif;
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); padding-bottom: 50px; overflow-x: hidden; }
+
+        /* Login Screen */
+        #login-screen { position: fixed; inset: 0; background: var(--jj-bg); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: var(--jj-bg); padding: 50px; border-radius: 50px; box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light); text-align: center; width: 90%; max-width: 400px; }
+
+        /* Layout Estrutural */
+        #dash-content { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
         
-        body { 
-            background-color: var(--jj-bg); 
-            font-family: var(--font-sans); 
-            color: var(--jj-text); 
-            padding: 20px;
-            min-height: 100vh;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 10px; }
+        .logo-img { height: 45px; transition: transform 0.3s; }
+        .logo-img:hover { transform: scale(1.05); }
 
-        /* Background Personalizado (Cortina de Cetim e Carpete) via CSS Effects */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, #000 0%, #1a1a1a 100%);
-            z-index: -2;
-        }
+        /* Grid de Cards */
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .card-full { grid-column: 1 / -1; }
 
-        /* --- Login Screen --- */
-        #login-screen { 
-            position: fixed; inset: 0; background: #000; z-index: 10000; 
-            display: flex; align-items: center; justify-content: center; 
-        }
-        .login-card { 
-            background: var(--jj-bg); padding: 50px; border-radius: 40px; 
-            box-shadow: 20px 20px 60px #000, -5px -5px 30px rgba(255,255,255,0.1); 
-            text-align: center; max-width: 400px; width: 90%;
-        }
-
-        /* --- Layout Principal --- */
-        #dash-content { display: none; max-width: 1200px; margin: 0 auto; }
-        
-        .header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 40px; padding: 10px;
-        }
-        .logo-img { height: 55px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2)); }
-
-        /* --- Grid System --- */
-        .dash-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-        }
-
-        .full-width { grid-column: 1 / -1; }
-
-        /* --- Neumorphic Cards --- */
+        /* Neumorphic Containers */
         .card-jj { 
             background: var(--jj-bg); padding: 25px; border-radius: 30px; 
-            box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
-            transition: var(--transition);
+            box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            position: relative; transition: 0.3s;
         }
 
-        .section-title { 
-            font-size: 0.8rem; font-weight: 700; text-transform: uppercase; 
-            letter-spacing: 2px; color: var(--jj-brown); margin-bottom: 20px; 
-            display: flex; align-items: center; gap: 10px; 
-        }
-        .section-title::before { 
-            content: ''; width: 4px; height: 18px; 
-            background: var(--jj-yellow-main); border-radius: 2px; 
-        }
+        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--jj-brown); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .section-title::before { content: ''; width: 6px; height: 18px; background: var(--jj-yellow-main); border-radius: 3px; }
 
-        /* --- Progress Bar --- */
-        .bar-container { margin: 25px 0; }
-        .bar-bg { 
-            height: 20px; background: #e0e5ec; border-radius: 20px; 
-            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); 
-            overflow: hidden; 
-        }
-        .bar-fill { 
-            height: 100%; width: 0%; 
-            background: linear-gradient(90deg, #834A29, #FFC800); 
-            border-radius: 20px;
-            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
-        }
+        /* Progress Bar */
+        .bar-bg { height: 18px; background: #e0e5ec; border-radius: 20px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); overflow: hidden; margin: 25px 0; }
+        .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--jj-brown), var(--jj-yellow-main)); transition: 1.5s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 20px; }
 
-        /* --- Interactive Elements --- */
+        /* Inputs de Edição */
         .edit-field {
-            width: 100%; border: none; background: transparent; padding: 10px; 
-            font-family: inherit; font-size: 0.85rem; color: var(--jj-text);
-            border-radius: 12px; box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
-            outline: none; transition: 0.3s; margin: 5px 0;
+            width: 100%; border: none; background: transparent; padding: 10px; font-family: inherit; font-size: 0.85rem;
+            border-radius: 12px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            outline: none; transition: all 0.3s; color: var(--jj-brown); font-weight: 500;
         }
-        .edit-field:focus { box-shadow: inset 1px 1px 2px var(--shadow-dark); background: #ffffff; }
+        .edit-field:focus { box-shadow: inset 1px 1px 2px var(--shadow-dark); background: rgba(255, 200, 0, 0.08); color: #000; }
 
         .meta-input {
-            background: transparent; border: none; font-size: 1.8rem; font-weight: 700; 
-            color: var(--jj-brown); width: 180px; text-align: right; outline: none;
-            border-bottom: 3px solid var(--jj-yellow-main);
+            background: transparent; border: none; font-size: 1.6rem; font-weight: 700; color: var(--jj-brown); width: 160px; text-align: right; outline: none;
+            border-bottom: 3px solid var(--jj-yellow-main); transition: 0.3s;
         }
+        .meta-input:focus { width: 200px; color: #000; }
 
-        /* --- Tables --- */
-        .table-responsive { overflow-x: auto; border-radius: 20px; }
+        /* Tabelas Responsivas */
+        .table-wrapper { overflow-x: auto; border-radius: 20px; padding: 5px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        th { text-align: left; padding: 15px; font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; }
-        td { padding: 15px; background: rgba(255,255,255,0.3); }
+        th { text-align: left; padding: 15px; font-size: 0.65rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 1.5px; }
+        td { padding: 15px; background: rgba(255,255,255,0.3); border-radius: 0; }
         td:first-child { border-radius: 15px 0 0 15px; }
         td:last-child { border-radius: 0 15px 15px 0; }
 
-        /* --- Buttons & Toasts --- */
-        .btn-jj { 
-            padding: 15px 35px; border-radius: 20px; border: none; 
-            background: var(--jj-yellow-main); color: #000; font-weight: 700; 
-            cursor: pointer; box-shadow: 5px 5px 15px var(--shadow-dark);
-            transition: var(--transition);
-        }
-        .btn-jj:active { transform: scale(0.95); box-shadow: 2px 2px 5px var(--shadow-dark); }
+        /* Buttons & Badges */
+        .btn-jj { padding: 14px 30px; border-radius: 20px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer; transition: 0.4s; color: var(--jj-brown); font-size: 0.75rem; letter-spacing: 1px; }
+        .btn-jj:hover { transform: scale(1.05); box-shadow: 8px 8px 20px var(--shadow-dark); }
+        
+        .btn-delete { background: none; border: none; cursor: pointer; font-size: 1.2rem; filter: grayscale(1); transition: 0.3s; }
+        .btn-delete:hover { filter: grayscale(0); transform: scale(1.2); }
 
+        /* Notificações */
         #notification-toast {
-            position: fixed; top: 30px; right: 30px; z-index: 11000;
-            background: white; padding: 20px 30px; border-radius: 25px;
-            box-shadow: 15px 15px 30px rgba(0,0,0,0.2);
-            border-left: 8px solid var(--jj-yellow-main);
-            display: none; animation: slideIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            position: fixed; bottom: 30px; right: 30px; z-index: 11000;
+            background: var(--jj-bg); padding: 25px 35px; border-radius: 30px;
+            box-shadow: 15px 15px 35px var(--shadow-dark);
+            border-left: 12px solid var(--jj-yellow-main);
+            display: none; animation: slideIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
 
-        @keyframes slideIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* Mobile Adjustments */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .header { flex-direction: column; gap: 20px; text-align: center; }
+            .header div { text-align: center !important; }
             .meta-input { width: 100%; text-align: center; }
-            .card-jj { padding: 15px; }
+            .card-jj { padding: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <div style="position: fixed; inset: 0; z-index: -1; background: url('https://www.transparenttextures.com/patterns/black-linen.png'); opacity: 0.3; pointer-events: none;"></div>
-
     <div id="login-screen">
         <div class="login-card">
-            <img src="jjvidro.png" style="height: 60px; margin-bottom: 30px;">
-            <p style="font-size: 0.75rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 30px; color: var(--jj-brown);">SISTEMA EXECUTIVO</p>
-            <button class="btn-jj" onclick="login()">ACESSAR PAINEL</button>
+            <img src="jjvidro.png" style="height: 60px; margin-bottom: 30px;" alt="Logo J&J">
+            <p style="font-size: 0.75rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 30px; opacity: 0.7; color: var(--jj-brown);">ÁREA EXECUTIVA</p>
+            <button class="btn-jj" onclick="login()">AUTENTICAR PABLO</button>
         </div>
     </div>
 
@@ -167,86 +115,80 @@
         <header class="header">
             <img src="jjvidro.png" class="logo-img">
             <div style="text-align: right">
-                <p id="adm-user" style="font-size: 1rem; font-weight: 700; color: var(--jj-yellow-main); text-shadow: 1px 1px 2px #000;"></p>
-                <p style="font-size: 0.65rem; color: #fff; opacity: 0.8; font-weight: 700; letter-spacing: 1px;">ADMINISTRADOR MASTER</p>
+                <p id="adm-user" style="font-size: 0.9rem; font-weight: 700; color: var(--jj-brown);"></p>
+                <p style="font-size: 0.65rem; opacity: 0.5; font-weight: 700; letter-spacing: 1px;">SISTEMA ADMINISTRATIVO J&J 2026</p>
             </div>
         </header>
 
-        <div class="dash-grid">
-            
-            <div class="card-jj full-width" style="border: 1px solid rgba(255,200,0,0.2);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+        <section class="dash-grid">
+            <div class="card-jj card-full">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                     <div>
-                        <h3 class="section-title">Performance de Vendas</h3>
-                        <p style="font-size: 0.7rem; opacity: 0.6;">Acompanhamento em tempo real do faturamento bruto versus meta projetada.</p>
+                        <h3 class="section-title">Objetivo de Vendas</h3>
+                        <p style="font-size: 0.7rem; opacity: 0.6;">Ajuste a meta mensal para análise de performance.</p>
                     </div>
-                    <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 20px; box-shadow: inset 2px 2px 5px var(--shadow-dark);">
-                        <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 700; display: block; margin-bottom: 5px;">DEFINIR META ANUAL (R$)</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 0.8rem; opacity: 0.6; font-weight: 700;">META R$</span>
                         <input type="number" id="meta-val" class="meta-input" onchange="salvarMeta(this.value)">
                     </div>
                 </div>
-                
-                <div class="bar-container">
-                    <div class="bar-bg"><div id="meta-bar" class="bar-fill"></div></div>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 20px;">
-                        <div>
-                            <p style="font-size: 0.6rem; opacity: 0.5; font-weight: 700;">FATURAMENTO ATUAL</p>
-                            <span id="txt-faturamento" style="font-size: 1.2rem; font-weight: 700; color: var(--jj-brown);">R$ 0,00</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <p style="font-size: 0.6rem; opacity: 0.5; font-weight: 700;">ALCANCE</p>
-                        <span id="txt-porcentagem" style="font-size: 1.5rem; font-weight: 700; color: #27ae60;">0%</span>
-                    </div>
+                <div class="bar-bg"><div id="meta-bar" class="bar-fill"></div></div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                    <span id="txt-faturamento" style="font-size: 1.1rem; font-weight: 700; color: var(--jj-brown);">R$ 0,00</span>
+                    <span id="txt-porcentagem" style="font-size: 1.2rem; font-weight: 700; color: var(--jj-yellow-main); background: var(--jj-brown); padding: 5px 15px; border-radius: 12px;">0%</span>
                 </div>
             </div>
 
-            <div class="card-jj">
-                <h3 class="section-title">Pedidos & CRM</h3>
-                <div class="table-responsive">
+            <div class="card-jj card-full">
+                <h3 class="section-title">Edição de Pedidos & CRM</h3>
+                <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>Token</th>
-                                <th>Cliente</th>
+                                <th>Cliente VIP</th>
                                 <th>Total (R$)</th>
-                                <th>Ações</th>
+                                <th>Pagamento</th>
+                                <th style="text-align: center;">Ação</th>
                             </tr>
                         </thead>
-                        <tbody id="lista-pedidos"></tbody>
+                        <tbody id="lista-pedidos">
+                            </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="card-jj">
-                <h3 class="section-title">Acervo de Vidros</h3>
-                <div class="table-responsive">
+            <div class="card-jj card-full">
+                <h3 class="section-title">Gerenciamento de Acervo</h3>
+                <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th>Item</th>
-                                <th>Preço (R$)</th>
+                                <th>Nome do Item</th>
+                                <th>Preço Unitário</th>
                                 <th>Categoria</th>
                             </tr>
                         </thead>
-                        <tbody id="lista-produtos"></tbody>
+                        <tbody id="lista-produtos">
+                            </tbody>
                     </table>
                 </div>
             </div>
-
-        </div>
+        </section>
     </div>
 
     <div id="notification-toast">
-        <p style="font-size: 0.6rem; font-weight: 700; opacity: 0.5; text-transform: uppercase;">Aviso do Dashboard</p>
-        <p id="notif-msg" style="font-size: 0.9rem; font-weight: 700; color: var(--jj-brown); margin-top: 5px;"></p>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="font-size: 2rem;">🚀</div>
+            <div>
+                <p style="font-size: 0.65rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Notificação</p>
+                <p id="notif-msg" style="font-size: 0.95rem; font-weight: 700; color: var(--jj-brown); margin-top: 3px;"></p>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Configuração Firebase (Mantida)
+        // Configuração mantida conforme original
         const firebaseConfig = {
             apiKey: "AIzaSyDTYFc2tphilGadT8LfSV_mTI0GRmebMdI",
             authDomain: "jj26-d5c78.firebaseapp.com",
@@ -273,9 +215,12 @@
                 setTimeout(() => {
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('dash-content').style.display = 'block';
-                    document.getElementById('adm-user').innerText = user.displayName.toUpperCase();
                 }, 500);
+                document.getElementById('adm-user').innerText = "Olá, " + user.displayName;
                 iniciarDashboard();
+            } else if (user) {
+                alert("Acesso restrito ao administrador.");
+                auth.signOut();
             }
         });
 
@@ -283,7 +228,8 @@
             database.ref('configuracoes/meta').on('value', snap => {
                 metaGlobal = snap.val() || 15000;
                 document.getElementById('meta-val').value = metaGlobal;
-                recalcularTudo();
+                // Forçar recalculo quando a meta mudar
+                database.ref('pedidos').once('value', snap => calcularMeta(snap.val() || {}));
             });
 
             database.ref('pedidos').on('value', snap => {
@@ -298,10 +244,11 @@
         function renderPedidos(data) {
             const html = Object.values(data).reverse().map(p => `
                 <tr>
-                    <td><span style="font-size:0.6rem; background:#eee; padding:4px 8px; border-radius:5px; font-weight:700;">${p.token}</span></td>
+                    <td><span style="font-family: monospace; background: #eee; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem;">${p.token}</span></td>
                     <td><input class="edit-field" value="${p.cliente}" onchange="update('pedidos/${p.token}', 'cliente', this.value)"></td>
                     <td><input class="edit-field" type="number" value="${p.total}" onchange="update('pedidos/${p.token}', 'total', this.value)"></td>
-                    <td><button onclick="remover('pedidos/${p.token}')" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">🗑️</button></td>
+                    <td><input class="edit-field" value="${p.pagamento}" onchange="update('pedidos/${p.token}', 'pagamento', this.value)"></td>
+                    <td style="text-align: center;"><button class="btn-delete" onclick="remover('pedidos/${p.token}')">🗑️</button></td>
                 </tr>
             `).join('');
             document.getElementById('lista-pedidos').innerHTML = html;
@@ -320,47 +267,39 @@
 
         function calcularMeta(pedidos) {
             const total = Object.values(pedidos).reduce((acc, p) => acc + parseFloat(p.total || 0), 0);
-            const perc = Math.floor((total / metaGlobal) * 100);
+            const perc = metaGlobal > 0 ? Math.floor((total / metaGlobal) * 100) : 0;
             
             document.getElementById('meta-bar').style.width = Math.min(perc, 100) + "%";
-            document.getElementById('txt-faturamento').innerText = "R$ " + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            document.getElementById('txt-faturamento').innerText = "Total: R$ " + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
             document.getElementById('txt-porcentagem').innerText = perc + "%";
-
-            if(perc >= 100) document.getElementById('txt-porcentagem').style.color = "#FFC800";
 
             const currentLevel = Math.floor(perc / 10) * 10;
             if(currentLevel > lastLevel && currentLevel <= 100 && currentLevel > 0) {
-                mostrarNotificacao(`Excelente progresso! Alcançamos ${currentLevel}% da meta.`);
+                mostrarNotificacao(`Excelente! Atingimos ${currentLevel}% da meta estabelecida.`);
                 lastLevel = currentLevel;
             }
-        }
-
-        function recalcularTudo() {
-            database.ref('pedidos').once('value', snap => calcularMeta(snap.val() || {}));
         }
 
         function mostrarNotificacao(msg) {
             const toast = document.getElementById('notification-toast');
             document.getElementById('notif-msg').innerText = msg;
             toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 5000);
+            setTimeout(() => { toast.style.display = 'none'; }, 6000);
         }
 
         function salvarMeta(v) { 
-            database.ref('configuracoes/meta').set(parseFloat(v)); 
-            mostrarNotificacao("Meta atualizada com sucesso.");
+            const val = parseFloat(v);
+            if(val > 0) database.ref('configuracoes/meta').set(val); 
         }
 
         function update(path, key, val) { 
-            database.ref(path).update({ [key]: val }); 
-            // Feedback visual de salvamento
-            console.log("Cloud sync: " + path);
+            database.ref(path).update({ [key]: val });
+            console.log(`Atualizado: ${path} -> ${key}: ${val}`);
         }
 
         function remover(path) { 
-            if(confirm("Deseja apagar permanentemente este registro?")) {
+            if(confirm("Deseja apagar este registro permanentemente?")) {
                 database.ref(path).remove();
-                mostrarNotificacao("Registro removido.");
             }
         }
     </script>

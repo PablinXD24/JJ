@@ -69,7 +69,7 @@
 
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 12px; font-size: 0.6rem; color: var(--jj-brown); opacity: 0.7; }
-        td { padding: 10px 12px; border-top: 1px solid rgba(0,0,0,0.03); font-size: 0.8rem; vertical-align: middle; }
+        td { padding: 10px 12px; border-top: 1px solid rgba(0,0,0,0.03); font-size: 0.8rem; }
 
         .btn-jj { padding: 12px 25px; border-radius: 15px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer; }
         
@@ -86,10 +86,17 @@
         .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
         .variant-input-group { display: flex; align-items: center; gap: 10px; width: 50%; }
 
-        /* Estilos Comprovantes */
-        .btn-file { background: var(--jj-yellow-main); border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .proof-link { text-decoration: none; font-size: 1.2rem; margin-right: 5px; cursor: pointer; }
-
+        /* ESTILOS COMPROVANTES E MODAL */
+        .comp-link { cursor: pointer; font-size: 1.1rem; margin-right: 5px; text-decoration: none; }
+        .btn-upload { background: #ddd; border-radius: 50%; width: 25px; height: 25px; border: none; cursor: pointer; font-size: 0.8rem; }
+        
+        #modal-comp {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 20000;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-content { background: white; padding: 20px; border-radius: 30px; max-width: 90%; max-height: 90%; text-align: center; position: relative; }
+        .modal-content img, .modal-content iframe { max-width: 100%; max-height: 70vh; border-radius: 10px; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -104,6 +111,14 @@
         </div>
     </div>
 
+    <div id="modal-comp" onclick="fecharModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="fecharModal()">&times;</span>
+            <h3 class="section-title">Comprovante</h3>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
     <div id="dash-content">
         <header class="header">
             <img src="jjvidro.png" style="height: 40px;">
@@ -115,7 +130,7 @@
 
         <div class="kpi-grid">
             <div class="card-jj kpi-card">
-                <span class="kpi-label">Faturamento Total (Finalizados)</span>
+                <span class="kpi-label">Faturamento (Finalizados)</span>
                 <span id="kpi-total" class="kpi-value">R$ 0,00</span>
             </div>
             <div class="card-jj kpi-card">
@@ -218,9 +233,11 @@
             const html = [...pedidosArray].reverse().map(p => {
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
-                const proofs = p.comprovantes || [];
+                const comps = p.comprovantes || [];
                 
-                let proofsHTML = proofs.map((url, idx) => `<a title="Ver Comprovante ${idx+1}" onclick="abrirMidia('${url}')" class="proof-link">📄</a>`).join('');
+                let compsHTML = comps.map((url, idx) => 
+                    `<span class="comp-link" onclick="abrirModal('${url}')">📄</span>`
+                ).join('');
 
                 return `
                 <tr>
@@ -236,10 +253,10 @@
                     </td>
                     <td><input type="text" class="edit-field" value="${p.data || ''}" oninput="updateDB('pedidos/${tk}', 'data', this)"></td>
                     <td>
-                        <div style="display:flex; align-items:center; gap:5px">
-                            ${proofsHTML}
-                            <button class="btn-file" onclick="document.getElementById('file-${tk}').click()">+</button>
-                            <input type="file" id="file-${tk}" style="display:none" onchange="uploadProva('${tk}', this)">
+                        <div style="display:flex; align-items:center;">
+                            ${compsHTML}
+                            <button class="btn-upload" onclick="document.getElementById('file-${tk}').click()">+</button>
+                            <input type="file" id="file-${tk}" style="display:none" onchange="uploadComprovante('${tk}', this)">
                         </div>
                     </td>
                     <td><button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
@@ -248,26 +265,31 @@
             document.getElementById('lista-pedidos').innerHTML = html;
         }
 
-        function uploadProva(tk, input) {
+        function uploadComprovante(token, input) {
             const file = input.files[0];
-            if(!file) return;
+            if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64 = e.target.result;
-                const ref = database.ref(`pedidos/${tk}/comprovantes`);
-                ref.once('value', snap => {
-                    const atual = snap.val() || [];
-                    atual.push(base64);
-                    ref.set(atual);
-                });
+                const pedido = allPedidos[token];
+                const comps = pedido.comprovantes || [];
+                comps.push(base64);
+                database.ref(`pedidos/${token}/comprovantes`).set(comps);
             };
             reader.readAsDataURL(file);
         }
 
-        function abrirMidia(url) {
-            const win = window.open();
-            win.document.write(`<iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+        function abrirModal(url) {
+            const body = document.getElementById('modal-body');
+            if (url.includes('pdf') || url.includes('octet-stream')) {
+                body.innerHTML = `<iframe src="${url}" style="width:100%; height:60vh;"></iframe>`;
+            } else {
+                body.innerHTML = `<img src="${url}">`;
+            }
+            document.getElementById('modal-comp').style.display = 'flex';
         }
+
+        function fecharModal() { document.getElementById('modal-comp').style.display = 'none'; }
 
         function getStatusClass(st) {
             if(st === 'producao') return 'st-producao';
@@ -277,7 +299,7 @@
 
         function recalcularGestao() {
             const arr = Object.values(allPedidos);
-            // APENAS pedidos finalizados contam para o faturamento
+            // APENAS FINALIZADOS PARA O FATURAMENTO
             const totalFinalizado = arr.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             
             const emProducao = arr.filter(p => p.status === 'producao').length;
@@ -285,7 +307,7 @@
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
 
             const ranking = {};
-            arr.forEach(p => { if(p.cliente && p.status === 'finalizado') ranking[p.cliente] = (ranking[p.cliente] || 0) + (parseFloat(p.total) || 0); });
+            arr.forEach(p => { if(p.cliente) ranking[p.cliente] = (ranking[p.cliente] || 0) + (parseFloat(p.total) || 0); });
             const topClient = Object.keys(ranking).reduce((a, b) => ranking[a] > ranking[b] ? a : b, '---');
 
             document.getElementById('kpi-total').innerText = `R$ ${totalFinalizado.toLocaleString('pt-BR')}`;
@@ -329,7 +351,7 @@
                     });
                 } else {
                     const isLow = (p.stock || 0) < 5;
-                    variantsHTML = `<div class="variant-row"><span class="variant-label">Geral</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" type="text" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this)"><span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
+                    variantsHTML = `<div class="variant-row"><span class="variant-label">Geral</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this)"><span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
                 }
                 html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div><div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">Preço Ref: R$ ${p.price}</div>${variantsHTML}</div>`;
             });

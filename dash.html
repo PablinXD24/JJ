@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <style>
         :root {
@@ -76,6 +77,7 @@
         .low-stock { color: var(--danger); font-weight: 800; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
+        /* ESTILOS PARA CARDS DE ESTOQUE */
         .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .stock-card { 
             background: #f0f2f5; border-radius: 25px; padding: 20px; 
@@ -86,17 +88,14 @@
         .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
         .variant-input-group { display: flex; align-items: center; gap: 10px; width: 50%; }
 
-        /* ESTILOS COMPROVANTES E MODAL */
-        .comp-link { cursor: pointer; font-size: 1.1rem; margin-right: 5px; text-decoration: none; }
-        .btn-upload { background: #ddd; border-radius: 50%; width: 25px; height: 25px; border: none; cursor: pointer; font-size: 0.8rem; }
-        
-        #modal-comp {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 20000;
-            justify-content: center; align-items: center; padding: 20px;
+        /* MODAL DE COMPROVANTES */
+        #modal-view { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 20000; 
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 20px;
         }
-        .modal-content { background: white; padding: 20px; border-radius: 30px; max-width: 90%; max-height: 90%; text-align: center; position: relative; }
-        .modal-content img, .modal-content iframe { max-width: 100%; max-height: 70vh; border-radius: 10px; }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; font-weight: bold; }
+        .modal-content { max-width: 90%; max-height: 90%; border-radius: 20px; overflow: hidden; background: white; position: relative; }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 2rem; color: white; cursor: pointer; z-index: 20001; }
+        .comp-link { font-size: 0.6rem; color: var(--info); cursor: pointer; text-decoration: underline; margin-right: 5px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -111,12 +110,9 @@
         </div>
     </div>
 
-    <div id="modal-comp" onclick="fecharModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close-modal" onclick="fecharModal()">&times;</span>
-            <h3 class="section-title">Comprovante</h3>
-            <div id="modal-body"></div>
-        </div>
+    <div id="modal-view" onclick="this.style.display='none'">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content" id="modal-container"></div>
     </div>
 
     <div id="dash-content">
@@ -124,7 +120,7 @@
             <img src="jjvidro.png" style="height: 40px;">
             <div style="text-align: right">
                 <p id="adm-user" style="font-size: 0.8rem; font-weight: 700; color: var(--jj-brown);">Visitante</p>
-                <p style="font-size: 0.5rem; letter-spacing: 1px;">MODO DE VISUALIZAÇÃO</p>
+                <p style="font-size: 0.5rem; letter-spacing: 1px;">CHIEF EXECUTIVE OFFICER</p>
             </div>
         </header>
 
@@ -169,8 +165,8 @@
                             <th>Cliente</th>
                             <th>Valor (R$)</th>
                             <th>Status de Gestão</th>
-                            <th>Prazo / Data</th>
                             <th>Comprovantes</th>
+                            <th>Prazo</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -197,7 +193,7 @@
         };
 
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(), database = firebase.database();
+        const auth = firebase.auth(), database = firebase.database(), storage = firebase.storage();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
         let metaGlobal = 15000, allPedidos = {}, debounceTimer;
 
@@ -207,7 +203,6 @@
             if(user && user.email === ADM_EMAIL) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('adm-user').innerText = user.displayName;
-                document.getElementById('adm-user').nextElementSibling.innerText = "CHIEF EXECUTIVE OFFICER";
             }
         });
 
@@ -219,13 +214,11 @@
                 document.getElementById('meta-val').value = metaGlobal;
                 recalcularGestao();
             });
-
             database.ref('pedidos').on('value', snap => {
                 allPedidos = snap.val() || {};
                 renderPedidos(Object.values(allPedidos));
                 recalcularGestao();
             });
-
             database.ref('produtos').on('value', snap => renderProdutos(snap.val() || {}));
         }
 
@@ -233,12 +226,9 @@
             const html = [...pedidosArray].reverse().map(p => {
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
-                const comps = p.comprovantes || [];
+                const comps = p.comprovantes ? Object.values(p.comprovantes).map((url, i) => 
+                    `<span class="comp-link" onclick="viewFile('${url}')">Doc ${i+1}</span>`).join('') : '';
                 
-                let compsHTML = comps.map((url, idx) => 
-                    `<span class="comp-link" onclick="abrirModal('${url}')">📄</span>`
-                ).join('');
-
                 return `
                 <tr>
                     <td><code>${tk}</code></td>
@@ -251,45 +241,18 @@
                             <option value="finalizado" ${st==='finalizado'?'selected':''}>Finalizado</option>
                         </select>
                     </td>
-                    <td><input type="text" class="edit-field" value="${p.data || ''}" oninput="updateDB('pedidos/${tk}', 'data', this)"></td>
                     <td>
-                        <div style="display:flex; align-items:center;">
-                            ${compsHTML}
-                            <button class="btn-upload" onclick="document.getElementById('file-${tk}').click()">+</button>
-                            <input type="file" id="file-${tk}" style="display:none" onchange="uploadComprovante('${tk}', this)">
+                        <div style="display:flex; flex-direction:column; gap:5px">
+                            <div>${comps}</div>
+                            <input type="file" style="font-size:0.5rem; width:80px" onchange="uploadComprovante('${tk}', this)">
                         </div>
                     </td>
+                    <td><input type="text" class="edit-field" value="${p.data || ''}" oninput="updateDB('pedidos/${tk}', 'data', this)"></td>
                     <td><button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
-                </tr>
-            `}).join('');
+                </tr>`;
+            }).join('');
             document.getElementById('lista-pedidos').innerHTML = html;
         }
-
-        function uploadComprovante(token, input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                const pedido = allPedidos[token];
-                const comps = pedido.comprovantes || [];
-                comps.push(base64);
-                database.ref(`pedidos/${token}/comprovantes`).set(comps);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function abrirModal(url) {
-            const body = document.getElementById('modal-body');
-            if (url.includes('pdf') || url.includes('octet-stream')) {
-                body.innerHTML = `<iframe src="${url}" style="width:100%; height:60vh;"></iframe>`;
-            } else {
-                body.innerHTML = `<img src="${url}">`;
-            }
-            document.getElementById('modal-comp').style.display = 'flex';
-        }
-
-        function fecharModal() { document.getElementById('modal-comp').style.display = 'none'; }
 
         function getStatusClass(st) {
             if(st === 'producao') return 'st-producao';
@@ -299,15 +262,14 @@
 
         function recalcularGestao() {
             const arr = Object.values(allPedidos);
-            // APENAS FINALIZADOS PARA O FATURAMENTO
+            // APENAS FINALIZADOS SOMA NO TOTAL
             const totalFinalizado = arr.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
-            
             const emProducao = arr.filter(p => p.status === 'producao').length;
             const ticket = arr.length > 0 ? (totalFinalizado / arr.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
 
             const ranking = {};
-            arr.forEach(p => { if(p.cliente) ranking[p.cliente] = (ranking[p.cliente] || 0) + (parseFloat(p.total) || 0); });
+            arr.forEach(p => { if(p.cliente && p.status === 'finalizado') ranking[p.cliente] = (ranking[p.cliente] || 0) + (parseFloat(p.total) || 0); });
             const topClient = Object.keys(ranking).reduce((a, b) => ranking[a] > ranking[b] ? a : b, '---');
 
             document.getElementById('kpi-total').innerText = `R$ ${totalFinalizado.toLocaleString('pt-BR')}`;
@@ -321,15 +283,27 @@
             bar.style.background = perc > 80 ? 'var(--success)' : (perc > 40 ? 'var(--jj-yellow-main)' : 'var(--danger)');
         }
 
-        function updateDB(path, key, element, isNum = false) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                let val = isNum ? (parseFloat(element.value.toString().replace(',', '.')) || 0) : element.value;
-                database.ref(path).update({ [key]: val }).catch(e => {
-                    alert("Apenas o Administrador pode alterar dados.");
-                    location.reload();
-                });
-            }, 600);
+        async function uploadComprovante(token, input) {
+            if(!input.files[0]) return;
+            const file = input.files[0];
+            const ref = storage.ref(`comprovantes/${token}/${Date.now()}_${file.name}`);
+            try {
+                const snap = await ref.put(file);
+                const url = await snap.ref.getDownloadURL();
+                database.ref(`pedidos/${token}/comprovantes`).push(url);
+                alert("Upload concluído!");
+            } catch (e) { alert("Acesso negado ou erro no storage."); }
+        }
+
+        function viewFile(url) {
+            const container = document.getElementById('modal-container');
+            const ext = url.split('?')[0].split('.').pop().toLowerCase();
+            if(['jpg','jpeg','png','gif','webp'].includes(ext)) {
+                container.innerHTML = `<img src="${url}" style="max-width:100%; max-height:80vh; display:block; margin:auto">`;
+            } else {
+                container.innerHTML = `<iframe src="${url}" style="width:80vw; height:80vh; border:none;"></iframe>`;
+            }
+            document.getElementById('modal-view').style.display = 'flex';
         }
 
         function renderProdutos(data) {
@@ -340,22 +314,20 @@
                     Object.entries(p.variants).forEach(([color, details]) => {
                         const stockVal = details.stock || "0";
                         const isLow = stockVal.includes(':0') || stockVal === "0" || stockVal === 0;
-                        variantsHTML += `
-                        <div class="variant-row">
-                            <span class="variant-label">${color}</span>
-                            <div class="variant-input-group">
-                                <input class="edit-field ${isLow?'low-stock':''}" type="text" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)">
-                                <span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow ? '⚠️' : 'OK'}</span>
-                            </div>
-                        </div>`;
+                        variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"><span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow?'⚠️':'OK'}</span></div></div>`;
                     });
-                } else {
-                    const isLow = (p.stock || 0) < 5;
-                    variantsHTML = `<div class="variant-row"><span class="variant-label">Geral</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this)"><span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
                 }
-                html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div><div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">Preço Ref: R$ ${p.price}</div>${variantsHTML}</div>`;
+                html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div><div style="font-size:0.6rem; color:#888; margin-bottom:10px;">R$ ${p.price}</div>${variantsHTML}</div>`;
             });
             document.getElementById('grid-estoque').innerHTML = html;
+        }
+
+        function updateDB(path, key, element, isNum = false) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                let val = isNum ? (parseFloat(element.value.toString().replace(',', '.')) || 0) : element.value;
+                database.ref(path).update({ [key]: val }).catch(() => { alert("Sem permissão."); location.reload(); });
+            }, 600);
         }
 
         function filtrarPedidos() {
@@ -363,8 +335,8 @@
             renderPedidos(Object.values(allPedidos).filter(p => (p.cliente || '').toLowerCase().includes(t)));
         }
 
-        function salvarMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v) || 0).catch(() => alert("Acesso negado.")); }
-        function remover(path) { if(confirm("Remover permanentemente?")) database.ref(path).remove().catch(() => alert("Acesso negado.")); }
+        function salvarMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v) || 0); }
+        function remover(path) { if(confirm("Remover permanentemente?")) database.ref(path).remove(); }
     </script>
 </body>
 </html>

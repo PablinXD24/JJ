@@ -28,11 +28,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); padding-bottom: 50px; }
 
-        /* Login screen sobreposta, aparece apenas para o ADM entrar */
         #login-screen { position: fixed; inset: 0; background: rgba(248, 249, 250, 0.9); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .login-card { background: var(--jj-bg); padding: 50px; border-radius: 50px; box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light); text-align: center; }
 
-        /* Conteúdo agora visível por padrão */
         #dash-content { display: block; padding: 30px 5%; opacity: 1; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
@@ -158,19 +156,17 @@
         </div>
 
         <div class="card-jj">
-            <h3 class="section-title">Estoque Crítico de Insumos</h3>
+            <h3 class="section-title">Estoque Crítico de Insumos (Variantes)</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
-                        <tr><th>Insumo</th><th>Preço</th><th>Qtd Atual</th><th>Status</th></tr>
+                        <tr><th>Insumo / Cor</th><th>Preço</th><th>Qtd Atual (P:0, M:0)</th><th>Status</th></tr>
                     </thead>
                     <tbody id="lista-produtos"></tbody>
                 </table>
             </div>
         </div>
     </div>
-
-    <div id="notification-toast"><p id="notif-msg"></p></div>
 
     <script>
         const firebaseConfig = {
@@ -198,7 +194,6 @@
             }
         });
 
-        // Chamada imediata para carregar dados para todos
         iniciarEscutas();
 
         function iniciarEscutas() {
@@ -233,7 +228,7 @@
                             <option value="finalizado" ${st==='finalizado'?'selected':''}>Finalizado</option>
                         </select>
                     </td>
-                    <td><input type="date" class="edit-field" value="${p.data || ''}" oninput="updateDB('pedidos/${tk}', 'data', this)"></td>
+                    <td><input type="text" class="edit-field" value="${p.data || ''}" oninput="updateDB('pedidos/${tk}', 'data', this)"></td>
                     <td><button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
                 </tr>
             `}).join('');
@@ -271,7 +266,7 @@
         function updateDB(path, key, element, isNum = false) {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                let val = isNum ? (parseFloat(element.value.replace(',', '.')) || 0) : element.value;
+                let val = isNum ? (parseFloat(element.value.toString().replace(',', '.')) || 0) : element.value;
                 database.ref(path).update({ [key]: val }).catch(e => {
                     alert("Apenas o Administrador pode alterar dados.");
                     location.reload();
@@ -280,16 +275,32 @@
         }
 
         function renderProdutos(data) {
-            document.getElementById('lista-produtos').innerHTML = Object.entries(data).map(([id, p]) => {
-                const isLow = (p.stock || 0) < 5;
-                return `
-                <tr>
-                    <td>${p.name}</td>
-                    <td>R$ ${p.price}</td>
-                    <td><input class="edit-field ${isLow?'low-stock':''}" type="number" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this, true)"></td>
-                    <td><span class="${isLow?'low-stock':''}">${isLow ? '⚠️ REPOR' : 'OK'}</span></td>
-                </tr>`;
-            }).join('');
+            let html = "";
+            Object.entries(data).forEach(([id, p]) => {
+                if (p.variants) {
+                    Object.entries(p.variants).forEach(([color, details]) => {
+                        const stockVal = details.stock || "0";
+                        const isLow = stockVal.includes(':0') || stockVal === "0";
+                        html += `
+                        <tr>
+                            <td>${p.name} <small>(${color})</small></td>
+                            <td>R$ ${p.price}</td>
+                            <td><input class="edit-field ${isLow?'low-stock':''}" type="text" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"></td>
+                            <td><span class="${isLow?'low-stock':''}">${isLow ? '⚠️ REPOR' : 'OK'}</span></td>
+                        </tr>`;
+                    });
+                } else {
+                    const isLow = (p.stock || 0) < 5;
+                    html += `
+                    <tr>
+                        <td>${p.name}</td>
+                        <td>R$ ${p.price}</td>
+                        <td><input class="edit-field ${isLow?'low-stock':''}" type="text" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this)"></td>
+                        <td><span class="${isLow?'low-stock':''}">${isLow ? '⚠️ REPOR' : 'OK'}</span></td>
+                    </tr>`;
+                }
+            });
+            document.getElementById('lista-produtos').innerHTML = html;
         }
 
         function filtrarPedidos() {

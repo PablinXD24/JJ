@@ -148,7 +148,9 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="lista-pedidos"></tbody>
+                    <tbody id="lista-pedidos">
+                        <tr><td colspan="6" style="text-align:center; padding:20px; opacity:0.5;">Carregando dados...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -193,6 +195,9 @@
                 setTimeout(() => document.getElementById('dash-content').style.opacity = '1', 100);
                 document.getElementById('adm-user').innerText = user.displayName;
                 iniciarEscutas();
+            } else if (user) {
+                alert("Acesso negado.");
+                auth.signOut();
             }
         });
 
@@ -204,31 +209,43 @@
             });
 
             database.ref('pedidos').on('value', snap => {
-                allPedidos = snap.val() || {};
+                const data = snap.val();
+                allPedidos = data ? data : {};
                 renderPedidos(Object.values(allPedidos));
                 recalcularGestao();
+            }, error => {
+                console.error("Erro ao ler pedidos:", error);
+                document.getElementById('lista-pedidos').innerHTML = `<tr><td colspan="6" style="color:red; text-align:center">Erro de Permissão no Firebase</td></tr>`;
             });
 
             database.ref('produtos').on('value', snap => renderProdutos(snap.val() || {}));
         }
 
         function renderPedidos(pedidosArray) {
-            const html = pedidosArray.reverse().map(p => `
+            if(!pedidosArray || pedidosArray.length === 0) {
+                document.getElementById('lista-pedidos').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; opacity:0.5;">Nenhum pedido encontrado no banco.</td></tr>`;
+                return;
+            }
+
+            const html = [...pedidosArray].reverse().map(p => {
+                const token = p.token || 'N/A';
+                const status = p.status || 'orcamento';
+                return `
                 <tr>
-                    <td><code>${p.token}</code></td>
-                    <td><input class="edit-field" style="font-weight:700" value="${p.cliente || ''}" oninput="updateDB('pedidos/${p.token}', 'cliente', this)"></td>
-                    <td><input class="edit-field" value="${p.total || 0}" oninput="updateDB('pedidos/${p.token}', 'total', this, true)"></td>
+                    <td><code>${token}</code></td>
+                    <td><input class="edit-field" style="font-weight:700" value="${p.cliente || ''}" oninput="updateDB('pedidos/${token}', 'cliente', this)"></td>
+                    <td><input class="edit-field" value="${p.total || 0}" oninput="updateDB('pedidos/${token}', 'total', this, true)"></td>
                     <td>
-                        <select class="status-select ${getStatusClass(p.status)}" onchange="updateDB('pedidos/${p.token}', 'status', this)">
-                            <option value="orcamento" ${p.status==='orcamento'?'selected':''}>Orçamento</option>
-                            <option value="producao" ${p.status==='producao'?'selected':''}>Produção</option>
-                            <option value="finalizado" ${p.status==='finalizado'?'selected':''}>Finalizado</option>
+                        <select class="status-select ${getStatusClass(status)}" onchange="updateDB('pedidos/${token}', 'status', this)">
+                            <option value="orcamento" ${status==='orcamento'?'selected':''}>Orçamento</option>
+                            <option value="producao" ${status==='producao'?'selected':''}>Produção</option>
+                            <option value="finalizado" ${status==='finalizado'?'selected':''}>Finalizado</option>
                         </select>
                     </td>
-                    <td><input type="date" class="edit-field" value="${p.data || ''}" oninput="updateDB('pedidos/${p.token}', 'data', this)"></td>
-                    <td><button onclick="remover('pedidos/${p.token}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
+                    <td><input type="date" class="edit-field" value="${p.data || ''}" oninput="updateDB('pedidos/${token}', 'data', this)"></td>
+                    <td><button onclick="remover('pedidos/${token}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
                 </tr>
-            `).join('');
+            `}).join('');
             document.getElementById('lista-pedidos').innerHTML = html;
         }
 
@@ -240,16 +257,21 @@
 
         function recalcularGestao() {
             const arr = Object.values(allPedidos);
+            if(arr.length === 0) return;
+
             const total = arr.reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             const emProducao = arr.filter(p => p.status === 'producao').length;
             const ticket = arr.length > 0 ? (total / arr.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((total / metaGlobal) * 100) : 0;
 
             const ranking = {};
-            arr.forEach(p => { ranking[p.cliente] = (ranking[p.cliente] || 0) + (parseFloat(p.total) || 0); });
-            const topClient = Object.keys(ranking).reduce((a, b) => ranking[a] > ranking[b] ? a : b, '---');
+            arr.forEach(p => { 
+                if(p.cliente) ranking[p.cliente] = (ranking[p.cliente] || 0) + (parseFloat(p.total) || 0); 
+            });
+            const clients = Object.keys(ranking);
+            const topClient = clients.length > 0 ? clients.reduce((a, b) => ranking[a] > ranking[b] ? a : b) : '---';
 
-            document.getElementById('kpi-total').innerText = `R$ ${total.toLocaleString('pt-BR')}`;
+            document.getElementById('kpi-total').innerText = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
             document.getElementById('kpi-ticket').innerText = `R$ ${ticket.toLocaleString('pt-BR', {maximumFractionDigits:0})}`;
             document.getElementById('kpi-prod').innerText = emProducao;
             document.getElementById('kpi-top-client').innerText = topClient.substring(0, 12);
@@ -264,26 +286,28 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 let val = isNum ? (parseFloat(element.value.replace(',', '.')) || 0) : element.value;
-                database.ref(path).update({ [key]: val });
+                database.ref(path).update({ [key]: val }).catch(e => console.error("Erro ao atualizar:", e));
             }, 600);
         }
 
         function renderProdutos(data) {
-            document.getElementById('lista-produtos').innerHTML = Object.entries(data).map(([id, p]) => {
+            const html = Object.entries(data).map(([id, p]) => {
                 const isLow = (p.stock || 0) < 5;
                 return `
                 <tr>
-                    <td>${p.name}</td>
-                    <td>R$ ${p.price}</td>
+                    <td>${p.name || 'Sem nome'}</td>
+                    <td>R$ ${p.price || 0}</td>
                     <td><input class="edit-field ${isLow?'low-stock':''}" type="number" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this, true)"></td>
                     <td><span class="${isLow?'low-stock':''}">${isLow ? '⚠️ REPOR' : 'OK'}</span></td>
                 </tr>`;
             }).join('');
+            document.getElementById('lista-produtos').innerHTML = html;
         }
 
         function filtrarPedidos() {
             const t = document.getElementById('pedido-search').value.toLowerCase();
-            renderPedidos(Object.values(allPedidos).filter(p => p.cliente?.toLowerCase().includes(t)));
+            const filtrados = Object.values(allPedidos).filter(p => (p.cliente || "").toLowerCase().includes(t));
+            renderPedidos(filtrados);
         }
 
         function salvarMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v) || 0); }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>J&J | Executive Dashboard</title>
+    <title>J&J | Executive Dashboard Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -14,78 +14,152 @@
         :root {
             --jj-yellow-main: #FFC800;
             --jj-brown: #834A29;
-            --jj-bg: #f8f9fa;
-            --jj-text: #1a1a1a;
-            --shadow-dark: rgba(163, 177, 198, 0.4);
-            --shadow-light: rgba(255, 255, 255, 0.9);
+            --jj-bg: #f0f2f5;
+            --jj-text: #2d3436;
+            --shadow-dark: rgba(163, 177, 198, 0.5);
+            --shadow-light: rgba(255, 255, 255, 0.8);
             --font-sans: 'Montserrat', sans-serif;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--jj-bg); font-family: var(--font-sans); color: var(--jj-text); padding-bottom: 50px; overflow-x: hidden; }
-
-        /* Login Screen */
-        #login-screen { position: fixed; inset: 0; background: var(--jj-bg); z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: var(--jj-bg); padding: 50px; border-radius: 50px; box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light); text-align: center; }
-
-        #dash-content { display: none; padding: 30px 5%; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .logo-img { height: 45px; }
+        body { 
+            background-color: var(--jj-bg); 
+            font-family: var(--font-sans); 
+            color: var(--jj-text); 
+            padding: 20px;
+            min-height: 100vh;
+        }
 
-        /* Neumorphic Containers */
+        /* Background Personalizado (Cortina de Cetim e Carpete) via CSS Effects */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, #000 0%, #1a1a1a 100%);
+            z-index: -2;
+        }
+
+        /* --- Login Screen --- */
+        #login-screen { 
+            position: fixed; inset: 0; background: #000; z-index: 10000; 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .login-card { 
+            background: var(--jj-bg); padding: 50px; border-radius: 40px; 
+            box-shadow: 20px 20px 60px #000, -5px -5px 30px rgba(255,255,255,0.1); 
+            text-align: center; max-width: 400px; width: 90%;
+        }
+
+        /* --- Layout Principal --- */
+        #dash-content { display: none; max-width: 1200px; margin: 0 auto; }
+        
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 40px; padding: 10px;
+        }
+        .logo-img { height: 55px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2)); }
+
+        /* --- Grid System --- */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .full-width { grid-column: 1 / -1; }
+
+        /* --- Neumorphic Cards --- */
         .card-jj { 
-            background: var(--jj-bg); padding: 30px; border-radius: 40px; 
-            box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
-            margin-bottom: 30px; position: relative;
+            background: var(--jj-bg); padding: 25px; border-radius: 30px; 
+            box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+            transition: var(--transition);
         }
 
-        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--jj-brown); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .section-title::before { content: ''; width: 4px; height: 15px; background: var(--jj-yellow-main); border-radius: 2px; }
+        .section-title { 
+            font-size: 0.8rem; font-weight: 700; text-transform: uppercase; 
+            letter-spacing: 2px; color: var(--jj-brown); margin-bottom: 20px; 
+            display: flex; align-items: center; gap: 10px; 
+        }
+        .section-title::before { 
+            content: ''; width: 4px; height: 18px; 
+            background: var(--jj-yellow-main); border-radius: 2px; 
+        }
 
-        /* Progress Bar */
-        .bar-bg { height: 16px; background: #e0e5ec; border-radius: 20px; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); overflow: hidden; margin: 20px 0; }
-        .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--jj-brown), var(--jj-yellow-main)); transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        /* --- Progress Bar --- */
+        .bar-container { margin: 25px 0; }
+        .bar-bg { 
+            height: 20px; background: #e0e5ec; border-radius: 20px; 
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); 
+            overflow: hidden; 
+        }
+        .bar-fill { 
+            height: 100%; width: 0%; 
+            background: linear-gradient(90deg, #834A29, #FFC800); 
+            border-radius: 20px;
+            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        }
 
-        /* Inputs de Edição */
+        /* --- Interactive Elements --- */
         .edit-field {
-            width: 100%; border: none; background: transparent; padding: 8px; font-family: inherit; font-size: 0.8rem;
-            border-radius: 10px; box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
-            outline: none; transition: 0.3s;
+            width: 100%; border: none; background: transparent; padding: 10px; 
+            font-family: inherit; font-size: 0.85rem; color: var(--jj-text);
+            border-radius: 12px; box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+            outline: none; transition: 0.3s; margin: 5px 0;
         }
-        .edit-field:focus { box-shadow: inset 1px 1px 2px var(--shadow-dark); background: rgba(255, 200, 0, 0.05); }
+        .edit-field:focus { box-shadow: inset 1px 1px 2px var(--shadow-dark); background: #ffffff; }
 
         .meta-input {
-            background: transparent; border: none; font-size: 1.4rem; font-weight: 700; color: var(--jj-brown); width: 150px; text-align: right; outline: none;
-            border-bottom: 2px solid var(--jj-yellow-main);
+            background: transparent; border: none; font-size: 1.8rem; font-weight: 700; 
+            color: var(--jj-brown); width: 180px; text-align: right; outline: none;
+            border-bottom: 3px solid var(--jj-yellow-main);
         }
 
-        /* Notificações do Sistema */
+        /* --- Tables --- */
+        .table-responsive { overflow-x: auto; border-radius: 20px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        th { text-align: left; padding: 15px; font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; }
+        td { padding: 15px; background: rgba(255,255,255,0.3); }
+        td:first-child { border-radius: 15px 0 0 15px; }
+        td:last-child { border-radius: 0 15px 15px 0; }
+
+        /* --- Buttons & Toasts --- */
+        .btn-jj { 
+            padding: 15px 35px; border-radius: 20px; border: none; 
+            background: var(--jj-yellow-main); color: #000; font-weight: 700; 
+            cursor: pointer; box-shadow: 5px 5px 15px var(--shadow-dark);
+            transition: var(--transition);
+        }
+        .btn-jj:active { transform: scale(0.95); box-shadow: 2px 2px 5px var(--shadow-dark); }
+
         #notification-toast {
-            position: fixed; bottom: 30px; right: 30px; z-index: 11000;
-            background: var(--jj-bg); padding: 20px 30px; border-radius: 25px;
-            box-shadow: 10px 10px 20px var(--shadow-dark);
-            border-left: 10px solid var(--jj-yellow-main);
-            display: none; animation: slideIn 0.5s ease-out;
+            position: fixed; top: 30px; right: 30px; z-index: 11000;
+            background: white; padding: 20px 30px; border-radius: 25px;
+            box-shadow: 15px 15px 30px rgba(0,0,0,0.2);
+            border-left: 8px solid var(--jj-yellow-main);
+            display: none; animation: slideIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
 
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
-        td { padding: 12px; border-top: 1px solid rgba(0,0,0,0.05); }
-
-        .btn-jj { padding: 12px 25px; border-radius: 15px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .btn-jj:hover { transform: translateY(-2px); box-shadow: 5px 5px 15px var(--shadow-dark); }
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .header { flex-direction: column; gap: 20px; text-align: center; }
+            .meta-input { width: 100%; text-align: center; }
+            .card-jj { padding: 15px; }
+        }
     </style>
 </head>
 <body>
 
+    <div style="position: fixed; inset: 0; z-index: -1; background: url('https://www.transparenttextures.com/patterns/black-linen.png'); opacity: 0.3; pointer-events: none;"></div>
+
     <div id="login-screen">
         <div class="login-card">
-            <img src="jjvidro.png" style="height: 50px; margin-bottom: 25px;">
-            <p style="font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 25px; opacity: 0.6;">ÁREA EXECUTIVA J&J</p>
-            <button class="btn-jj" onclick="login()">AUTENTICAR PABLO</button>
+            <img src="jjvidro.png" style="height: 60px; margin-bottom: 30px;">
+            <p style="font-size: 0.75rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 30px; color: var(--jj-brown);">SISTEMA EXECUTIVO</p>
+            <button class="btn-jj" onclick="login()">ACESSAR PAINEL</button>
         </div>
     </div>
 
@@ -93,70 +167,86 @@
         <header class="header">
             <img src="jjvidro.png" class="logo-img">
             <div style="text-align: right">
-                <p id="adm-user" style="font-size: 0.8rem; font-weight: 700; color: var(--jj-brown);"></p>
-                <p style="font-size: 0.6rem; opacity: 0.5; font-weight: 700;">ADMINISTRADOR TOTAL</p>
+                <p id="adm-user" style="font-size: 1rem; font-weight: 700; color: var(--jj-yellow-main); text-shadow: 1px 1px 2px #000;"></p>
+                <p style="font-size: 0.65rem; color: #fff; opacity: 0.8; font-weight: 700; letter-spacing: 1px;">ADMINISTRADOR MASTER</p>
             </div>
         </header>
 
-        <div class="card-jj">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                <div>
-                    <h3 class="section-title">Objetivo de Vendas</h3>
-                    <p style="font-size: 0.65rem; opacity: 0.5;">Edite o valor para recalcular o progresso do sistema.</p>
+        <div class="dash-grid">
+            
+            <div class="card-jj full-width" style="border: 1px solid rgba(255,200,0,0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <h3 class="section-title">Performance de Vendas</h3>
+                        <p style="font-size: 0.7rem; opacity: 0.6;">Acompanhamento em tempo real do faturamento bruto versus meta projetada.</p>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 20px; box-shadow: inset 2px 2px 5px var(--shadow-dark);">
+                        <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 700; display: block; margin-bottom: 5px;">DEFINIR META ANUAL (R$)</span>
+                        <input type="number" id="meta-val" class="meta-input" onchange="salvarMeta(this.value)">
+                    </div>
                 </div>
-                <div>
-                    <span style="font-size: 0.8rem; opacity: 0.5; font-weight: 700;">META R$</span>
-                    <input type="number" id="meta-val" class="meta-input" onchange="salvarMeta(this.value)">
+                
+                <div class="bar-container">
+                    <div class="bar-bg"><div id="meta-bar" class="bar-fill"></div></div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 20px;">
+                        <div>
+                            <p style="font-size: 0.6rem; opacity: 0.5; font-weight: 700;">FATURAMENTO ATUAL</p>
+                            <span id="txt-faturamento" style="font-size: 1.2rem; font-weight: 700; color: var(--jj-brown);">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 0.6rem; opacity: 0.5; font-weight: 700;">ALCANCE</p>
+                        <span id="txt-porcentagem" style="font-size: 1.5rem; font-weight: 700; color: #27ae60;">0%</span>
+                    </div>
                 </div>
             </div>
-            <div class="bar-bg"><div id="meta-bar" class="bar-fill"></div></div>
-            <div style="display: flex; justify-content: space-between;">
-                <span id="txt-faturamento" style="font-size: 0.8rem; font-weight: 700; color: var(--jj-brown);">Carregando...</span>
-                <span id="txt-porcentagem" style="font-size: 0.8rem; font-weight: 700; color: var(--jj-brown);">0%</span>
-            </div>
-        </div>
 
-        <div class="card-jj">
-            <h3 class="section-title">Edição de Pedidos & CRM</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Token</th>
-                            <th>Cliente VIP</th>
-                            <th>Total (R$)</th>
-                            <th>Pagamento</th>
-                            <th>Remover</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-pedidos"></tbody>
-                </table>
+            <div class="card-jj">
+                <h3 class="section-title">Pedidos & CRM</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Cliente</th>
+                                <th>Total (R$)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-pedidos"></tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <div class="card-jj">
-            <h3 class="section-title">Gerenciamento de Acervo</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nome do Item</th>
-                            <th>Preço Unitário</th>
-                            <th>Categoria</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-produtos"></tbody>
-                </table>
+            <div class="card-jj">
+                <h3 class="section-title">Acervo de Vidros</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Preço (R$)</th>
+                                <th>Categoria</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-produtos"></tbody>
+                    </table>
+                </div>
             </div>
+
         </div>
     </div>
 
     <div id="notification-toast">
-        <p style="font-size: 0.6rem; font-weight: 700; opacity: 0.5; text-transform: uppercase;">Notificação do Sistema</p>
+        <p style="font-size: 0.6rem; font-weight: 700; opacity: 0.5; text-transform: uppercase;">Aviso do Dashboard</p>
         <p id="notif-msg" style="font-size: 0.9rem; font-weight: 700; color: var(--jj-brown); margin-top: 5px;"></p>
     </div>
 
     <script>
+        // Configuração Firebase (Mantida)
         const firebaseConfig = {
             apiKey: "AIzaSyDTYFc2tphilGadT8LfSV_mTI0GRmebMdI",
             authDomain: "jj26-d5c78.firebaseapp.com",
@@ -179,39 +269,39 @@
 
         auth.onAuthStateChanged(user => {
             if(user && user.email === ADM_EMAIL) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dash-content').style.display = 'block';
-                document.getElementById('adm-user').innerText = user.displayName;
+                document.getElementById('login-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dash-content').style.display = 'block';
+                    document.getElementById('adm-user').innerText = user.displayName.toUpperCase();
+                }, 500);
                 iniciarDashboard();
             }
         });
 
         function iniciarDashboard() {
-            // Escutar Meta
             database.ref('configuracoes/meta').on('value', snap => {
                 metaGlobal = snap.val() || 15000;
                 document.getElementById('meta-val').value = metaGlobal;
+                recalcularTudo();
             });
 
-            // Escutar Pedidos
             database.ref('pedidos').on('value', snap => {
                 const data = snap.val() || {};
                 renderPedidos(data);
                 calcularMeta(data);
             });
 
-            // Escutar Produtos
             database.ref('produtos').on('value', snap => renderProdutos(snap.val() || {}));
         }
 
         function renderPedidos(data) {
             const html = Object.values(data).reverse().map(p => `
                 <tr>
-                    <td><b style="font-size:0.65rem">${p.token}</b></td>
+                    <td><span style="font-size:0.6rem; background:#eee; padding:4px 8px; border-radius:5px; font-weight:700;">${p.token}</span></td>
                     <td><input class="edit-field" value="${p.cliente}" onchange="update('pedidos/${p.token}', 'cliente', this.value)"></td>
-                    <td><input class="edit-field" value="${p.total}" onchange="update('pedidos/${p.token}', 'total', this.value)"></td>
-                    <td><input class="edit-field" value="${p.pagamento}" onchange="update('pedidos/${p.token}', 'pagamento', this.value)"></td>
-                    <td><button onclick="remover('pedidos/${p.token}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
+                    <td><input class="edit-field" type="number" value="${p.total}" onchange="update('pedidos/${p.token}', 'total', this.value)"></td>
+                    <td><button onclick="remover('pedidos/${p.token}')" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">🗑️</button></td>
                 </tr>
             `).join('');
             document.getElementById('lista-pedidos').innerHTML = html;
@@ -221,7 +311,7 @@
             const html = Object.entries(data).map(([id, p]) => `
                 <tr>
                     <td><input class="edit-field" value="${p.name}" onchange="update('produtos/${id}', 'name', this.value)"></td>
-                    <td><input class="edit-field" value="${p.price}" onchange="update('produtos/${id}', 'price', this.value)"></td>
+                    <td><input class="edit-field" type="number" value="${p.price}" onchange="update('produtos/${id}', 'price', this.value)"></td>
                     <td><input class="edit-field" value="${p.category}" onchange="update('produtos/${id}', 'category', this.value)"></td>
                 </tr>
             `).join('');
@@ -233,15 +323,20 @@
             const perc = Math.floor((total / metaGlobal) * 100);
             
             document.getElementById('meta-bar').style.width = Math.min(perc, 100) + "%";
-            document.getElementById('txt-faturamento').innerText = "Faturamento: R$ " + total.toFixed(2);
+            document.getElementById('txt-faturamento').innerText = "R$ " + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
             document.getElementById('txt-porcentagem').innerText = perc + "%";
 
-            // Lógica de Notificação do Sistema (10% em 10%)
+            if(perc >= 100) document.getElementById('txt-porcentagem').style.color = "#FFC800";
+
             const currentLevel = Math.floor(perc / 10) * 10;
             if(currentLevel > lastLevel && currentLevel <= 100 && currentLevel > 0) {
-                mostrarNotificacao(`Incrível! Você atingiu ${currentLevel}% da sua meta.`);
+                mostrarNotificacao(`Excelente progresso! Alcançamos ${currentLevel}% da meta.`);
                 lastLevel = currentLevel;
             }
+        }
+
+        function recalcularTudo() {
+            database.ref('pedidos').once('value', snap => calcularMeta(snap.val() || {}));
         }
 
         function mostrarNotificacao(msg) {
@@ -251,9 +346,23 @@
             setTimeout(() => { toast.style.display = 'none'; }, 5000);
         }
 
-        function salvarMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v)); }
-        function update(path, key, val) { database.ref(path).update({ [key]: val }); }
-        function remover(path) { if(confirm("Deseja apagar permanentemente?")) database.ref(path).remove(); }
+        function salvarMeta(v) { 
+            database.ref('configuracoes/meta').set(parseFloat(v)); 
+            mostrarNotificacao("Meta atualizada com sucesso.");
+        }
+
+        function update(path, key, val) { 
+            database.ref(path).update({ [key]: val }); 
+            // Feedback visual de salvamento
+            console.log("Cloud sync: " + path);
+        }
+
+        function remover(path) { 
+            if(confirm("Deseja apagar permanentemente este registro?")) {
+                database.ref(path).remove();
+                mostrarNotificacao("Registro removido.");
+            }
+        }
     </script>
 </body>
 </html>

@@ -78,7 +78,6 @@
         
         #cart-btn-floating { bottom: 30px; left: 30px; }
         
-        /* PILHA DE BOTÕES À DIREITA */
         #admin-btn { bottom: 30px; right: 30px; background: var(--jj-yellow-main); }
         #dash-btn-floating { bottom: 105px; right: 30px; background: var(--jj-brown); color: white; font-size: 20px; }
         #scan-btn-floating { bottom: 180px; right: 30px; color: var(--jj-brown); }
@@ -264,7 +263,7 @@
 
         function quickAdd(name, price, colors) {
             const firstColor = colors.split(',')[0].trim();
-            cart.push({ name, price: parseFloat(price), color: firstColor, size: "Padrão", qty: 1 });
+            cart.push({ id: currentProduct?.id || 'manual', name, price: parseFloat(price), color: firstColor, size: "Padrão", qty: 1 });
             saveCart(); closeModals(); openCartModal();
         }
 
@@ -320,9 +319,12 @@
                         </div>`;
                     });
                 }
-                document.getElementById('stat-count').innerText = count;
-                document.getElementById('stat-total').innerText = `R$ ${total.toFixed(2)}`;
-                document.getElementById('cashier-history').innerHTML = html || "Sem vendas.";
+                const stCount = document.getElementById('stat-count');
+                const stTotal = document.getElementById('stat-total');
+                const stHist = document.getElementById('cashier-history');
+                if(stCount) stCount.innerText = count;
+                if(stTotal) stTotal.innerText = `R$ ${total.toFixed(2)}`;
+                if(stHist) stHist.innerHTML = html || "Sem vendas.";
             });
         }
 
@@ -351,7 +353,15 @@
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "jjvidro2.png", stock: "" };
             const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
             const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="renderUserView(currentProduct, '${c.trim()}')"></div>`).join('');
-            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0; opacity:0.8; line-height:1.4">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px"><div class="color-selector">${colorDots}</div><select id="u-size" class="user-input">${stockArr.map(s => `<option value="${s.split(':')[0]}">${s}</option>`).join('') || '<option>Padrão</option>'}</select><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-size:1.5rem; font-weight:800; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR À LISTA</button></div>`;
+            
+            // Filtro para não mostrar opções esgotadas (opcional, mantendo o aviso de estoque)
+            const options = stockArr.map(s => {
+                const [tam, qtd] = s.split(':');
+                const isOut = parseInt(qtd) <= 0;
+                return `<option value="${tam}" ${isOut ? 'disabled' : ''}>${tam} ${isOut ? '(ESGOTADO)' : '('+qtd+')'}</option>`;
+            }).join('') || '<option>Padrão</option>';
+
+            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0; opacity:0.8; line-height:1.4">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px"><div class="color-selector">${colorDots}</div><select id="u-size" class="user-input">${options}</select><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-size:1.5rem; font-weight:800; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR À LISTA</button></div>`;
         }
 
         function updateProductAll(id) {
@@ -369,7 +379,9 @@
         }
 
         function addToCart(name, price, color) {
-            cart.push({ name, price: parseFloat(price), color, size: document.getElementById('u-size').value, qty: parseInt(document.getElementById('u-qty').value) });
+            const qty = parseInt(document.getElementById('u-qty').value);
+            const size = document.getElementById('u-size').value;
+            cart.push({ id: currentProduct.id, name, price: parseFloat(price), color, size, qty });
             saveCart(); closeModals();
         }
 
@@ -393,7 +405,7 @@
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
-        function finishOrder(total) {
+        async function finishOrder(total) {
             const user = document.getElementById('u-final-name').value;
             const pay = document.getElementById('u-final-pay').value;
             if(!user || !pay) return alert("Por favor, preencha o nome e a forma de pagamento.");
@@ -405,10 +417,29 @@
             msg += `👤 *Cliente:* ${user}\n`;
             msg += `💳 *Pagamento:* ${pay}\n`;
             msg += `\n---------------------------\n`;
-            cart.forEach(i => {
-                msg += `🔸 ${i.qty}x ${i.name}\n   (${i.color} / ${i.size}) - R$ ${i.price}\n`;
-                itensResumo += `${i.qty}x ${i.name} (${i.color}); `;
-            });
+
+            // BAIXA DE ESTOQUE AUTOMÁTICA
+            for (const item of cart) {
+                if(item.id && item.id !== 'manual') {
+                    const snap = await database.ref(`produtos/${item.id}/variants/${item.color}/stock`).once('value');
+                    let stockStr = snap.val();
+                    if(stockStr) {
+                        let parts = stockStr.split(',').map(s => s.trim());
+                        let updatedParts = parts.map(p => {
+                            let [tam, qtd] = p.split(':');
+                            if(tam === item.size) {
+                                let novaQtd = Math.max(0, parseInt(qtd) - item.qty);
+                                return `${tam}:${novaQtd}`;
+                            }
+                            return p;
+                        });
+                        await database.ref(`produtos/${item.id}/variants/${item.color}/stock`).set(updatedParts.join(', '));
+                    }
+                }
+                msg += `🔸 ${item.qty}x ${item.name}\n   (${item.color} / ${item.size}) - R$ ${item.price}\n`;
+                itensResumo += `${item.qty}x ${item.name} (${item.color}); `;
+            }
+
             msg += `---------------------------\n`;
             msg += `💰 *VALOR TOTAL: R$ ${total.toFixed(2)}*\n\n`;
             msg += `_Obrigado por escolher a J&J Art!_`;
@@ -439,7 +470,8 @@
             const t = document.getElementById('search-token').value.trim();
             database.ref('pedidos/'+t).once('value', snap => {
                 const p = snap.val();
-                document.getElementById('token-result-area').innerHTML = p ? `<div class="order-detail-card"><b>Status:</b> Localizado<br><b>Cliente:</b> ${p.cliente}<br><b>Itens:</b> ${p.itens_resumo}<br><b>Pagamento:</b> ${p.pagamento}<br><b>Total:</b> R$ ${p.total}<br><b>Data:</b> ${p.data}</div>` : 'Token não encontrado.';
+                const res = document.getElementById('token-result-area');
+                if(res) res.innerHTML = p ? `<div class="order-detail-card"><b>Status:</b> Localizado<br><b>Cliente:</b> ${p.cliente}<br><b>Itens:</b> ${p.itens_resumo}<br><b>Pagamento:</b> ${p.pagamento}<br><b>Total:</b> R$ ${p.total}<br><b>Data:</b> ${p.data}</div>` : 'Token não encontrado.';
             });
         }
 

@@ -99,7 +99,6 @@
         .color-dot-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; box-shadow: 3px 3px 6px var(--shadow-dark); }
         .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.1); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2); }
         
-        /* Ajuste para as bolinhas de tamanho */
         .size-dot-btn { background: #eee; color: var(--jj-brown); border: 1px solid #ddd; }
         .size-dot-btn.size-selected { border-color: var(--jj-yellow-main) !important; background: var(--jj-yellow-main) !important; color: white !important; }
         .size-dot-btn.out-of-stock { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
@@ -352,7 +351,7 @@
                     <div class="variant-box">
                         <div class="color-picker-wrapper">
                             <label style="font-size:0.6rem; font-weight:700">COR: ${c.toUpperCase()}</label>
-                            <input type="color" class="admin-color-input v-hex" data-color="${c}" value="${v.hex || '#cccccc'}">
+                            <input type="color" class="admin-color-input v-hex" data-color="${c}" value="${v.hex || getDotColor(null, c)}">
                             <span style="font-size:0.6rem; opacity:0.5">Definir tom exato</span>
                         </div>
                         <input type="file" onchange="uploadImg('${p.id}', '${c}', this)" style="display:block; margin:10px 0; font-size:0.7rem">
@@ -379,12 +378,38 @@
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
-        // Reconhecimento Automático de Cor
+        // Reconhecimento Automático e Dicionário de Cores Predefinidas
         function getDotColor(product, colorName) {
-            if (product.variants && product.variants[colorName] && product.variants[colorName].hex) {
-                return product.variants[colorName].hex; // Prioridade para o seletor ADM
+            // Se houver uma cor hex específica salva no produto (escolhida pelo ADM), ela tem prioridade
+            if (product && product.variants && product.variants[colorName] && product.variants[colorName].hex) {
+                return product.variants[colorName].hex;
             }
-            return colorName; // Fallback para o nome da cor (reconhecimento automático HTML)
+
+            // Dicionário de cores padrão para reconhecimento automático
+            const colorMap = {
+                "branco": "#ffffff",
+                "preto": "#000000",
+                "vermelho": "#ff0000",
+                "azul": "#0000ff",
+                "verde": "#008000",
+                "amarelo": "#ffff00",
+                "ouro": "#ffd700",
+                "dourado": "#ffd700",
+                "prata": "#c0c0c0",
+                "prateado": "#c0c0c0",
+                "rosa": "#ffc0cb",
+                "roxo": "#800080",
+                "laranja": "#ffa500",
+                "marrom": "#8b4513",
+                "transparente": "rgba(255,255,255,0.3)",
+                "cristal": "#f0f8ff",
+                "ambar": "#ffbf00",
+                "fumê": "#555555",
+                "cinza": "#808080"
+            };
+
+            const nameLow = colorName.toLowerCase().trim();
+            return colorMap[nameLow] || colorName; // Retorna o hex do mapa ou o próprio nome (se for um nome válido em inglês)
         }
 
         function renderUserView(p, color) {
@@ -392,14 +417,12 @@
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "jjvidro2.png", stock: "" };
             const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
             
-            // Renderiza bolinhas de cor com reconhecimento automático
             const colorDots = p.colors.split(',').map(c => {
                 const cTrim = c.trim();
                 const bgColor = getDotColor(p, cTrim);
                 return `<div class="color-dot-btn ${cTrim === color ? 'selected' : ''}" style="background:${bgColor}" onclick="renderUserView(currentProduct, '${cTrim}')"></div>`;
             }).join('');
             
-            // Renderiza bolinhas de tamanho ocultando quantidade
             const sizeDots = stockArr.map(s => {
                 const [tam, qtd] = s.split(':');
                 const isOut = parseInt(qtd) <= 0;
@@ -421,11 +444,8 @@
 
         function updateProductAll(id) {
             const upd = { category: document.getElementById('e-cat').value, name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, colors: document.getElementById('e-colors').value, desc: document.getElementById('e-desc').value };
-            
-            // Salva estoque e cor exata do seletor
             document.querySelectorAll('.v-stock').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/stock`).set(i.value));
             document.querySelectorAll('.v-hex').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/hex`).set(i.value));
-            
             database.ref('produtos/'+id).update(upd).then(() => { alert("Salvo!"); closeModals(); });
         }
 
@@ -440,16 +460,10 @@
         function addToCart(name, price, color) {
             const qtyInput = document.getElementById('u-qty');
             const qty = parseInt(qtyInput.value);
-            
             if (!selectedSizeData.size) return alert("Por favor, selecione um tamanho.");
-
-            if (qty > selectedSizeData.max) {
-                return alert(`Desculpe, temos apenas ${selectedSizeData.max} unidades deste tamanho em estoque.`);
-            }
-
+            if (qty > selectedSizeData.max) return alert(`Desculpe, temos apenas ${selectedSizeData.max} unidades deste tamanho.`);
             cart.push({ id: currentProduct.id, name, price: parseFloat(price), color, size: selectedSizeData.size, qty });
-            saveCart(); 
-            closeModals();
+            saveCart(); closeModals();
         }
 
         function openCartModal() {
@@ -475,16 +489,10 @@
         async function finishOrder(total) {
             const user = document.getElementById('u-final-name').value;
             const pay = document.getElementById('u-final-pay').value;
-            if(!user || !pay) return alert("Por favor, preencha o nome e a forma de pagamento.");
-            
+            if(!user || !pay) return alert("Preencha todos os campos.");
             const token = "jj" + Math.floor(1000 + Math.random()*9000);
             let itensResumo = "";
-            let msg = `✨ *J&J ART COLLECTION* ✨\n\n`;
-            msg += `🔖 *Pedido:* ${token}\n`;
-            msg += `👤 *Cliente:* ${user}\n`;
-            msg += `💳 *Pagamento:* ${pay}\n`;
-            msg += `\n---------------------------\n`;
-
+            let msg = `✨ *J&J ART COLLECTION* ✨\n\n🔖 *Pedido:* ${token}\n👤 *Cliente:* ${user}\n💳 *Pagamento:* ${pay}\n\n---------------------------\n`;
             for (const item of cart) {
                 if(item.id && item.id !== 'manual') {
                     const snap = await database.ref(`produtos/${item.id}/variants/${item.color}/stock`).once('value');
@@ -505,22 +513,9 @@
                 msg += `🔸 ${item.qty}x ${item.name}\n   (${item.color} / ${item.size}) - R$ ${item.price}\n`;
                 itensResumo += `${item.qty}x ${item.name} (${item.color}); `;
             }
-
-            msg += `---------------------------\n`;
-            msg += `💰 *VALOR TOTAL: R$ ${total.toFixed(2)}*\n\n`;
-            msg += `_Obrigado por escolher a J&J Art!_`;
-
-            database.ref('pedidos/'+token).set({ 
-                token, 
-                cliente: user, 
-                total: total.toFixed(2), 
-                pagamento: pay,
-                itens_resumo: itensResumo,
-                data: new Date().toLocaleString() 
-            }).then(() => {
-                cart = []; saveCart(); 
-                window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`);
-                closeModals();
+            msg += `---------------------------\n💰 *VALOR TOTAL: R$ ${total.toFixed(2)}*\n\n_Obrigado por escolher a J&J Art!_`;
+            database.ref('pedidos/'+token).set({ token, cliente: user, total: total.toFixed(2), pagamento: pay, itens_resumo: itensResumo, data: new Date().toLocaleString() }).then(() => {
+                cart = []; saveCart(); window.open(`https://wa.me/${WPP_NUM}?text=${encodeURIComponent(msg)}`); closeModals();
             });
         }
 

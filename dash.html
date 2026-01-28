@@ -177,7 +177,7 @@
                     <thead>
                         <tr>
                             <th>Token</th>
-                            <th>Cliente</th>
+                            <th>Cliente / Itens / Pagamento</th>
                             <th>Valor (R$)</th>
                             <th>Status de Gestão</th>
                             <th>Comprovantes</th>
@@ -245,11 +245,31 @@
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
                 const comps = p.comprovantes || {};
+                const formaPagamento = p.pagamento || 'Não definida';
+                
+                let itensHTML = "";
+                if (p.itens) {
+                    itensHTML = Object.values(p.itens).map(item => 
+                        `<div style="font-size: 0.65rem; color: #555; border-left: 2px solid var(--jj-yellow-main); padding-left: 6px; margin-top: 4px; line-height: 1.2;">
+                            <b>${item.quantidade}x</b> ${item.nome} ${item.variante ? `<small>(${item.variante})</small>` : ''}
+                        </div>`
+                    ).join('');
+                }
                 
                 return `
                 <tr>
                     <td><code>${tk}</code></td>
-                    <td><input class="edit-field" style="font-weight:700" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)"></td>
+                    <td>
+                        <input class="edit-field" style="font-weight:700" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
+                        <div style="margin: 8px 0;">
+                            <span style="font-size: 0.5rem; font-weight: 800; color: var(--jj-brown); opacity: 0.6; text-transform: uppercase;">Produtos:</span>
+                            ${itensHTML || '<div style="font-size: 0.6rem; opacity: 0.4;">Nenhum item</div>'}
+                        </div>
+                        <div style="font-size: 0.6rem; background: rgba(0,0,0,0.03); padding: 4px 8px; border-radius: 5px; display: inline-block;">
+                            <span style="font-weight: 800; color: var(--jj-brown);">PAGAMENTO:</span> 
+                            <span style="color: var(--success); font-weight: 700;">${formaPagamento.toUpperCase()}</span>
+                        </div>
+                    </td>
                     <td><input class="edit-field" value="${p.total || 0}" oninput="updateDB('pedidos/${tk}', 'total', this, true)"></td>
                     <td>
                         <select class="status-select ${getStatusClass(st)}" onchange="updateDB('pedidos/${tk}', 'status', this)">

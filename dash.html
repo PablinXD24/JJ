@@ -45,7 +45,7 @@
         }
 
         .kpi-card { padding: 20px; text-align: center; }
-        .kpi-value { font-size: 1.2rem; font-weight: 700; color: var(--jj-brown); display: block; margin-top: 5px; }
+        .kpi-value { font-size: 1.2rem; font-weight: 700; color: var(--jj-brown); display: block; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .kpi-label { font-size: 0.55rem; font-weight: 800; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
 
         .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--jj-brown); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
@@ -351,19 +351,39 @@
         function recalcularGestao() {
             const arr = Object.values(allPedidos);
             const finalizados = arr.filter(p => p.status === 'finalizado');
+            
+            // Faturamento e Meta
             const totalFinalizado = finalizados.reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             const ticket = finalizados.length > 0 ? (totalFinalizado / finalizados.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
             const faltaMeta = Math.max(0, metaGlobal - totalFinalizado);
 
+            // Cálculo do Melhor Cliente
+            const faturamentoPorCliente = {};
+            finalizados.forEach(p => {
+                const nome = p.cliente || 'Sem Nome';
+                const valor = parseFloat(p.total) || 0;
+                faturamentoPorCliente[nome] = (faturamentoPorCliente[nome] || 0) + valor;
+            });
+
+            let melhorCliente = "---";
+            let maiorValor = 0;
+            Object.entries(faturamentoPorCliente).forEach(([nome, valor]) => {
+                if(valor > maiorValor) {
+                    maiorValor = valor;
+                    melhorCliente = nome;
+                }
+            });
+
+            // Atualização dos KPIs
             document.getElementById('kpi-total').innerText = `R$ ${totalFinalizado.toLocaleString('pt-BR')}`;
             document.getElementById('kpi-ticket').innerText = `R$ ${ticket.toLocaleString('pt-BR', {maximumFractionDigits:0})}`;
             document.getElementById('kpi-prod').innerText = arr.filter(p => p.status === 'producao').length;
+            document.getElementById('kpi-top-client').innerText = melhorCliente;
             
             const bar = document.getElementById('meta-bar');
             bar.style.width = Math.min(perc, 100) + "%";
 
-            // Lógica de cores conforme a meta
             if (perc < 50) {
                 bar.style.backgroundColor = 'var(--danger)';
             } else if (perc < 100) {

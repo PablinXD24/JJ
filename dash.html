@@ -176,7 +176,7 @@
                     <thead>
                         <tr>
                             <th>Token</th>
-                            <th>Cliente / Detalhes / Pagamento</th>
+                            <th>Cliente / Itens / Pagamento</th>
                             <th>Valor (R$)</th>
                             <th>Status de Gestão</th>
                             <th>Comprovantes</th>
@@ -244,24 +244,10 @@
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
                 const comps = p.comprovantes || {};
-                const pagamento = p.pagamento || p.formaPagamento || p.metodo_pagamento || 'A DEFINIR';
+                const pagamento = p.pagamento || 'A DEFINIR';
                 
-                // BUSCA AVANÇADA DE ITENS: Procura em 'itens', 'produtos', 'carrinho' ou 'cart'
-                const sourceItens = p.itens || p.produtos || p.carrinho || p.cart || null;
-                let itensHTML = "";
-
-                if (sourceItens) {
-                    const itensArray = Array.isArray(sourceItens) ? sourceItens : Object.values(sourceItens);
-                    itensHTML = itensArray.map(i => {
-                        const nomeProd = i.nome || i.produto || i.name || i.title || "Item";
-                        const qtd = i.quantidade || i.qtd || i.quantity || 1;
-                        const varTitle = i.variante || i.variant || i.cor || "";
-                        return `
-                        <div style="font-size: 0.65rem; color: #444; border-left: 2px solid var(--jj-yellow-main); padding-left: 6px; margin-top: 4px; line-height: 1.1;">
-                            <b>${qtd}x</b> ${nomeProd} ${varTitle ? `<span style="opacity:0.6;">(${varTitle})</span>` : ''}
-                        </div>`;
-                    }).join('');
-                }
+                // Mapeia o itens_resumo do index.html para o dashboard
+                const itensTxt = p.itens_resumo || "Itens não especificados";
 
                 return `
                 <tr>
@@ -269,14 +255,12 @@
                     <td>
                         <input class="edit-field" style="font-weight:700" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
                         
-                        <div style="margin: 8px 0;">
-                            <span style="font-size: 0.52rem; font-weight: 800; color: var(--jj-brown); opacity: 0.7; text-transform: uppercase; letter-spacing:0.5px;">📋 Produtos do Pedido:</span>
-                            ${itensHTML || '<div style="font-size: 0.6rem; opacity: 0.4; font-style: italic;">Nenhum item detectado no banco</div>'}
+                        <div style="font-size: 0.6rem; color: #666; background: rgba(0,0,0,0.03); padding: 5px; border-radius: 8px; margin: 5px 0; border-left: 3px solid var(--jj-yellow-main);">
+                            ${itensTxt}
                         </div>
 
-                        <div style="background: rgba(0,0,0,0.04); padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px;">
-                            <span style="font-size: 0.52rem; font-weight: 800; color: var(--jj-brown);">PAGAMENTO:</span>
-                            <span style="font-size: 0.6rem; color: var(--success); font-weight: 700; text-transform: uppercase;">${pagamento}</span>
+                        <div style="font-size: 0.55rem; font-weight: 800; color: var(--success); text-transform: uppercase;">
+                            💳 ${pagamento}
                         </div>
                     </td>
                     <td><input class="edit-field" value="${p.total || 0}" oninput="updateDB('pedidos/${tk}', 'total', this, true)"></td>

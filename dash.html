@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <style>
         :root {
@@ -87,30 +86,32 @@
         .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
         .variant-input-group { display: flex; align-items: center; gap: 10px; width: 50%; }
 
-        /* Estilos de Comprovantes */
-        .file-list { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-        .file-badge { background: var(--jj-brown); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.55rem; cursor: pointer; display: flex; align-items: center; gap: 3px; }
-        .upload-label { cursor: pointer; background: #ddd; padding: 4px 8px; border-radius: 6px; font-size: 0.6rem; font-weight: bold; }
+        /* NOVOS ESTILOS PARA COMPROVANTES E MODAL */
+        .attachment-area { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+        .btn-attach { background: var(--jj-yellow-main); border: none; border-radius: 5px; padding: 4px 8px; cursor: pointer; font-size: 0.55rem; font-weight: 800; text-transform: uppercase; }
+        .file-icon { font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .file-icon:hover { transform: scale(1.2); }
 
-        /* Modal Visualizador */
-        #viewer-modal { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; 
-            display: none; align-items: center; justify-content: center; padding: 20px;
+        #modal-view {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000;
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px);
         }
-        #viewer-content { max-width: 90%; max-height: 90%; background: white; border-radius: 20px; overflow: hidden; position: relative; }
-        #viewer-close { position: absolute; top: 15px; right: 15px; background: var(--jj-yellow-main); border: none; padding: 10px; border-radius: 50%; cursor: pointer; font-weight: bold; }
-        
+        .modal-content { 
+            background: var(--jj-bg); padding: 30px; border-radius: 40px; 
+            max-width: 90%; max-height: 90%; overflow: auto; position: relative;
+            box-shadow: 20px 20px 60px rgba(0,0,0,0.5);
+        }
+        .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-weight: 900; color: var(--jj-brown); font-size: 1.2rem; }
+
+        #notification-toast {
+            position: fixed; bottom: 30px; right: 30px; z-index: 11000;
+            background: var(--jj-bg); padding: 20px 30px; border-radius: 25px;
+            box-shadow: 10px 10px 20px var(--shadow-dark); display: none;
+        }
         code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.7rem; }
     </style>
 </head>
 <body>
-
-    <div id="viewer-modal" onclick="closeViewer()">
-        <div id="viewer-content" onclick="event.stopPropagation()">
-            <button id="viewer-close" onclick="closeViewer()">✕</button>
-            <div id="viewer-render" style="padding: 20px; display: flex; justify-content: center;"></div>
-        </div>
-    </div>
 
     <div id="login-screen">
         <div class="login-card">
@@ -119,6 +120,13 @@
             <button class="btn-jj" onclick="login()">LOGAR COMO PABLO</button>
             <br><br>
             <a href="#" onclick="document.getElementById('login-screen').style.display='none'" style="font-size: 0.6rem; color: var(--jj-brown);">Continuar apenas como visitante</a>
+        </div>
+    </div>
+
+    <div id="modal-view" onclick="this.style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="document.getElementById('modal-view').style.display='none'">✕</span>
+            <div id="modal-body" style="text-align: center;"></div>
         </div>
     </div>
 
@@ -133,7 +141,7 @@
 
         <div class="kpi-grid">
             <div class="card-jj kpi-card">
-                <span class="kpi-label">Faturamento (Finalizados)</span>
+                <span class="kpi-label">Faturamento Total (Finalizados)</span>
                 <span id="kpi-total" class="kpi-value">R$ 0,00</span>
             </div>
             <div class="card-jj kpi-card">
@@ -173,7 +181,6 @@
                             <th>Valor (R$)</th>
                             <th>Status de Gestão</th>
                             <th>Comprovantes</th>
-                            <th>Prazo / Data</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -184,7 +191,8 @@
 
         <div class="card-jj">
             <h3 class="section-title">Estoque Crítico de Insumos (Variantes)</h3>
-            <div id="grid-estoque" class="stock-grid"></div>
+            <div id="grid-estoque" class="stock-grid">
+                </div>
         </div>
     </div>
 
@@ -200,7 +208,7 @@
         };
 
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(), database = firebase.database(), storage = firebase.storage();
+        const auth = firebase.auth(), database = firebase.database();
         const ADM_EMAIL = "pablo11ssousa2@gmail.com";
         let metaGlobal = 15000, allPedidos = {}, debounceTimer;
 
@@ -236,15 +244,8 @@
             const html = [...pedidosArray].reverse().map(p => {
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
+                const comps = p.comprovantes || {};
                 
-                // Renderização dos Comprovantes
-                let filesHtml = "";
-                if(p.comprovantes) {
-                    Object.entries(p.comprovantes).forEach(([key, url]) => {
-                        filesHtml += `<span class="file-badge" onclick="openViewer('${url}')">👁️ Doc</span>`;
-                    });
-                }
-
                 return `
                 <tr>
                     <td><code>${tk}</code></td>
@@ -258,40 +259,19 @@
                         </select>
                     </td>
                     <td>
-                        <div class="file-list">${filesHtml}</div>
-                        <label class="upload-label">
-                            + <input type="file" style="display:none" onchange="uploadFile('${tk}', this)">
-                        </label>
+                        <div class="attachment-area">
+                            <button class="btn-attach" onclick="document.getElementById('up-${tk}').click()">+ ADD</button>
+                            <input type="file" id="up-${tk}" style="display:none" onchange="uploadComprovante('${tk}', this)">
+                            ${Object.entries(comps).map(([id, file]) => `
+                                <span class="file-icon" onclick="visualizarArquivo('${file.base64}', '${file.type}')" title="${file.name}">📄</span>
+                            `).join('')}
+                        </div>
                     </td>
-                    <td><input type="text" class="edit-field" value="${p.data || ''}" oninput="updateDB('pedidos/${tk}', 'data', this)"></td>
                     <td><button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
                 </tr>
             `}).join('');
             document.getElementById('lista-pedidos').innerHTML = html;
         }
-
-        async function uploadFile(token, input) {
-            const file = input.files[0];
-            if(!file) return;
-            const ref = storage.ref(`comprovantes/${token}/${Date.now()}_${file.name}`);
-            try {
-                const task = await ref.put(file);
-                const url = await task.ref.getDownloadURL();
-                database.ref(`pedidos/${token}/comprovantes`).push(url);
-            } catch(e) { alert("Acesso negado ou erro no upload."); }
-        }
-
-        function openViewer(url) {
-            const render = document.getElementById('viewer-render');
-            if(url.includes('.pdf')) {
-                render.innerHTML = `<embed src="${url}" width="600px" height="500px" type="application/pdf">`;
-            } else {
-                render.innerHTML = `<img src="${url}" style="max-width:100%; max-height:80vh; border-radius:10px;">`;
-            }
-            document.getElementById('viewer-modal').style.display = 'flex';
-        }
-
-        function closeViewer() { document.getElementById('viewer-modal').style.display = 'none'; }
 
         function getStatusClass(st) {
             if(st === 'producao') return 'st-producao';
@@ -301,10 +281,12 @@
 
         function recalcularGestao() {
             const arr = Object.values(allPedidos);
-            // MODIFICAÇÃO: Apenas pedidos 'finalizado' contam para o faturamento
-            const totalFinalizado = arr.filter(p => p.status === 'finalizado')
-                                       .reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             
+            // ALTERAÇÃO: Faturamento total considera apenas status "finalizado"
+            const totalFinalizado = arr
+                .filter(p => p.status === 'finalizado')
+                .reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
+
             const emProducao = arr.filter(p => p.status === 'producao').length;
             const ticket = arr.length > 0 ? (totalFinalizado / arr.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
@@ -324,6 +306,42 @@
             bar.style.background = perc > 80 ? 'var(--success)' : (perc > 40 ? 'var(--jj-yellow-main)' : 'var(--danger)');
         }
 
+        // FUNÇÕES DE COMPROVANTE (BASE64)
+        function uploadComprovante(token, input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fileData = {
+                    name: file.name,
+                    type: file.type,
+                    base64: e.target.result
+                };
+                database.ref(`pedidos/${token}/comprovantes`).push(fileData)
+                    .then(() => { input.value = ''; })
+                    .catch(() => alert("Apenas administrador pode anexar."));
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function visualizarArquivo(base64, type) {
+            const modal = document.getElementById('modal-view');
+            const body = document.getElementById('modal-body');
+            modal.style.display = 'flex';
+            
+            if (type.includes('image')) {
+                body.innerHTML = `<img src="${base64}" style="max-width:100%; max-height:80vh; border-radius:15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3)">`;
+            } else if (type.includes('pdf')) {
+                body.innerHTML = `<iframe src="${base64}" style="width:80vw; height:85vh; border:none; border-radius:15px;"></iframe>`;
+            } else {
+                body.innerHTML = `<div style="padding:40px; color:var(--jj-brown)">
+                    <p style="margin-bottom:20px; font-weight:700">Arquivo pronto para download</p>
+                    <a href="${base64}" download="comprovante" class="btn-jj" style="text-decoration:none">BAIXAR ARQUIVO</a>
+                </div>`;
+            }
+        }
+
         function updateDB(path, key, element, isNum = false) {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
@@ -339,6 +357,7 @@
             let html = "";
             Object.entries(data).forEach(([id, p]) => {
                 let variantsHTML = "";
+                
                 if (p.variants) {
                     Object.entries(p.variants).forEach(([color, details]) => {
                         const stockVal = details.stock || "0";
@@ -347,16 +366,31 @@
                         <div class="variant-row">
                             <span class="variant-label">${color}</span>
                             <div class="variant-input-group">
-                                <input class="edit-field ${isLow?'low-stock':''}" type="text" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)">
+                                <input class="edit-field ${isLow?'low-stock':''}" type="text" value="${stockVal}" 
+                                    oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)">
                                 <span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow ? '⚠️' : 'OK'}</span>
                             </div>
                         </div>`;
                     });
                 } else {
                     const isLow = (p.stock || 0) < 5;
-                    variantsHTML = `<div class="variant-row"><span class="variant-label">Geral</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this)"><span style="font-size:0.5rem">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
+                    variantsHTML = `
+                    <div class="variant-row">
+                        <span class="variant-label">Geral</span>
+                        <div class="variant-input-group">
+                            <input class="edit-field ${isLow?'low-stock':''}" type="text" value="${p.stock || 0}" 
+                                oninput="updateDB('produtos/${id}', 'stock', this)">
+                            <span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow ? '⚠️' : 'OK'}</span>
+                        </div>
+                    </div>`;
                 }
-                html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div><div style="font-size:0.6rem; color:#888; margin-bottom:10px;">Preço: R$ ${p.price}</div>${variantsHTML}</div>`;
+
+                html += `
+                <div class="stock-card">
+                    <div class="stock-item-name">${p.name}</div>
+                    <div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">Preço Ref: R$ ${p.price}</div>
+                    ${variantsHTML}
+                </div>`;
             });
             document.getElementById('grid-estoque').innerHTML = html;
         }

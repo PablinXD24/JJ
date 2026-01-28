@@ -441,28 +441,17 @@
 
         function renderProdutos(data) {
             let html = "";
-            // Obtém as cores configuradas na interface principal (presumindo que existam elementos select com id correspondente ou similar)
-            // Caso a interface principal seja em outro arquivo, aqui normalizamos para exibir o que está no banco de dados,
-            // garantindo que não existam duplicatas de cor (Maiúsculas/Minúsculas) e que apenas itens com variantes válidas apareçam.
             Object.entries(data).forEach(([id, p]) => {
                 let variantsHTML = "";
                 let hasCritical = false;
                 if (p.variants) {
-                    const coresUnicas = new Set();
                     Object.entries(p.variants).forEach(([color, details]) => {
-                        const normalColor = color.trim().toUpperCase();
-                        // Filtro: Apenas cores que foram de fato configuradas/atribuídas ao item
-                        if (coresUnicas.has(normalColor)) return;
-                        coresUnicas.add(normalColor);
-
                         const stockVal = details.stock || 0;
                         if(stockVal <= 0) hasCritical = true;
                         variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field" style="${stockVal<=0?'color:var(--danger);font-weight:800':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"></div></div>`;
                     });
                 }
-                if(variantsHTML !== "") {
-                   html += `<div class="stock-card ${hasCritical?'stock-critical':''}"><div class="stock-item-name">${p.name}</div>${variantsHTML}</div>`;
-                }
+                html += `<div class="stock-card ${hasCritical?'stock-critical':''}"><div class="stock-item-name">${p.name}</div>${variantsHTML}</div>`;
             });
             document.getElementById('grid-estoque').innerHTML = html;
         }

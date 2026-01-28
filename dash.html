@@ -83,6 +83,7 @@
             border: 1px solid rgba(255,255,255,0.4);
             cursor: pointer;
             transition: 0.2s;
+            position: relative;
         }
         .pedido-card:hover { transform: scale(1.02); }
         .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
@@ -93,6 +94,12 @@
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .val-badge { font-weight: 700; color: var(--jj-brown); background: var(--jj-yellow-main); padding: 4px 8px; border-radius: 8px; font-size: 0.7rem; }
         .pgto-tag { font-size: 0.55rem; font-weight: 800; color: var(--success); text-transform: uppercase; }
+
+        /* NOVOS ESTILOS REQUISITADOS */
+        .lead-time { font-size: 0.5rem; font-weight: 700; color: #888; background: #fff; padding: 2px 6px; border-radius: 10px; box-shadow: 2px 2px 5px var(--shadow-dark); }
+        .material-preview { font-size: 0.55rem; font-weight: 600; color: var(--jj-brown); opacity: 0.7; display: block; margin-top: 2px; font-style: italic; }
+        .stock-critical { border: 2px solid var(--jj-yellow-main) !important; box-shadow: 0 0 15px rgba(255, 200, 0, 0.4) !important; animation: pulse-border 2s infinite; }
+        @keyframes pulse-border { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
         /* MODAL DE DETALHES */
         #modal-view {
@@ -109,7 +116,7 @@
         @media (max-width: 900px) { .kanban-container { grid-template-columns: 1fr; } }
 
         .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .stock-card { background: #f0f2f5; border-radius: 25px; padding: 20px; box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); }
+        .stock-card { background: #f0f2f5; border-radius: 25px; padding: 20px; box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); border: 2px solid transparent; }
         .stock-item-name { font-size: 0.7rem; font-weight: 800; color: var(--jj-brown); text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid var(--jj-yellow-main); padding-bottom: 5px; }
         .variant-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
@@ -158,7 +165,10 @@
         <div class="card-jj">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 class="section-title" style="margin:0">Meta de Expansão</h3>
-                <input type="number" id="meta-val" style="background:transparent; border:none; border-bottom:1px solid var(--jj-yellow-main); width:80px; text-align:right; font-weight:700;" onchange="salvarMeta(this.value)">
+                <div style="text-align: right;">
+                    <span id="txt-meta-restante" style="font-size: 0.6rem; font-weight: 800; color: var(--jj-brown); margin-right: 15px;"></span>
+                    <input type="number" id="meta-val" style="background:transparent; border:none; border-bottom:1px solid var(--jj-yellow-main); width:80px; text-align:right; font-weight:700;" onchange="salvarMeta(this.value)">
+                </div>
             </div>
             <div class="bar-bg"><div id="meta-bar" class="bar-fill"></div></div>
             <p id="txt-status-meta" style="font-size: 0.65rem; font-weight: 700; text-align: right;"></p>
@@ -246,14 +256,28 @@
                 const st = p.status || 'orcamento';
                 const pagamento = p.pagamento || 'A DEFINIR';
                 const valor = parseFloat(p.total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                
+                // LEAD TIME CALC
+                let leadTimeHTML = '';
+                if(st === 'producao' && p.timestamp) {
+                    const dias = Math.floor((Date.now() - p.timestamp) / (1000 * 60 * 60 * 24));
+                    leadTimeHTML = `<span class="lead-time">🕒 ${dias}d</span>`;
+                }
+
+                // MATERIAL PREVIEW (Pega a primeira linha do resumo)
+                const materialInfo = p.itens_resumo ? p.itens_resumo.split('\n')[0].substring(0, 30) + '...' : 'Material não especificado';
 
                 const cardHTML = `
                 <div class="pedido-card" onclick="verDetalhes('${tk}')">
                     <div class="pedido-header">
                         <span class="token-tag">#${tk}</span>
-                        <button onclick="event.stopPropagation(); remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer; opacity:0.3">🗑️</button>
+                        <div style="display:flex; gap:5px; align-items:center;">
+                            ${leadTimeHTML}
+                            <button onclick="event.stopPropagation(); remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer; opacity:0.3">🗑️</button>
+                        </div>
                     </div>
                     <span class="client-name">${p.cliente || 'Sem Nome'}</span>
+                    <span class="material-preview">${materialInfo}</span>
                     <div class="card-meta">
                         <span class="val-badge">R$ ${valor}</span>
                         <span class="pgto-tag">💳 ${pagamento}</span>
@@ -316,6 +340,7 @@
             const totalFinalizado = finalizados.reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             const ticket = finalizados.length > 0 ? (totalFinalizado / finalizados.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
+            const faltaMeta = Math.max(0, metaGlobal - totalFinalizado);
 
             document.getElementById('kpi-total').innerText = `R$ ${totalFinalizado.toLocaleString('pt-BR')}`;
             document.getElementById('kpi-ticket').innerText = `R$ ${ticket.toLocaleString('pt-BR', {maximumFractionDigits:0})}`;
@@ -324,6 +349,7 @@
             const bar = document.getElementById('meta-bar');
             bar.style.width = Math.min(perc, 100) + "%";
             document.getElementById('txt-status-meta').innerText = `${perc}% CONCLUÍDO`;
+            document.getElementById('txt-meta-restante').innerText = `FALTAM R$ ${faltaMeta.toLocaleString('pt-BR')}`;
         }
 
         function uploadComprovante(token, input) {
@@ -334,7 +360,7 @@
                 const fileData = { name: file.name, type: file.type, base64: e.target.result };
                 database.ref(`pedidos/${token}/comprovantes`).push(fileData).then(() => { 
                     input.value = ''; 
-                    verDetalhes(token); // Atualiza o modal aberto
+                    verDetalhes(token);
                 });
             };
             reader.readAsDataURL(file);
@@ -362,7 +388,11 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 let val = isNum ? (parseFloat(element.value) || 0) : element.value;
-                database.ref(path).update({ [key]: val }).catch(() => alert("Erro ao atualizar."));
+                // Adiciona timestamp se o status mudar para produção
+                let updateData = { [key]: val };
+                if(key === 'status' && val === 'producao') updateData.timestamp = Date.now();
+                
+                database.ref(path).update(updateData).catch(() => alert("Erro ao atualizar."));
             }, 600);
         }
 
@@ -370,14 +400,15 @@
             let html = "";
             Object.entries(data).forEach(([id, p]) => {
                 let variantsHTML = "";
+                let hasCritical = false;
                 if (p.variants) {
                     Object.entries(p.variants).forEach(([color, details]) => {
                         const stockVal = details.stock || 0;
-                        const isLow = stockVal == 0;
-                        variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"></div></div>`;
+                        if(stockVal <= 0) hasCritical = true;
+                        variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field" style="${stockVal<=0?'color:var(--danger);font-weight:800':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"></div></div>`;
                     });
                 }
-                html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div>${variantsHTML}</div>`;
+                html += `<div class="stock-card ${hasCritical?'stock-critical':''}"><div class="stock-item-name">${p.name}</div>${variantsHTML}</div>`;
             });
             document.getElementById('grid-estoque').innerHTML = html;
         }

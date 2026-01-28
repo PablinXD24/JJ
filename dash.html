@@ -83,16 +83,20 @@
             border: 1px solid rgba(255,255,255,0.4);
             cursor: pointer;
             transition: 0.2s;
+            position: relative;
         }
         .pedido-card:hover { transform: scale(1.02); }
         .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .token-tag { font-family: monospace; font-size: 0.55rem; background: rgba(0,0,0,0.05); padding: 2px 5px; border-radius: 4px; }
         
         .client-name { font-weight: 700; font-size: 0.85rem; color: var(--jj-brown); display: block; margin-bottom: 5px; }
+        .resumo-item { font-size: 0.55rem; color: #777; font-style: italic; display: block; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .val-badge { font-weight: 700; color: var(--jj-brown); background: var(--jj-yellow-main); padding: 4px 8px; border-radius: 8px; font-size: 0.7rem; }
         .pgto-tag { font-size: 0.55rem; font-weight: 800; color: var(--success); text-transform: uppercase; }
+
+        .lead-time { font-size: 0.5rem; position: absolute; bottom: 45px; right: 15px; opacity: 0.6; font-weight: 700; }
 
         /* MODAL DE DETALHES */
         #modal-view {
@@ -109,7 +113,10 @@
         @media (max-width: 900px) { .kanban-container { grid-template-columns: 1fr; } }
 
         .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .stock-card { background: #f0f2f5; border-radius: 25px; padding: 20px; box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); }
+        .stock-card { background: #f0f2f5; border-radius: 25px; padding: 20px; box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); border: 2px solid transparent; transition: 0.3s; }
+        .stock-critical { border: 2px solid var(--jj-yellow-main); animation: pulse-border 2s infinite; }
+        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(255, 200, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 200, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 200, 0, 0); } }
+
         .stock-item-name { font-size: 0.7rem; font-weight: 800; color: var(--jj-brown); text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid var(--jj-yellow-main); padding-bottom: 5px; }
         .variant-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
@@ -128,7 +135,7 @@
         <div class="login-card">
             <img src="jjvidro.png" style="height: 50px; margin-bottom: 25px;">
             <p style="font-size: 0.7rem; margin-bottom: 20px; font-weight: 600;">ACESSO RESTRITO AO ADMINISTRADOR</p>
-            <button class="btn-jj" onclick="login()">LOGAR COMO PABLO</button>
+            <button class="btn-jj" onclick="login()" style="background: var(--jj-yellow-main); border:none; padding: 15px 30px; border-radius: 20px; font-weight: 800; cursor: pointer;">LOGAR COMO PABLO</button>
         </div>
     </div>
 
@@ -157,7 +164,10 @@
 
         <div class="card-jj">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="section-title" style="margin:0">Meta de Expansão</h3>
+                <div>
+                    <h3 class="section-title" style="margin:0">Meta de Expansão</h3>
+                    <p id="txt-falta-meta" style="font-size: 0.55rem; color: var(--jj-brown); font-weight: 700; margin-top: 4px;"></p>
+                </div>
                 <input type="number" id="meta-val" style="background:transparent; border:none; border-bottom:1px solid var(--jj-yellow-main); width:80px; text-align:right; font-weight:700;" onchange="salvarMeta(this.value)">
             </div>
             <div class="bar-bg"><div id="meta-bar" class="bar-fill"></div></div>
@@ -233,6 +243,16 @@
             database.ref('produtos').on('value', snap => renderProdutos(snap.val() || {}));
         }
 
+        // FUNÇÃO DE AUXÍLIO PARA LEAD TIME
+        function getLeadTime(token) {
+            try {
+                const timestamp = parseInt(token);
+                if(isNaN(timestamp)) return "";
+                const diff = Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
+                return diff === 0 ? "Hoje" : `${diff} dias`;
+            } catch(e) { return ""; }
+        }
+
         function renderPedidos(pedidosArray) {
             const cols = {
                 orcamento: document.getElementById('col-orcamento'),
@@ -246,6 +266,10 @@
                 const st = p.status || 'orcamento';
                 const pagamento = p.pagamento || 'A DEFINIR';
                 const valor = parseFloat(p.total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                
+                // UX: Resumo do Item (Pega a primeira linha do resumo de itens)
+                const resumoItem = p.itens_resumo ? p.itens_resumo.split('\n')[0] : 'Detalhes não informados';
+                const leadTime = st === 'producao' ? `<span class="lead-time">🕒 ${getLeadTime(tk)}</span>` : '';
 
                 const cardHTML = `
                 <div class="pedido-card" onclick="verDetalhes('${tk}')">
@@ -254,10 +278,12 @@
                         <button onclick="event.stopPropagation(); remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer; opacity:0.3">🗑️</button>
                     </div>
                     <span class="client-name">${p.cliente || 'Sem Nome'}</span>
+                    <span class="resumo-item">${resumoItem}</span>
                     <div class="card-meta">
                         <span class="val-badge">R$ ${valor}</span>
                         <span class="pgto-tag">💳 ${pagamento}</span>
                     </div>
+                    ${leadTime}
                     <div style="margin-top:12px" onclick="event.stopPropagation()">
                         <select class="status-select ${getStatusClass(st)}" onchange="updateDB('pedidos/${tk}', 'status', this)">
                             <option value="orcamento" ${st==='orcamento'?'selected':''}>Orçamento</option>
@@ -316,6 +342,9 @@
             const totalFinalizado = finalizados.reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             const ticket = finalizados.length > 0 ? (totalFinalizado / finalizados.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
+            
+            // Inteligência: Projeção
+            const faltaMeta = metaGlobal - totalFinalizado;
 
             document.getElementById('kpi-total').innerText = `R$ ${totalFinalizado.toLocaleString('pt-BR')}`;
             document.getElementById('kpi-ticket').innerText = `R$ ${ticket.toLocaleString('pt-BR', {maximumFractionDigits:0})}`;
@@ -324,6 +353,13 @@
             const bar = document.getElementById('meta-bar');
             bar.style.width = Math.min(perc, 100) + "%";
             document.getElementById('txt-status-meta').innerText = `${perc}% CONCLUÍDO`;
+            document.getElementById('txt-falta-meta').innerText = faltaMeta > 0 ? `Faltam R$ ${faltaMeta.toLocaleString('pt-BR')} para o objetivo` : "Meta Atingida! 🚀";
+
+            // Top Cliente
+            const counts = {};
+            arr.forEach(p => { if(p.cliente) counts[p.cliente] = (counts[p.cliente] || 0) + (parseFloat(p.total) || 0); });
+            const top = Object.entries(counts).sort((a,b) => b[1] - a[1])[0];
+            document.getElementById('kpi-top-client').innerText = top ? top[0].split(' ')[0] : '---';
         }
 
         function uploadComprovante(token, input) {
@@ -334,7 +370,7 @@
                 const fileData = { name: file.name, type: file.type, base64: e.target.result };
                 database.ref(`pedidos/${token}/comprovantes`).push(fileData).then(() => { 
                     input.value = ''; 
-                    verDetalhes(token); // Atualiza o modal aberto
+                    verDetalhes(token);
                 });
             };
             reader.readAsDataURL(file);
@@ -370,14 +406,15 @@
             let html = "";
             Object.entries(data).forEach(([id, p]) => {
                 let variantsHTML = "";
+                let hasCritical = false;
                 if (p.variants) {
                     Object.entries(p.variants).forEach(([color, details]) => {
                         const stockVal = details.stock || 0;
-                        const isLow = stockVal == 0;
-                        variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"></div></div>`;
+                        if(stockVal <= 0) hasCritical = true;
+                        variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this, true)"></div></div>`;
                     });
                 }
-                html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div>${variantsHTML}</div>`;
+                html += `<div class="stock-card ${hasCritical ? 'stock-critical' : ''}"><div class="stock-item-name">${p.name}</div>${variantsHTML}</div>`;
             });
             document.getElementById('grid-estoque').innerHTML = html;
         }

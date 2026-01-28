@@ -67,36 +67,13 @@
         .st-producao { background: var(--info); color: white; }
         .st-finalizado { background: var(--success); color: white; }
 
-        /* ESTRUTURA KANBAN (TRÊS COLUNAS) */
-        .kanban-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            align-items: start;
-        }
-        .kanban-column {
-            background: rgba(0,0,0,0.02);
-            border-radius: 25px;
-            padding: 15px;
-            min-height: 400px;
-            box-shadow: inset 4px 4px 10px var(--shadow-dark);
-        }
-        .col-header {
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: var(--jj-brown);
-            margin-bottom: 15px;
-            text-align: center;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
+        /* KANBAN */
+        .kanban-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+        .kanban-column { background: rgba(0,0,0,0.02); border-radius: 25px; padding: 15px; min-height: 400px; box-shadow: inset 4px 4px 10px var(--shadow-dark); }
+        .col-header { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--jj-brown); margin-bottom: 15px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .col-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        /* CARDS NO KANBAN */
+        /* PEDIDO CARD COMPACTO */
         .pedido-card {
             background: #f0f2f5;
             border-radius: 20px;
@@ -104,70 +81,45 @@
             margin-bottom: 15px;
             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
             border: 1px solid rgba(255,255,255,0.4);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .pedido-card:hover { transform: scale(1.02); }
+        .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .token-tag { font-family: monospace; font-size: 0.55rem; background: rgba(0,0,0,0.05); padding: 2px 5px; border-radius: 4px; }
         
-        .pedido-itens-box {
-            background: rgba(255,255,255,0.4);
-            border-radius: 12px;
-            padding: 10px;
-            font-size: 0.65rem;
-            color: #555;
-            border-left: 3px solid var(--jj-yellow-main);
-        }
-
-        .val-badge { 
-            font-weight: 700; 
-            color: var(--jj-brown); 
-            background: var(--jj-yellow-main); 
-            padding: 4px 8px; 
-            border-radius: 8px; 
-            font-size: 0.7rem;
-        }
-
-        /* RESPONSIVIDADE PARA CELULAR */
-        @media (max-width: 900px) {
-            .kanban-container { grid-template-columns: 1fr; }
-        }
-
-        .btn-jj { padding: 12px 25px; border-radius: 15px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer; }
-        .low-stock { color: var(--danger); font-weight: 800; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .stock-card { 
-            background: #f0f2f5; border-radius: 25px; padding: 20px; 
-            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
-        }
-        .stock-item-name { font-size: 0.7rem; font-weight: 800; color: var(--jj-brown); text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid var(--jj-yellow-main); padding-bottom: 5px; }
-        .variant-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
-        .variant-input-group { display: flex; align-items: center; gap: 10px; width: 50%; }
-
-        .attachment-area { display: flex; gap: 6px; flex-wrap: wrap; }
-        .btn-attach { background: var(--jj-yellow-main); border: none; border-radius: 5px; padding: 3px 6px; cursor: pointer; font-size: 0.5rem; font-weight: 800; }
+        .client-name { font-weight: 700; font-size: 0.85rem; color: var(--jj-brown); display: block; margin-bottom: 5px; }
         
-        .file-wrapper { position: relative; }
-        .file-icon { font-size: 1rem; cursor: pointer; }
-        .del-file { 
-            position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; 
-            border-radius: 50%; width: 12px; height: 12px; font-size: 8px; line-height: 12px; 
-            text-align: center; cursor: pointer;
-        }
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .val-badge { font-weight: 700; color: var(--jj-brown); background: var(--jj-yellow-main); padding: 4px 8px; border-radius: 8px; font-size: 0.7rem; }
+        .pgto-tag { font-size: 0.55rem; font-weight: 800; color: var(--success); text-transform: uppercase; }
 
+        /* MODAL DE DETALHES */
         #modal-view {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000;
             display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px);
         }
         .modal-content { 
             background: var(--jj-bg); padding: 30px; border-radius: 40px; 
-            max-width: 90%; max-height: 90%; overflow: auto; position: relative;
+            max-width: 90%; width: 450px; max-height: 90%; overflow: auto; position: relative;
+            box-shadow: 20px 20px 60px rgba(0,0,0,0.5);
         }
-        .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-weight: 900; }
+        .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-weight: 900; font-size: 1.2rem; color: var(--jj-brown); }
+
+        @media (max-width: 900px) { .kanban-container { grid-template-columns: 1fr; } }
+
+        .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .stock-card { background: #f0f2f5; border-radius: 25px; padding: 20px; box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); }
+        .stock-item-name { font-size: 0.7rem; font-weight: 800; color: var(--jj-brown); text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid var(--jj-yellow-main); padding-bottom: 5px; }
+        .variant-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
+        .variant-input-group { display: flex; align-items: center; gap: 10px; width: 50%; }
+
+        .attachment-area { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+        .btn-attach { background: var(--jj-yellow-main); border: none; border-radius: 5px; padding: 3px 8px; cursor: pointer; font-size: 0.55rem; font-weight: 800; }
+        .file-wrapper { position: relative; }
+        .file-icon { font-size: 1.1rem; cursor: pointer; }
+        .del-file { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 12px; height: 12px; font-size: 8px; line-height: 12px; text-align: center; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -177,15 +129,13 @@
             <img src="jjvidro.png" style="height: 50px; margin-bottom: 25px;">
             <p style="font-size: 0.7rem; margin-bottom: 20px; font-weight: 600;">ACESSO RESTRITO AO ADMINISTRADOR</p>
             <button class="btn-jj" onclick="login()">LOGAR COMO PABLO</button>
-            <br><br>
-            <a href="#" onclick="document.getElementById('login-screen').style.display='none'" style="font-size: 0.6rem; color: var(--jj-brown);">Continuar apenas como visitante</a>
         </div>
     </div>
 
     <div id="modal-view" onclick="this.style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="close-modal" onclick="document.getElementById('modal-view').style.display='none'">✕</span>
-            <div id="modal-body" style="text-align: center;"></div>
+            <div id="modal-body"></div>
         </div>
     </div>
 
@@ -199,22 +149,10 @@
         </header>
 
         <div class="kpi-grid">
-            <div class="card-jj kpi-card">
-                <span class="kpi-label">Faturamento Total (Finalizados)</span>
-                <span id="kpi-total" class="kpi-value">R$ 0,00</span>
-            </div>
-            <div class="card-jj kpi-card">
-                <span class="kpi-label">Ticket Médio</span>
-                <span id="kpi-ticket" class="kpi-value">R$ 0,00</span>
-            </div>
-            <div class="card-jj kpi-card">
-                <span class="kpi-label">Em Produção</span>
-                <span id="kpi-prod" class="kpi-value">0</span>
-            </div>
-            <div class="card-jj kpi-card">
-                <span class="kpi-label">Melhor Cliente</span>
-                <span id="kpi-top-client" class="kpi-value">---</span>
-            </div>
+            <div class="card-jj kpi-card"><span class="kpi-label">Faturamento Total</span><span id="kpi-total" class="kpi-value">R$ 0,00</span></div>
+            <div class="card-jj kpi-card"><span class="kpi-label">Ticket Médio</span><span id="kpi-ticket" class="kpi-value">R$ 0,00</span></div>
+            <div class="card-jj kpi-card"><span class="kpi-label">Em Produção</span><span id="kpi-prod" class="kpi-value">0</span></div>
+            <div class="card-jj kpi-card"><span class="kpi-label">Melhor Cliente</span><span id="kpi-top-client" class="kpi-value">---</span></div>
         </div>
 
         <div class="card-jj">
@@ -229,7 +167,7 @@
         <div class="card-jj">
             <div style="display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center;">
                 <h3 class="section-title" style="margin:0">Controle de Pedidos & Fluxo</h3>
-                <input type="text" id="pedido-search" placeholder="🔍 Buscar cliente ou token..." oninput="filtrarPedidos()" style="border:none; background:rgba(0,0,0,0.05); padding:8px 15px; border-radius:12px; font-size:0.7rem; width:250px;">
+                <input type="text" id="pedido-search" placeholder="🔍 Buscar cliente ou token..." oninput="filtrarPedidos()" style="border:none; background:rgba(0,0,0,0.05); padding:8px 15px; border-radius:12px; font-size:0.7rem; width:200px;">
             </div>
             
             <div class="kanban-container">
@@ -238,7 +176,7 @@
                     <div id="col-orcamento"></div>
                 </div>
                 <div class="kanban-column">
-                    <div class="col-header"><div class="col-dot" style="background:var(--info)"></div> Em Produção</div>
+                    <div class="col-header"><div class="col-dot" style="background:var(--info)"></div> Produção</div>
                     <div id="col-producao"></div>
                 </div>
                 <div class="kanban-column">
@@ -276,7 +214,6 @@
             if(user && user.email === ADM_EMAIL) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('adm-user').innerText = user.displayName;
-                document.getElementById('adm-user').nextElementSibling.innerText = "CHIEF EXECUTIVE OFFICER";
             }
         });
 
@@ -288,13 +225,11 @@
                 document.getElementById('meta-val').value = metaGlobal;
                 recalcularGestao();
             });
-
             database.ref('pedidos').on('value', snap => {
                 allPedidos = snap.val() || {};
                 renderPedidos(Object.values(allPedidos));
                 recalcularGestao();
             });
-
             database.ref('produtos').on('value', snap => renderProdutos(snap.val() || {}));
         }
 
@@ -304,55 +239,69 @@
                 producao: document.getElementById('col-producao'),
                 finalizado: document.getElementById('col-finalizado')
             };
-            
             Object.values(cols).forEach(c => c.innerHTML = "");
 
             [...pedidosArray].reverse().forEach(p => {
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
-                const comps = p.comprovantes || {};
                 const pagamento = p.pagamento || 'A DEFINIR';
-                const itensTxt = p.itens_resumo || "Itens não especificados";
+                const valor = parseFloat(p.total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
                 const cardHTML = `
-                <div class="pedido-card">
+                <div class="pedido-card" onclick="verDetalhes('${tk}')">
                     <div class="pedido-header">
                         <span class="token-tag">#${tk}</span>
-                        <button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer; opacity:0.3">🗑️</button>
+                        <button onclick="event.stopPropagation(); remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer; opacity:0.3">🗑️</button>
                     </div>
-                    
-                    <input class="edit-field" style="font-weight:700; font-size: 0.8rem;" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
-                    
-                    <div class="pedido-itens-box">${itensTxt}</div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="val-badge">R$ <input type="number" step="0.01" style="background:transparent; border:none; color:inherit; font-weight:inherit; width:55px; outline:none;" value="${p.total || 0}" oninput="updateDB('pedidos/${tk}', 'total', this, true)"></span>
-                        <span style="font-size:0.5rem; font-weight:800; color:var(--success)">💳 ${pagamento}</span>
+                    <span class="client-name">${p.cliente || 'Sem Nome'}</span>
+                    <div class="card-meta">
+                        <span class="val-badge">R$ ${valor}</span>
+                        <span class="pgto-tag">💳 ${pagamento}</span>
                     </div>
-
-                    <div style="margin-top:5px">
+                    <div style="margin-top:12px" onclick="event.stopPropagation()">
                         <select class="status-select ${getStatusClass(st)}" onchange="updateDB('pedidos/${tk}', 'status', this)">
                             <option value="orcamento" ${st==='orcamento'?'selected':''}>Orçamento</option>
                             <option value="producao" ${st==='producao'?'selected':''}>Produção</option>
                             <option value="finalizado" ${st==='finalizado'?'selected':''}>Finalizado</option>
                         </select>
                     </div>
-
-                    <div class="attachment-area">
-                        <button class="btn-attach" onclick="document.getElementById('up-${tk}').click()">+ DOC</button>
-                        <input type="file" id="up-${tk}" style="display:none" onchange="uploadComprovante('${tk}', this)">
-                        ${Object.entries(comps).map(([id, file]) => `
-                            <div class="file-wrapper">
-                                <span class="file-icon" onclick="visualizarArquivo('${file.base64}', '${file.type}')">📄</span>
-                                <span class="del-file" onclick="removerComprovante('${tk}', '${id}')">✕</span>
-                            </div>
-                        `).join('')}
-                    </div>
                 </div>`;
 
                 if(cols[st]) cols[st].innerHTML += cardHTML;
                 else cols.orcamento.innerHTML += cardHTML;
             });
+        }
+
+        function verDetalhes(token) {
+            const p = allPedidos[token];
+            if(!p) return;
+            const comps = p.comprovantes || {};
+            const modal = document.getElementById('modal-view');
+            const body = document.getElementById('modal-body');
+            
+            body.innerHTML = `
+                <h2 style="font-size: 1rem; color: var(--jj-brown); border-bottom: 2px solid var(--jj-yellow-main); padding-bottom: 10px; margin-bottom: 20px;">DETALHES DO PEDIDO #${token}</h2>
+                <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 20px; margin-bottom: 20px;">
+                    <p style="font-size: 0.6rem; font-weight: 800; color: #888; text-transform: uppercase;">Itens Descriminados:</p>
+                    <div style="font-size: 0.8rem; color: #444; margin-top: 10px; line-height: 1.5; white-space: pre-line;">${p.itens_resumo || 'Nenhum item detalhado.'}</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <p style="font-size: 0.7rem; font-weight: 700;">VALOR TOTAL: <span style="color: var(--jj-brown)">R$ ${parseFloat(p.total || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span></p>
+                    <p style="font-size: 0.7rem; font-weight: 700;">PAGAMENTO: <span style="color: var(--success)">${p.pagamento}</span></p>
+                </div>
+                <div class="attachment-area">
+                    <p style="width: 100%; font-size: 0.6rem; font-weight: 800; color: #888;">COMPROVANTES:</p>
+                    <button class="btn-attach" onclick="document.getElementById('up-${token}').click()">+ ADICIONAR</button>
+                    <input type="file" id="up-${token}" style="display:none" onchange="uploadComprovante('${token}', this)">
+                    ${Object.entries(comps).map(([id, file]) => `
+                        <div class="file-wrapper">
+                            <span class="file-icon" onclick="visualizarArquivo('${file.base64}', '${file.type}')">📄</span>
+                            <span class="del-file" onclick="removerComprovante('${token}', '${id}')">✕</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            modal.style.display = 'flex';
         }
 
         function getStatusClass(st) {
@@ -363,24 +312,18 @@
 
         function recalcularGestao() {
             const arr = Object.values(allPedidos);
-            const totalFinalizado = arr.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
-            const emProducao = arr.filter(p => p.status === 'producao').length;
-            const ticket = arr.length > 0 ? (totalFinalizado / arr.length) : 0;
+            const finalizados = arr.filter(p => p.status === 'finalizado');
+            const totalFinalizado = finalizados.reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
+            const ticket = finalizados.length > 0 ? (totalFinalizado / finalizados.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
-
-            const ranking = {};
-            arr.forEach(p => { if(p.cliente) ranking[p.cliente] = (ranking[p.cliente] || 0) + (parseFloat(p.total) || 0); });
-            const topClient = Object.keys(ranking).reduce((a, b) => ranking[a] > ranking[b] ? a : b, '---');
 
             document.getElementById('kpi-total').innerText = `R$ ${totalFinalizado.toLocaleString('pt-BR')}`;
             document.getElementById('kpi-ticket').innerText = `R$ ${ticket.toLocaleString('pt-BR', {maximumFractionDigits:0})}`;
-            document.getElementById('kpi-prod').innerText = emProducao;
-            document.getElementById('kpi-top-client').innerText = topClient.substring(0, 12);
+            document.getElementById('kpi-prod').innerText = arr.filter(p => p.status === 'producao').length;
             
             const bar = document.getElementById('meta-bar');
             bar.style.width = Math.min(perc, 100) + "%";
             document.getElementById('txt-status-meta').innerText = `${perc}% CONCLUÍDO`;
-            bar.style.background = perc > 80 ? 'var(--success)' : (perc > 40 ? 'var(--jj-yellow-main)' : 'var(--danger)');
         }
 
         function uploadComprovante(token, input) {
@@ -389,29 +332,37 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const fileData = { name: file.name, type: file.type, base64: e.target.result };
-                database.ref(`pedidos/${token}/comprovantes`).push(fileData).then(() => { input.value = ''; });
+                database.ref(`pedidos/${token}/comprovantes`).push(fileData).then(() => { 
+                    input.value = ''; 
+                    verDetalhes(token); // Atualiza o modal aberto
+                });
             };
             reader.readAsDataURL(file);
         }
 
         function visualizarArquivo(base64, type) {
-            const modal = document.getElementById('modal-view');
-            const body = document.getElementById('modal-body');
-            modal.style.display = 'flex';
-            if (type.includes('image')) body.innerHTML = `<img src="${base64}" style="max-width:100%; max-height:80vh; border-radius:15px;">`;
-            else if (type.includes('pdf')) body.innerHTML = `<iframe src="${base64}" style="width:80vw; height:85vh; border:none; border-radius:15px;"></iframe>`;
-            else body.innerHTML = `<div style="padding:40px;"><a href="${base64}" download="comprovante" class="btn-jj" style="text-decoration:none">BAIXAR ARQUIVO</a></div>`;
+            if (type.includes('image')) {
+                const w = window.open("");
+                w.document.write(`<img src="${base64}" style="max-width:100%">`);
+            } else {
+                const link = document.createElement('a');
+                link.href = base64;
+                link.download = "comprovante";
+                link.click();
+            }
         }
 
         function removerComprovante(token, fileID) {
-            if(confirm("Remover comprovante?")) database.ref(`pedidos/${token}/comprovantes/${fileID}`).remove();
+            if(confirm("Remover comprovante?")) {
+                database.ref(`pedidos/${token}/comprovantes/${fileID}`).remove().then(() => verDetalhes(token));
+            }
         }
 
         function updateDB(path, key, element, isNum = false) {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 let val = isNum ? (parseFloat(element.value) || 0) : element.value;
-                database.ref(path).update({ [key]: val }).catch(() => { alert("Acesso negado."); location.reload(); });
+                database.ref(path).update({ [key]: val }).catch(() => alert("Erro ao atualizar."));
             }, 600);
         }
 
@@ -421,13 +372,10 @@
                 let variantsHTML = "";
                 if (p.variants) {
                     Object.entries(p.variants).forEach(([color, details]) => {
-                        const stockVal = details.stock || "0";
-                        const isLow = stockVal.toString().includes(':0') || stockVal == 0;
-                        variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"><span style="font-size:0.5rem">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
+                        const stockVal = details.stock || 0;
+                        const isLow = stockVal == 0;
+                        variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"></div></div>`;
                     });
-                } else {
-                    const isLow = (p.stock || 0) < 5;
-                    variantsHTML = `<div class="variant-row"><span class="variant-label">Geral</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this)"><span style="font-size:0.5rem">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
                 }
                 html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div>${variantsHTML}</div>`;
             });

@@ -86,11 +86,18 @@
         .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
         .variant-input-group { display: flex; align-items: center; gap: 10px; width: 50%; }
 
-        /* NOVOS ESTILOS PARA COMPROVANTES E MODAL */
-        .attachment-area { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+        /* COMPROVANTES */
+        .attachment-area { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .btn-attach { background: var(--jj-yellow-main); border: none; border-radius: 5px; padding: 4px 8px; cursor: pointer; font-size: 0.55rem; font-weight: 800; text-transform: uppercase; }
+        
+        .file-wrapper { position: relative; display: inline-block; }
         .file-icon { font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .file-icon:hover { transform: scale(1.2); }
+        .del-file { 
+            position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; 
+            border-radius: 50%; width: 14px; height: 14px; font-size: 10px; line-height: 14px; 
+            text-align: center; cursor: pointer; border: 1px solid white; font-weight: 900;
+        }
 
         #modal-view {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000;
@@ -102,13 +109,6 @@
             box-shadow: 20px 20px 60px rgba(0,0,0,0.5);
         }
         .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-weight: 900; color: var(--jj-brown); font-size: 1.2rem; }
-
-        #notification-toast {
-            position: fixed; bottom: 30px; right: 30px; z-index: 11000;
-            background: var(--jj-bg); padding: 20px 30px; border-radius: 25px;
-            box-shadow: 10px 10px 20px var(--shadow-dark); display: none;
-        }
-        code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -263,7 +263,10 @@
                             <button class="btn-attach" onclick="document.getElementById('up-${tk}').click()">+ ADD</button>
                             <input type="file" id="up-${tk}" style="display:none" onchange="uploadComprovante('${tk}', this)">
                             ${Object.entries(comps).map(([id, file]) => `
-                                <span class="file-icon" onclick="visualizarArquivo('${file.base64}', '${file.type}')" title="${file.name}">📄</span>
+                                <div class="file-wrapper">
+                                    <span class="file-icon" onclick="visualizarArquivo('${file.base64}', '${file.type}')" title="${file.name}">📄</span>
+                                    <span class="del-file" onclick="removerComprovante('${tk}', '${id}')">✕</span>
+                                </div>
                             `).join('')}
                         </div>
                     </td>
@@ -281,12 +284,7 @@
 
         function recalcularGestao() {
             const arr = Object.values(allPedidos);
-            
-            // ALTERAÇÃO: Faturamento total considera apenas status "finalizado"
-            const totalFinalizado = arr
-                .filter(p => p.status === 'finalizado')
-                .reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
-
+            const totalFinalizado = arr.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             const emProducao = arr.filter(p => p.status === 'producao').length;
             const ticket = arr.length > 0 ? (totalFinalizado / arr.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
@@ -306,21 +304,13 @@
             bar.style.background = perc > 80 ? 'var(--success)' : (perc > 40 ? 'var(--jj-yellow-main)' : 'var(--danger)');
         }
 
-        // FUNÇÕES DE COMPROVANTE (BASE64)
         function uploadComprovante(token, input) {
             const file = input.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
-                const fileData = {
-                    name: file.name,
-                    type: file.type,
-                    base64: e.target.result
-                };
-                database.ref(`pedidos/${token}/comprovantes`).push(fileData)
-                    .then(() => { input.value = ''; })
-                    .catch(() => alert("Apenas administrador pode anexar."));
+                const fileData = { name: file.name, type: file.type, base64: e.target.result };
+                database.ref(`pedidos/${token}/comprovantes`).push(fileData).then(() => { input.value = ''; }).catch(() => alert("Acesso negado."));
             };
             reader.readAsDataURL(file);
         }
@@ -329,16 +319,14 @@
             const modal = document.getElementById('modal-view');
             const body = document.getElementById('modal-body');
             modal.style.display = 'flex';
-            
-            if (type.includes('image')) {
-                body.innerHTML = `<img src="${base64}" style="max-width:100%; max-height:80vh; border-radius:15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3)">`;
-            } else if (type.includes('pdf')) {
-                body.innerHTML = `<iframe src="${base64}" style="width:80vw; height:85vh; border:none; border-radius:15px;"></iframe>`;
-            } else {
-                body.innerHTML = `<div style="padding:40px; color:var(--jj-brown)">
-                    <p style="margin-bottom:20px; font-weight:700">Arquivo pronto para download</p>
-                    <a href="${base64}" download="comprovante" class="btn-jj" style="text-decoration:none">BAIXAR ARQUIVO</a>
-                </div>`;
+            if (type.includes('image')) body.innerHTML = `<img src="${base64}" style="max-width:100%; max-height:80vh; border-radius:15px;">`;
+            else if (type.includes('pdf')) body.innerHTML = `<iframe src="${base64}" style="width:80vw; height:85vh; border:none; border-radius:15px;"></iframe>`;
+            else body.innerHTML = `<div style="padding:40px;"><a href="${base64}" download="comprovante" class="btn-jj" style="text-decoration:none">BAIXAR ARQUIVO</a></div>`;
+        }
+
+        function removerComprovante(token, fileID) {
+            if(confirm("Remover este comprovante?")) {
+                database.ref(`pedidos/${token}/comprovantes/${fileID}`).remove().catch(() => alert("Acesso negado."));
             }
         }
 
@@ -346,10 +334,7 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 let val = isNum ? (parseFloat(element.value.toString().replace(',', '.')) || 0) : element.value;
-                database.ref(path).update({ [key]: val }).catch(e => {
-                    alert("Apenas o Administrador pode alterar dados.");
-                    location.reload();
-                });
+                database.ref(path).update({ [key]: val }).catch(() => { alert("Acesso negado."); location.reload(); });
             }, 600);
         }
 
@@ -357,40 +342,17 @@
             let html = "";
             Object.entries(data).forEach(([id, p]) => {
                 let variantsHTML = "";
-                
                 if (p.variants) {
                     Object.entries(p.variants).forEach(([color, details]) => {
                         const stockVal = details.stock || "0";
                         const isLow = stockVal.includes(':0') || stockVal === "0" || stockVal === 0;
-                        variantsHTML += `
-                        <div class="variant-row">
-                            <span class="variant-label">${color}</span>
-                            <div class="variant-input-group">
-                                <input class="edit-field ${isLow?'low-stock':''}" type="text" value="${stockVal}" 
-                                    oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)">
-                                <span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow ? '⚠️' : 'OK'}</span>
-                            </div>
-                        </div>`;
+                        variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"><span style="font-size:0.5rem">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
                     });
                 } else {
                     const isLow = (p.stock || 0) < 5;
-                    variantsHTML = `
-                    <div class="variant-row">
-                        <span class="variant-label">Geral</span>
-                        <div class="variant-input-group">
-                            <input class="edit-field ${isLow?'low-stock':''}" type="text" value="${p.stock || 0}" 
-                                oninput="updateDB('produtos/${id}', 'stock', this)">
-                            <span style="font-size:0.5rem" class="${isLow?'low-stock':''}">${isLow ? '⚠️' : 'OK'}</span>
-                        </div>
-                    </div>`;
+                    variantsHTML = `<div class="variant-row"><span class="variant-label">Geral</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this)"><span style="font-size:0.5rem">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
                 }
-
-                html += `
-                <div class="stock-card">
-                    <div class="stock-item-name">${p.name}</div>
-                    <div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">Preço Ref: R$ ${p.price}</div>
-                    ${variantsHTML}
-                </div>`;
+                html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div><div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">Preço Ref: R$ ${p.price}</div>${variantsHTML}</div>`;
             });
             document.getElementById('grid-estoque').innerHTML = html;
         }

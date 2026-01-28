@@ -69,7 +69,8 @@
 
         /* KANBAN */
         .kanban-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
-        .kanban-column { background: rgba(0,0,0,0.02); border-radius: 25px; padding: 15px; min-height: 400px; box-shadow: inset 4px 4px 10px var(--shadow-dark); }
+        .kanban-column { background: rgba(0,0,0,0.02); border-radius: 25px; padding: 15px; min-height: 400px; box-shadow: inset 4px 4px 10px var(--shadow-dark); transition: background 0.3s; }
+        .kanban-column.drag-over { background: rgba(255, 200, 0, 0.05); border: 2px dashed var(--jj-yellow-main); }
         .col-header { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--jj-brown); margin-bottom: 15px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .col-dot { width: 8px; height: 8px; border-radius: 50%; }
 
@@ -81,10 +82,12 @@
             margin-bottom: 15px;
             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
             border: 1px solid rgba(255,255,255,0.4);
-            cursor: pointer;
+            cursor: grab;
             transition: 0.2s;
             position: relative;
         }
+        .pedido-card:active { cursor: grabbing; }
+        .pedido-card.dragging { opacity: 0.5; transform: scale(0.95); }
         .pedido-card:hover { transform: scale(1.02); }
         .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .token-tag { font-family: monospace; font-size: 0.55rem; background: rgba(0,0,0,0.05); padding: 2px 5px; border-radius: 4px; }
@@ -95,7 +98,6 @@
         .val-badge { font-weight: 700; color: var(--jj-brown); background: var(--jj-yellow-main); padding: 4px 8px; border-radius: 8px; font-size: 0.7rem; }
         .pgto-tag { font-size: 0.55rem; font-weight: 800; color: var(--success); text-transform: uppercase; }
 
-        /* NOVOS ESTILOS REQUISITADOS */
         .lead-time { font-size: 0.5rem; font-weight: 700; color: #888; background: #fff; padding: 2px 6px; border-radius: 10px; box-shadow: 2px 2px 5px var(--shadow-dark); }
         .material-preview { font-size: 0.55rem; font-weight: 600; color: var(--jj-brown); opacity: 0.7; display: block; margin-top: 2px; font-style: italic; }
         .stock-critical { border: 2px solid var(--jj-yellow-main) !important; box-shadow: 0 0 15px rgba(255, 200, 0, 0.4) !important; animation: pulse-border 2s infinite; }
@@ -181,15 +183,15 @@
             </div>
             
             <div class="kanban-container">
-                <div class="kanban-column">
+                <div class="kanban-column" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="dropCard(event, 'orcamento')">
                     <div class="col-header"><div class="col-dot" style="background:#666"></div> Orçamento</div>
                     <div id="col-orcamento"></div>
                 </div>
-                <div class="kanban-column">
+                <div class="kanban-column" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="dropCard(event, 'producao')">
                     <div class="col-header"><div class="col-dot" style="background:var(--info)"></div> Produção</div>
                     <div id="col-producao"></div>
                 </div>
-                <div class="kanban-column">
+                <div class="kanban-column" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="dropCard(event, 'finalizado')">
                     <div class="col-header"><div class="col-dot" style="background:var(--success)"></div> Finalizado</div>
                     <div id="col-finalizado"></div>
                 </div>
@@ -257,18 +259,16 @@
                 const pagamento = p.pagamento || 'A DEFINIR';
                 const valor = parseFloat(p.total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
                 
-                // LEAD TIME CALC
                 let leadTimeHTML = '';
                 if(st === 'producao' && p.timestamp) {
                     const dias = Math.floor((Date.now() - p.timestamp) / (1000 * 60 * 60 * 24));
                     leadTimeHTML = `<span class="lead-time">🕒 ${dias}d</span>`;
                 }
 
-                // MATERIAL PREVIEW (Pega a primeira linha do resumo)
                 const materialInfo = p.itens_resumo ? p.itens_resumo.split('\n')[0].substring(0, 30) + '...' : 'Material não especificado';
 
                 const cardHTML = `
-                <div class="pedido-card" onclick="verDetalhes('${tk}')">
+                <div class="pedido-card" draggable="true" ondragstart="dragCard(event, '${tk}')" onclick="verDetalhes('${tk}')">
                     <div class="pedido-header">
                         <span class="token-tag">#${tk}</span>
                         <div style="display:flex; gap:5px; align-items:center;">
@@ -294,6 +294,23 @@
                 if(cols[st]) cols[st].innerHTML += cardHTML;
                 else cols.orcamento.innerHTML += cardHTML;
             });
+        }
+
+        // DRAG AND DROP FUNCTIONS
+        function dragCard(ev, token) {
+            ev.dataTransfer.setData("token", token);
+            ev.currentTarget.classList.add('dragging');
+        }
+
+        function dropCard(ev, newStatus) {
+            ev.preventDefault();
+            const col = ev.currentTarget;
+            col.classList.remove('drag-over');
+            const token = ev.dataTransfer.getData("token");
+            
+            // Simula o objeto select para reaproveitar a função updateDB
+            const mockElement = { value: newStatus };
+            updateDB(`pedidos/${token}`, 'status', mockElement);
         }
 
         function verDetalhes(token) {
@@ -388,7 +405,6 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 let val = isNum ? (parseFloat(element.value) || 0) : element.value;
-                // Adiciona timestamp se o status mudar para produção
                 let updateData = { [key]: val };
                 if(key === 'status' && val === 'producao') updateData.timestamp = Date.now();
                 

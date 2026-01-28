@@ -61,18 +61,65 @@
         .edit-field:focus { border-bottom: 1px solid var(--jj-yellow-main); }
 
         .status-select {
-            padding: 4px 8px; border-radius: 8px; border: none; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; cursor: pointer;
+            padding: 8px 12px; border-radius: 12px; border: none; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; cursor: pointer; width: 100%;
         }
         .st-orcamento { background: #eee; color: #666; }
         .st-producao { background: var(--info); color: white; }
         .st-finalizado { background: var(--success); color: white; }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; font-size: 0.6rem; color: var(--jj-brown); opacity: 0.7; }
-        td { padding: 10px 12px; border-top: 1px solid rgba(0,0,0,0.03); font-size: 0.8rem; }
-
-        .btn-jj { padding: 12px 25px; border-radius: 15px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer; }
+        /* NOVA ESTRUTURA DE CARDS PARA PEDIDOS */
+        .pedidos-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 20px; 
+            padding: 10px 0;
+        }
+        .pedido-card {
+            background: #f0f2f5;
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            border: 1px solid rgba(255,255,255,0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .pedido-card:hover { transform: translateY(-3px); }
+        .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .token-tag { font-family: monospace; font-size: 0.6rem; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 5px; opacity: 0.6; }
         
+        .pedido-itens-box {
+            background: rgba(255,255,255,0.5);
+            border-radius: 15px;
+            padding: 12px;
+            font-size: 0.7rem;
+            color: #555;
+            min-height: 60px;
+            border: 1px inset rgba(0,0,0,0.02);
+        }
+
+        .pedido-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .val-badge { 
+            font-weight: 700; 
+            color: var(--jj-brown); 
+            background: var(--jj-yellow-main); 
+            padding: 5px 10px; 
+            border-radius: 10px; 
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        /* --- MANUTENÇÃO ESTÉTICA --- */
+        .btn-jj { padding: 12px 25px; border-radius: 15px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer; }
         .low-stock { color: var(--danger); font-weight: 800; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
@@ -167,25 +214,13 @@
         </div>
 
         <div class="card-jj">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                <h3 class="section-title">Controle de Pedidos & Fluxo</h3>
-                <input type="text" id="pedido-search" placeholder="🔍 Buscar cliente..." oninput="filtrarPedidos()" style="border:none; background:rgba(0,0,0,0.05); padding:5px 15px; border-radius:10px; font-size:0.7rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <h3 class="section-title" style="margin-bottom:0">Controle de Pedidos & Fluxo</h3>
+                <input type="text" id="pedido-search" placeholder="🔍 Buscar cliente ou token..." oninput="filtrarPedidos()" style="border:none; background:rgba(0,0,0,0.05); padding:10px 20px; border-radius:15px; font-size:0.75rem; width: 100%; max-width: 300px; box-shadow: inset 2px 2px 5px var(--shadow-dark);">
             </div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Token</th>
-                            <th>Cliente / Itens / Pagamento</th>
-                            <th>Valor (R$)</th>
-                            <th>Status de Gestão</th>
-                            <th>Comprovantes</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-pedidos"></tbody>
-                </table>
-            </div>
+            
+            <div id="lista-pedidos" class="pedidos-grid">
+                </div>
         </div>
 
         <div class="card-jj">
@@ -239,41 +274,44 @@
             database.ref('produtos').on('value', snap => renderProdutos(snap.val() || {}));
         }
 
+        // FUNÇÃO DE RENDERIZAÇÃO ATUALIZADA PARA CARDS DINÂMICOS
         function renderPedidos(pedidosArray) {
+            const container = document.getElementById('lista-pedidos');
             const html = [...pedidosArray].reverse().map(p => {
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
                 const comps = p.comprovantes || {};
                 const pagamento = p.pagamento || 'A DEFINIR';
-                
-                // Mapeia o itens_resumo do index.html para o dashboard
                 const itensTxt = p.itens_resumo || "Itens não especificados";
 
                 return `
-                <tr>
-                    <td><code>${tk}</code></td>
-                    <td>
-                        <input class="edit-field" style="font-weight:700" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
-                        
-                        <div style="font-size: 0.6rem; color: #666; background: rgba(0,0,0,0.03); padding: 5px; border-radius: 8px; margin: 5px 0; border-left: 3px solid var(--jj-yellow-main);">
-                            ${itensTxt}
+                <div class="pedido-card">
+                    <div class="pedido-header">
+                        <div>
+                            <span class="token-tag">#${tk}</span>
+                            <input class="edit-field" style="font-weight:700; font-size: 0.9rem; margin-top:5px; display:block;" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
                         </div>
+                        <button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer; font-size: 1.1rem; opacity: 0.3;">🗑️</button>
+                    </div>
 
-                        <div style="font-size: 0.55rem; font-weight: 800; color: var(--success); text-transform: uppercase;">
-                            💳 ${pagamento}
-                        </div>
-                    </td>
-                    <td><input class="edit-field" value="${p.total || 0}" oninput="updateDB('pedidos/${tk}', 'total', this, true)"></td>
-                    <td>
+                    <div class="pedido-itens-box">
+                        ${itensTxt}
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="val-badge">R$ <input type="number" step="0.01" style="background:transparent; border:none; color:inherit; font-weight:inherit; width:65px; outline:none;" value="${p.total || 0}" oninput="updateDB('pedidos/${tk}', 'total', this, true)"></span>
+                        <div style="font-size: 0.55rem; font-weight: 800; color: var(--success);">💳 ${pagamento.toUpperCase()}</div>
+                    </div>
+
+                    <div class="pedido-footer">
                         <select class="status-select ${getStatusClass(st)}" onchange="updateDB('pedidos/${tk}', 'status', this)">
                             <option value="orcamento" ${st==='orcamento'?'selected':''}>Orçamento</option>
                             <option value="producao" ${st==='producao'?'selected':''}>Produção</option>
                             <option value="finalizado" ${st==='finalizado'?'selected':''}>Finalizado</option>
                         </select>
-                    </td>
-                    <td>
-                        <div class="attachment-area">
-                            <button class="btn-attach" onclick="document.getElementById('up-${tk}').click()">+ ADD</button>
+                        
+                        <div class="attachment-area" style="justify-content: flex-end;">
+                            <button class="btn-attach" onclick="document.getElementById('up-${tk}').click()">+ DOC</button>
                             <input type="file" id="up-${tk}" style="display:none" onchange="uploadComprovante('${tk}', this)">
                             ${Object.entries(comps).map(([id, file]) => `
                                 <div class="file-wrapper">
@@ -282,11 +320,10 @@
                                 </div>
                             `).join('')}
                         </div>
-                    </td>
-                    <td><button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer">🗑️</button></td>
-                </tr>
+                    </div>
+                </div>
             `}).join('');
-            document.getElementById('lista-pedidos').innerHTML = html;
+            container.innerHTML = html;
         }
 
         function getStatusClass(st) {
@@ -372,7 +409,10 @@
 
         function filtrarPedidos() {
             const t = document.getElementById('pedido-search').value.toLowerCase();
-            renderPedidos(Object.values(allPedidos).filter(p => (p.cliente || '').toLowerCase().includes(t)));
+            renderPedidos(Object.values(allPedidos).filter(p => 
+                (p.cliente || '').toLowerCase().includes(t) || 
+                (p.token || '').toLowerCase().includes(t)
+            ));
         }
 
         function salvarMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v) || 0).catch(() => alert("Acesso negado.")); }

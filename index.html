@@ -95,9 +95,12 @@
         .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--jj-brown); }
         .stat-label { font-size: 0.6rem; opacity: 0.6; text-transform: uppercase; }
 
-        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; }
-        .color-dot-btn { width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: 0.3s; }
-        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.2); }
+        .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .color-dot-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; box-shadow: 3px 3px 6px var(--shadow-dark); }
+        .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.1); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2); }
+        .size-dot-btn { background: white; color: var(--jj-brown); border: 1px solid #eee; }
+        .size-dot-btn.selected { background: var(--jj-yellow-main); color: white; border-color: var(--jj-yellow-main); }
+        .size-dot-btn.out { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
 
         footer {
             position: relative; background-image: url('jjvidro2.png'); background-size: cover; background-position: center;
@@ -209,6 +212,8 @@
         
         let cart = JSON.parse(localStorage.getItem('jj_cart')) || [];
         let currentProduct = null, html5QrCode = null;
+        let selectedSize = null;
+        let selectedStockMax = 0;
 
         window.onload = () => { updateCartBadge(); listenToProducts(); updateCashierStats(); };
 
@@ -330,6 +335,8 @@
 
         function openDetails(p) {
             currentProduct = p;
+            selectedSize = null;
+            selectedStockMax = 0;
             const body = document.getElementById('details-body');
             const colors = p.colors ? p.colors.split(',').map(c => c.trim()) : [];
             let selectedCol = colors[0] || "";
@@ -340,10 +347,8 @@
                     return `<div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:10px"><label style="font-size:0.6rem; font-weight:700">COR: ${c.toUpperCase()}</label><input type="file" onchange="uploadImg('${p.id}', '${c}', this)" style="display:block; margin:10px 0; font-size:0.7rem"><input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Estoque (Ex: P:2, M:5)"></div>`;
                 }).join('');
                 
-                // Substituído Canvas por Container de QRCode
                 body.innerHTML = `<div style="grid-column: 1/-1"><h3 style="margin-bottom:20px">EDITOR DE PEÇA</h3><div style="background:white; padding:20px; border-radius:30px; text-align:center; margin-bottom:20px; display:flex; flex-direction:column; align-items:center;"><div id="qrcode-container"></div><p style="font-size:0.5rem; margin-top:10px; opacity:0.6; font-family:monospace">${p.id}</p></div><input type="text" id="e-cat" class="edit-field" value="${p.category}"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><textarea id="e-desc" class="edit-field" style="height:80px">${p.desc || ''}</textarea>${variantEditor}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button></div>`;
                 
-                // Gerador de QRCode efetivo
                 setTimeout(() => {
                     new QRCode(document.getElementById("qrcode-container"), {
                         text: p.id,
@@ -365,15 +370,28 @@
             const body = document.getElementById('details-body');
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "jjvidro2.png", stock: "" };
             const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
-            const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="renderUserView(currentProduct, '${c.trim()}')"></div>`).join('');
             
-            const options = stockArr.map(s => {
+            const colorDots = p.colors.split(',').map(c => {
+                const cTrim = c.trim();
+                return `<div class="color-dot-btn ${cTrim === color ? 'selected' : ''}" style="background:${cTrim}" onclick="renderUserView(currentProduct, '${cTrim}')"></div>`
+            }).join('');
+            
+            const sizeDots = stockArr.map(s => {
                 const [tam, qtd] = s.split(':');
                 const isOut = parseInt(qtd) <= 0;
-                return `<option value="${tam}" ${isOut ? 'disabled' : ''}>${tam} ${isOut ? '(ESGOTADO)' : '('+qtd+')'}</option>`;
-            }).join('') || '<option>Padrão</option>';
+                return `<div class="color-dot-btn size-dot-btn ${isOut ? 'out' : ''} ${selectedSize === tam ? 'selected' : ''}" 
+                        onclick="${isOut ? '' : `selectSize('${tam}', ${qtd})`}">
+                        ${tam}
+                        </div>`;
+            }).join('') || `<div class="color-dot-btn size-dot-btn selected" onclick="selectSize('Padrão', 999)">UNI</div>`;
 
-            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0; opacity:0.8; line-height:1.4">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px"><div class="color-selector">${colorDots}</div><select id="u-size" class="user-input">${options}</select><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-size:1.5rem; font-weight:800; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR À LISTA</button></div>`;
+            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0; opacity:0.8; line-height:1.4">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px"><div class="color-selector">${colorDots}</div><div class="color-selector">${sizeDots}</div><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-size:1.5rem; font-weight:800; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR À LISTA</button></div>`;
+        }
+
+        function selectSize(tam, max) {
+            selectedSize = tam;
+            selectedStockMax = max;
+            renderUserView(currentProduct, document.querySelector('.color-dot-btn.selected').style.background);
         }
 
         function updateProductAll(id) {
@@ -391,10 +409,16 @@
         }
 
         function addToCart(name, price, color) {
+            if(!selectedSize) return alert("Por favor, selecione um tamanho.");
             const qty = parseInt(document.getElementById('u-qty').value);
-            const size = document.getElementById('u-size').value;
-            cart.push({ id: currentProduct.id, name, price: parseFloat(price), color, size, qty });
-            saveCart(); closeModals();
+            
+            if(qty > selectedStockMax) {
+                return alert(`Quantidade indisponível. Estoque atual: ${selectedStockMax}`);
+            }
+
+            cart.push({ id: currentProduct.id, name, price: parseFloat(price), color, size: selectedSize, qty });
+            saveCart(); 
+            closeModals();
         }
 
         function openCartModal() {

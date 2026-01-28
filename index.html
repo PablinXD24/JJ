@@ -241,6 +241,12 @@
             }
         });
 
+        // FUNÇÃO DE LIMPEZA DE CARACTERES PARA O FIREBASE
+        function cleanKey(key) {
+            if(!key) return "default";
+            return key.replace(/[\.\#\$\[\]]/g, "").trim();
+        }
+
         function saveCart() { localStorage.setItem('jj_cart', JSON.stringify(cart)); updateCartBadge(); }
         function updateCartBadge() { 
             document.getElementById('cart-badge').innerText = cart.length; 
@@ -271,7 +277,7 @@
         }
 
         function quickAdd(name, price, colors) {
-            const firstColor = colors.split(',')[0].trim();
+            const firstColor = colors ? colors.split(',')[0].trim() : "Única";
             cart.push({ id: currentProduct?.id || 'manual', name, price: parseFloat(price), color: firstColor, size: "Padrão", qty: 1 });
             saveCart(); closeModals(); openCartModal();
         }
@@ -296,7 +302,8 @@
                         main.appendChild(section);
                         products.filter(p => p.category === cat).forEach(p => {
                             const firstColor = p.colors ? p.colors.split(',')[0].trim() : "";
-                            const img = (p.variants && p.variants[firstColor]) ? p.variants[firstColor].img : "jjvidro2.png";
+                            const safeColor = cleanKey(firstColor);
+                            const img = (p.variants && p.variants[safeColor]) ? p.variants[safeColor].img : "jjvidro2.png";
                             const card = document.createElement('div');
                             card.className = 'product-card';
                             card.onclick = () => openDetails(p);
@@ -346,7 +353,8 @@
 
             if(auth.currentUser?.email === ADM_EMAIL) {
                 let variantEditor = colors.map(c => {
-                    const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "", hex: "" };
+                    const safeC = cleanKey(c);
+                    const v = (p.variants && p.variants[safeC]) ? p.variants[safeC] : { img: "", stock: "", hex: "" };
                     return `
                     <div class="variant-box">
                         <div class="color-picker-wrapper">
@@ -378,43 +386,30 @@
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
-        // Reconhecimento Automático e Dicionário de Cores Predefinidas
         function getDotColor(product, colorName) {
-            // Se houver uma cor hex específica salva no produto (escolhida pelo ADM), ela tem prioridade
-            if (product && product.variants && product.variants[colorName] && product.variants[colorName].hex) {
-                return product.variants[colorName].hex;
+            const safeC = cleanKey(colorName);
+            if (product && product.variants && product.variants[safeC] && product.variants[safeC].hex) {
+                return product.variants[safeC].hex;
             }
 
-            // Dicionário de cores padrão para reconhecimento automático
             const colorMap = {
-                "branco": "#ffffff",
-                "preto": "#000000",
-                "vermelho": "#ff0000",
-                "azul": "#0000ff",
-                "verde": "#008000",
-                "amarelo": "#ffff00",
-                "ouro": "#ffd700",
-                "dourado": "#ffd700",
-                "prata": "#c0c0c0",
-                "prateado": "#c0c0c0",
-                "rosa": "#ffc0cb",
-                "roxo": "#800080",
-                "laranja": "#ffa500",
-                "marrom": "#8b4513",
-                "transparente": "rgba(255,255,255,0.3)",
-                "cristal": "#f0f8ff",
-                "ambar": "#ffbf00",
-                "fumê": "#555555",
-                "cinza": "#808080"
+                "branco": "#ffffff", "preto": "#000000", "vermelho": "#ff0000",
+                "azul": "#0000ff", "verde": "#008000", "amarelo": "#ffff00",
+                "ouro": "#ffd700", "dourado": "#ffd700", "prata": "#c0c0c0",
+                "rosa": "#ffc0cb", "roxo": "#800080", "laranja": "#ffa500",
+                "marrom": "#8b4513", "transparente": "#e0e0e0", "cristal": "#f0f8ff",
+                "ambar": "#ffbf00", "fumê": "#555555", "cinza": "#808080"
             };
 
             const nameLow = colorName.toLowerCase().trim();
-            return colorMap[nameLow] || colorName; // Retorna o hex do mapa ou o próprio nome (se for um nome válido em inglês)
+            // Retorna a cor mapeada ou um cinza padrão se for inválida para o input color
+            return colorMap[nameLow] || "#888888";
         }
 
         function renderUserView(p, color) {
             const body = document.getElementById('details-body');
-            const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "jjvidro2.png", stock: "" };
+            const safeC = cleanKey(color);
+            const v = (p.variants && p.variants[safeC]) ? p.variants[safeC] : { img: "jjvidro2.png", stock: "" };
             const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
             
             const colorDots = p.colors.split(',').map(c => {
@@ -424,7 +419,9 @@
             }).join('');
             
             const sizeDots = stockArr.map(s => {
-                const [tam, qtd] = s.split(':');
+                const parts = s.split(':');
+                const tam = parts[0];
+                const qtd = parts[1] || 0;
                 const isOut = parseInt(qtd) <= 0;
                 return `<div class="color-dot-btn size-dot-btn ${isOut ? 'out-of-stock' : ''} ${selectedSizeData.size === tam ? 'size-selected' : ''}" 
                              onclick="${isOut ? '' : `selectSize(this, '${tam}', ${qtd})`}" 
@@ -443,16 +440,35 @@
         }
 
         function updateProductAll(id) {
-            const upd = { category: document.getElementById('e-cat').value, name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, colors: document.getElementById('e-colors').value, desc: document.getElementById('e-desc').value };
-            document.querySelectorAll('.v-stock').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/stock`).set(i.value));
-            document.querySelectorAll('.v-hex').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/hex`).set(i.value));
-            database.ref('produtos/'+id).update(upd).then(() => { alert("Salvo!"); closeModals(); });
+            const upd = { 
+                category: document.getElementById('e-cat').value, 
+                name: document.getElementById('e-name').value, 
+                price: document.getElementById('e-price').value, 
+                colors: document.getElementById('e-colors').value, 
+                desc: document.getElementById('e-desc').value 
+            };
+
+            // Processa as variantes com chaves limpas
+            document.querySelectorAll('.v-stock').forEach(i => {
+                const safeColor = cleanKey(i.dataset.color);
+                database.ref(`produtos/${id}/variants/${safeColor}/stock`).set(i.value);
+            });
+            document.querySelectorAll('.v-hex').forEach(i => {
+                const safeColor = cleanKey(i.dataset.color);
+                database.ref(`produtos/${id}/variants/${safeColor}/hex`).set(i.value);
+            });
+
+            database.ref('produtos/'+id).update(upd).then(() => { 
+                alert("Salvo!"); 
+                closeModals(); 
+            }).catch(err => alert("Erro ao salvar: " + err.message));
         }
 
         function uploadImg(pid, color, input) {
             if(input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = (e) => database.ref(`produtos/${pid}/variants/${color}/img`).set(e.target.result);
+                const safeC = cleanKey(color);
+                reader.onload = (e) => database.ref(`produtos/${pid}/variants/${safeC}/img`).set(e.target.result);
                 reader.readAsDataURL(input.files[0]);
             }
         }
@@ -495,19 +511,22 @@
             let msg = `✨ *J&J ART COLLECTION* ✨\n\n🔖 *Pedido:* ${token}\n👤 *Cliente:* ${user}\n💳 *Pagamento:* ${pay}\n\n---------------------------\n`;
             for (const item of cart) {
                 if(item.id && item.id !== 'manual') {
-                    const snap = await database.ref(`produtos/${item.id}/variants/${item.color}/stock`).once('value');
+                    const safeC = cleanKey(item.color);
+                    const snap = await database.ref(`produtos/${item.id}/variants/${safeC}/stock`).once('value');
                     let stockStr = snap.val();
                     if(stockStr) {
                         let parts = stockStr.split(',').map(s => s.trim());
                         let updatedParts = parts.map(p => {
-                            let [tam, qtd] = p.split(':');
+                            let subParts = p.split(':');
+                            let tam = subParts[0];
+                            let qtd = subParts[1];
                             if(tam === item.size) {
                                 let novaQtd = Math.max(0, parseInt(qtd) - item.qty);
                                 return `${tam}:${novaQtd}`;
                             }
                             return p;
                         });
-                        await database.ref(`produtos/${item.id}/variants/${item.color}/stock`).set(updatedParts.join(', '));
+                        await database.ref(`produtos/${item.id}/variants/${safeC}/stock`).set(updatedParts.join(', '));
                     }
                 }
                 msg += `🔸 ${item.qty}x ${item.name}\n   (${item.color} / ${item.size}) - R$ ${item.price}\n`;

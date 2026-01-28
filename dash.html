@@ -177,7 +177,7 @@
                     <thead>
                         <tr>
                             <th>Token</th>
-                            <th>Cliente / Itens / Pagamento</th>
+                            <th>Cliente / Detalhes do Pedido</th>
                             <th>Valor (R$)</th>
                             <th>Status de Gestão</th>
                             <th>Comprovantes</th>
@@ -245,29 +245,34 @@
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
                 const comps = p.comprovantes || {};
-                const formaPagamento = p.pagamento || 'Não definida';
+                const pagamento = p.pagamento || p.formaPagamento || 'A DEFINIR';
                 
-                let itensHTML = "";
+                // Mapeamento dinâmico de itens para suportar diferentes estruturas (Array ou Object)
+                let itensDetalhados = "";
                 if (p.itens) {
-                    itensHTML = Object.values(p.itens).map(item => 
-                        `<div style="font-size: 0.65rem; color: #555; border-left: 2px solid var(--jj-yellow-main); padding-left: 6px; margin-top: 4px; line-height: 1.2;">
-                            <b>${item.quantidade}x</b> ${item.nome} ${item.variante ? `<small>(${item.variante})</small>` : ''}
-                        </div>`
-                    ).join('');
+                    const itensArray = Array.isArray(p.itens) ? p.itens : Object.values(p.itens);
+                    itensDetalhados = itensArray.map(i => `
+                        <div style="font-size: 0.65rem; color: #555; border-left: 2px solid var(--jj-yellow-main); padding-left: 6px; margin-top: 3px;">
+                            <b>${i.quantidade || 1}x</b> ${i.nome || i.produto || 'Produto'} 
+                            ${i.variante ? `<small>(${i.variante})</small>` : ''}
+                        </div>
+                    `).join('');
                 }
-                
+
                 return `
                 <tr>
                     <td><code>${tk}</code></td>
                     <td>
-                        <input class="edit-field" style="font-weight:700" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
+                        <input class="edit-field" style="font-weight:700; font-size: 0.8rem;" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
+                        
                         <div style="margin: 8px 0;">
-                            <span style="font-size: 0.5rem; font-weight: 800; color: var(--jj-brown); opacity: 0.6; text-transform: uppercase;">Produtos:</span>
-                            ${itensHTML || '<div style="font-size: 0.6rem; opacity: 0.4;">Nenhum item</div>'}
+                            <span style="font-size: 0.55rem; font-weight: 800; color: var(--jj-brown); opacity: 0.7; text-transform: uppercase;">Itens Comprados:</span>
+                            ${itensDetalhados || '<div style="font-size: 0.6rem; opacity: 0.4;">Nenhum item discriminado</div>'}
                         </div>
-                        <div style="font-size: 0.6rem; background: rgba(0,0,0,0.03); padding: 4px 8px; border-radius: 5px; display: inline-block;">
-                            <span style="font-weight: 800; color: var(--jj-brown);">PAGAMENTO:</span> 
-                            <span style="color: var(--success); font-weight: 700;">${formaPagamento.toUpperCase()}</span>
+
+                        <div style="background: rgba(0,0,0,0.03); padding: 5px 8px; border-radius: 6px; display: inline-block; margin-top: 2px;">
+                            <span style="font-size: 0.55rem; font-weight: 800; color: var(--jj-brown);">PAGAMENTO:</span>
+                            <span style="font-size: 0.6rem; color: var(--success); font-weight: 700;">${pagamento.toUpperCase()}</span>
                         </div>
                     </td>
                     <td><input class="edit-field" value="${p.total || 0}" oninput="updateDB('pedidos/${tk}', 'total', this, true)"></td>

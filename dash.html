@@ -52,7 +52,7 @@
         .section-title::before { content: ''; width: 4px; height: 15px; background: var(--jj-yellow-main); border-radius: 2px; }
 
         .bar-bg { height: 12px; background: #e0e5ec; border-radius: 20px; box-shadow: inset 3px 3px 6px var(--shadow-dark); overflow: hidden; margin: 15px 0; }
-        .bar-fill { height: 100%; width: 0%; background: var(--jj-brown); transition: 1.5s ease-in-out; }
+        .bar-fill { height: 100%; width: 0%; background: var(--jj-brown); transition: 1.5s ease-in-out, background-color 0.5s ease; }
 
         .edit-field {
             width: 100%; border: none; background: transparent; padding: 6px; font-family: inherit; font-size: 0.75rem;
@@ -296,7 +296,6 @@
             });
         }
 
-        // DRAG AND DROP FUNCTIONS
         function dragCard(ev, token) {
             ev.dataTransfer.setData("token", token);
             ev.currentTarget.classList.add('dragging');
@@ -307,8 +306,6 @@
             const col = ev.currentTarget;
             col.classList.remove('drag-over');
             const token = ev.dataTransfer.getData("token");
-            
-            // Simula o objeto select para reaproveitar a função updateDB
             const mockElement = { value: newStatus };
             updateDB(`pedidos/${token}`, 'status', mockElement);
         }
@@ -365,6 +362,16 @@
             
             const bar = document.getElementById('meta-bar');
             bar.style.width = Math.min(perc, 100) + "%";
+
+            // Lógica de cores conforme a meta
+            if (perc < 50) {
+                bar.style.backgroundColor = 'var(--danger)';
+            } else if (perc < 100) {
+                bar.style.backgroundColor = 'var(--warning)';
+            } else {
+                bar.style.backgroundColor = 'var(--success)';
+            }
+
             document.getElementById('txt-status-meta').innerText = `${perc}% CONCLUÍDO`;
             document.getElementById('txt-meta-restante').innerText = `FALTAM R$ ${faltaMeta.toLocaleString('pt-BR')}`;
         }

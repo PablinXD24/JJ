@@ -96,13 +96,11 @@
         .stat-label { font-size: 0.6rem; opacity: 0.6; text-transform: uppercase; }
 
         .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .color-dot-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; box-shadow: 3px 3px 6px var(--shadow-dark); background-color: #ddd; }
+        .color-dot-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; box-shadow: 3px 3px 6px var(--shadow-dark); }
         .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.1); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2); }
-        .size-dot-btn { background: white; color: var(--jj-brown); border: 1px solid #eee; }
+        .size-dot-btn { background: #eee; color: var(--jj-brown); border: 1px solid #ddd; }
         .size-dot-btn.selected { background: var(--jj-yellow-main); color: white; border-color: var(--jj-yellow-main); }
         .size-dot-btn.out { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
-
-        .color-picker-admin { width: 40px; height: 40px; border: none; border-radius: 10px; cursor: pointer; background: none; }
 
         footer {
             position: relative; background-image: url('jjvidro2.png'); background-size: cover; background-position: center;
@@ -174,7 +172,7 @@
                 <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
                 <input type="text" id="p-name" class="edit-field" placeholder="Nome do Item">
                 <input type="text" id="p-price" class="edit-field" placeholder="Preço (00.00)">
-                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Transparente)">
+                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: gold, blue, #ff0000)">
                 <textarea id="p-desc" class="edit-field" placeholder="Descrição da Obra"></textarea>
                 <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
             </div>
@@ -345,18 +343,8 @@
 
             if(auth.currentUser?.email === ADM_EMAIL) {
                 let variantEditor = colors.map(c => {
-                    const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "", hex: "" };
-                    // Se não tiver hex salvo, tenta usar o nome da cor como padrão
-                    const currentHex = v.hex || c.toLowerCase(); 
-
-                    return `<div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:10px">
-                        <div style="display:flex; justify-content:space-between; align-items:center">
-                            <label style="font-size:0.6rem; font-weight:700">COR: ${c.toUpperCase()}</label>
-                            <input type="color" class="color-picker-admin" data-color="${c}" value="${v.hex || '#dddddd'}" onchange="updateHex('${p.id}', '${c}', this.value)">
-                        </div>
-                        <input type="file" onchange="uploadImg('${p.id}', '${c}', this)" style="display:block; margin:10px 0; font-size:0.7rem">
-                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Estoque (Ex: P:2, M:5)">
-                    </div>`;
+                    const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "" };
+                    return `<div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:10px"><label style="font-size:0.6rem; font-weight:700">COR: ${c.toUpperCase()}</label><input type="file" onchange="uploadImg('${p.id}', '${c}', this)" style="display:block; margin:10px 0; font-size:0.7rem"><input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Estoque (Ex: P:2, M:5)"></div>`;
                 }).join('');
                 
                 body.innerHTML = `<div style="grid-column: 1/-1"><h3 style="margin-bottom:20px">EDITOR DE PEÇA</h3><div style="background:white; padding:20px; border-radius:30px; text-align:center; margin-bottom:20px; display:flex; flex-direction:column; align-items:center;"><div id="qrcode-container"></div><p style="font-size:0.5rem; margin-top:10px; opacity:0.6; font-family:monospace">${p.id}</p></div><input type="text" id="e-cat" class="edit-field" value="${p.category}"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><textarea id="e-desc" class="edit-field" style="height:80px">${p.desc || ''}</textarea>${variantEditor}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button></div>`;
@@ -378,20 +366,15 @@
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
-        function updateHex(pid, color, hex) {
-            database.ref(`produtos/${pid}/variants/${color}/hex`).set(hex);
-        }
-
         function renderUserView(p, color) {
             const body = document.getElementById('details-body');
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "jjvidro2.png", stock: "" };
             const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
             
+            // Lógica automática de cor: o sistema usa o nome da cor digitada como background
             const colorDots = p.colors.split(',').map(c => {
                 const cTrim = c.trim();
-                // Tenta pegar o Hex salvo no banco, se não existir usa o nome da cor (ex: 'gold')
-                const displayColor = (p.variants && p.variants[cTrim] && p.variants[cTrim].hex) ? p.variants[cTrim].hex : cTrim;
-                return `<div class="color-dot-btn ${cTrim === color ? 'selected' : ''}" style="background-color:${displayColor}" onclick="renderUserView(currentProduct, '${cTrim}')"></div>`
+                return `<div class="color-dot-btn ${cTrim === color ? 'selected' : ''}" style="background-color:${cTrim}" onclick="renderUserView(currentProduct, '${cTrim}')"></div>`
             }).join('');
             
             const sizeDots = stockArr.map(s => {
@@ -409,9 +392,10 @@
         function selectSize(tam, max) {
             selectedSize = tam;
             selectedStockMax = max;
-            // Busca a cor selecionada atual para re-renderizar mantendo a cor ativa
-            const activeColor = document.querySelector('.color-dot-btn.selected').onclick.toString().match(/'(.*?)'/)[1];
-            renderUserView(currentProduct, activeColor);
+            // Identifica qual cor estava selecionada para manter a visualização correta
+            const activeColorBtn = document.querySelector('.color-dot-btn.selected');
+            const colorName = activeColorBtn ? activeColorBtn.getAttribute('onclick').match(/'(.*?)'/)[1] : "";
+            renderUserView(currentProduct, colorName);
         }
 
         function updateProductAll(id) {

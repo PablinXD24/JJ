@@ -98,9 +98,15 @@
         .color-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .color-dot-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; box-shadow: 3px 3px 6px var(--shadow-dark); }
         .color-dot-btn.selected { border-color: var(--jj-yellow-main); transform: scale(1.1); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2); }
+        
+        /* Ajuste para as bolinhas de tamanho */
         .size-dot-btn { background: #eee; color: var(--jj-brown); border: 1px solid #ddd; }
-        .size-dot-btn.selected { background: var(--jj-yellow-main); color: white; border-color: var(--jj-yellow-main); }
-        .size-dot-btn.out { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+        .size-dot-btn.size-selected { border-color: var(--jj-yellow-main) !important; background: var(--jj-yellow-main) !important; color: white !important; }
+        .size-dot-btn.out-of-stock { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+
+        .variant-box { background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:10px; }
+        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .admin-color-input { border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; background: none; }
 
         footer {
             position: relative; background-image: url('jjvidro2.png'); background-size: cover; background-position: center;
@@ -172,7 +178,7 @@
                 <input type="text" id="p-category" class="edit-field" placeholder="Categoria">
                 <input type="text" id="p-name" class="edit-field" placeholder="Nome do Item">
                 <input type="text" id="p-price" class="edit-field" placeholder="Preço (00.00)">
-                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: gold, blue, #ff0000)">
+                <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Transparente)">
                 <textarea id="p-desc" class="edit-field" placeholder="Descrição da Obra"></textarea>
                 <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
             </div>
@@ -212,8 +218,7 @@
         
         let cart = JSON.parse(localStorage.getItem('jj_cart')) || [];
         let currentProduct = null, html5QrCode = null;
-        let selectedSize = null;
-        let selectedStockMax = 0;
+        let selectedSizeData = { size: "Padrão", max: 999 };
 
         window.onload = () => { updateCartBadge(); listenToProducts(); updateCashierStats(); };
 
@@ -335,16 +340,24 @@
 
         function openDetails(p) {
             currentProduct = p;
-            selectedSize = null;
-            selectedStockMax = 0;
+            selectedSizeData = { size: null, max: 0 };
             const body = document.getElementById('details-body');
             const colors = p.colors ? p.colors.split(',').map(c => c.trim()) : [];
             let selectedCol = colors[0] || "";
 
             if(auth.currentUser?.email === ADM_EMAIL) {
                 let variantEditor = colors.map(c => {
-                    const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "" };
-                    return `<div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:10px"><label style="font-size:0.6rem; font-weight:700">COR: ${c.toUpperCase()}</label><input type="file" onchange="uploadImg('${p.id}', '${c}', this)" style="display:block; margin:10px 0; font-size:0.7rem"><input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Estoque (Ex: P:2, M:5)"></div>`;
+                    const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "", hex: "" };
+                    return `
+                    <div class="variant-box">
+                        <div class="color-picker-wrapper">
+                            <label style="font-size:0.6rem; font-weight:700">COR: ${c.toUpperCase()}</label>
+                            <input type="color" class="admin-color-input v-hex" data-color="${c}" value="${v.hex || '#cccccc'}">
+                            <span style="font-size:0.6rem; opacity:0.5">Definir tom exato</span>
+                        </div>
+                        <input type="file" onchange="uploadImg('${p.id}', '${c}', this)" style="display:block; margin:10px 0; font-size:0.7rem">
+                        <input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Estoque (Ex: P:2, M:5)">
+                    </div>`;
                 }).join('');
                 
                 body.innerHTML = `<div style="grid-column: 1/-1"><h3 style="margin-bottom:20px">EDITOR DE PEÇA</h3><div style="background:white; padding:20px; border-radius:30px; text-align:center; margin-bottom:20px; display:flex; flex-direction:column; align-items:center;"><div id="qrcode-container"></div><p style="font-size:0.5rem; margin-top:10px; opacity:0.6; font-family:monospace">${p.id}</p></div><input type="text" id="e-cat" class="edit-field" value="${p.category}"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><textarea id="e-desc" class="edit-field" style="height:80px">${p.desc || ''}</textarea>${variantEditor}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button></div>`;
@@ -366,41 +379,53 @@
             setTimeout(() => document.getElementById('details-modal').classList.add('active'), 10);
         }
 
+        // Reconhecimento Automático de Cor
+        function getDotColor(product, colorName) {
+            if (product.variants && product.variants[colorName] && product.variants[colorName].hex) {
+                return product.variants[colorName].hex; // Prioridade para o seletor ADM
+            }
+            return colorName; // Fallback para o nome da cor (reconhecimento automático HTML)
+        }
+
         function renderUserView(p, color) {
             const body = document.getElementById('details-body');
             const v = (p.variants && p.variants[color]) ? p.variants[color] : { img: "jjvidro2.png", stock: "" };
             const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
             
-            // Lógica automática de cor: o sistema usa o nome da cor digitada como background
+            // Renderiza bolinhas de cor com reconhecimento automático
             const colorDots = p.colors.split(',').map(c => {
                 const cTrim = c.trim();
-                return `<div class="color-dot-btn ${cTrim === color ? 'selected' : ''}" style="background-color:${cTrim}" onclick="renderUserView(currentProduct, '${cTrim}')"></div>`
+                const bgColor = getDotColor(p, cTrim);
+                return `<div class="color-dot-btn ${cTrim === color ? 'selected' : ''}" style="background:${bgColor}" onclick="renderUserView(currentProduct, '${cTrim}')"></div>`;
             }).join('');
             
+            // Renderiza bolinhas de tamanho ocultando quantidade
             const sizeDots = stockArr.map(s => {
                 const [tam, qtd] = s.split(':');
                 const isOut = parseInt(qtd) <= 0;
-                return `<div class="color-dot-btn size-dot-btn ${isOut ? 'out' : ''} ${selectedSize === tam ? 'selected' : ''}" 
-                        onclick="${isOut ? '' : `selectSize('${tam}', ${qtd})`}">
-                        ${tam}
+                return `<div class="color-dot-btn size-dot-btn ${isOut ? 'out-of-stock' : ''} ${selectedSizeData.size === tam ? 'size-selected' : ''}" 
+                             onclick="${isOut ? '' : `selectSize(this, '${tam}', ${qtd})`}" 
+                             data-size="${tam}" data-max="${qtd}">
+                             ${tam}
                         </div>`;
-            }).join('') || `<div class="color-dot-btn size-dot-btn selected" onclick="selectSize('Padrão', 999)">UNI</div>`;
+            }).join('') || `<div class="color-dot-btn size-dot-btn size-selected" onclick="selectSize(this, 'Padrão', 999)">P</div>`;
 
-            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0; opacity:0.8; line-height:1.4">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px"><div class="color-selector">${colorDots}</div><div class="color-selector">${sizeDots}</div><input type="number" id="u-qty" class="user-input" value="1" min="1"></div><div style="font-size:1.5rem; font-weight:800; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR À LISTA</button></div>`;
+            body.innerHTML = `<div class="img-sculpt-frame"><img src="${v.img}"></div><div><h2>${p.name}</h2><p style="font-size:0.75rem; margin:15px 0; opacity:0.8; line-height:1.4">${p.desc || ''}</p><div style="background:rgba(0,0,0,0.03); padding:20px; border-radius:25px; margin-bottom:20px"><div class="color-selector">${colorDots}</div><div class="color-selector" id="size-selector-area">${sizeDots}</div><input type="number" id="u-qty" class="user-input" value="1" min="1" placeholder="Quantidade"></div><div style="font-size:1.5rem; font-weight:800; margin-bottom:15px">R$ ${p.price}</div><button class="card-btn-fix" style="position:static; width:100%" onclick="addToCart('${p.name}', '${p.price}', '${color}')">ADICIONAR À LISTA</button></div>`;
         }
 
-        function selectSize(tam, max) {
-            selectedSize = tam;
-            selectedStockMax = max;
-            // Identifica qual cor estava selecionada para manter a visualização correta
-            const activeColorBtn = document.querySelector('.color-dot-btn.selected');
-            const colorName = activeColorBtn ? activeColorBtn.getAttribute('onclick').match(/'(.*?)'/)[1] : "";
-            renderUserView(currentProduct, colorName);
+        function selectSize(el, size, max) {
+            document.querySelectorAll('#size-selector-area .color-dot-btn').forEach(b => b.classList.remove('size-selected'));
+            el.classList.add('size-selected');
+            selectedSizeData = { size, max };
         }
 
         function updateProductAll(id) {
             const upd = { category: document.getElementById('e-cat').value, name: document.getElementById('e-name').value, price: document.getElementById('e-price').value, colors: document.getElementById('e-colors').value, desc: document.getElementById('e-desc').value };
+            
+            // Salva estoque e cor exata do seletor
             document.querySelectorAll('.v-stock').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/stock`).set(i.value));
+            document.querySelectorAll('.v-hex').forEach(i => database.ref(`produtos/${id}/variants/${i.dataset.color}/hex`).set(i.value));
+            
             database.ref('produtos/'+id).update(upd).then(() => { alert("Salvo!"); closeModals(); });
         }
 
@@ -413,14 +438,16 @@
         }
 
         function addToCart(name, price, color) {
-            if(!selectedSize) return alert("Por favor, selecione um tamanho.");
-            const qty = parseInt(document.getElementById('u-qty').value);
+            const qtyInput = document.getElementById('u-qty');
+            const qty = parseInt(qtyInput.value);
             
-            if(qty > selectedStockMax) {
-                return alert(`Quantidade indisponível. Estoque atual: ${selectedStockMax}`);
+            if (!selectedSizeData.size) return alert("Por favor, selecione um tamanho.");
+
+            if (qty > selectedSizeData.max) {
+                return alert(`Desculpe, temos apenas ${selectedSizeData.max} unidades deste tamanho em estoque.`);
             }
 
-            cart.push({ id: currentProduct.id, name, price: parseFloat(price), color, size: selectedSize, qty });
+            cart.push({ id: currentProduct.id, name, price: parseFloat(price), color, size: selectedSizeData.size, qty });
             saveCart(); 
             closeModals();
         }

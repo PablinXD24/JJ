@@ -67,14 +67,12 @@
         .st-producao { background: var(--info); color: white; }
         .st-finalizado { background: var(--success); color: white; }
 
-        /* KANBAN */
         .kanban-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
         .kanban-column { background: rgba(0,0,0,0.02); border-radius: 25px; padding: 15px; min-height: 400px; box-shadow: inset 4px 4px 10px var(--shadow-dark); transition: background 0.3s; }
         .kanban-column.drag-over { background: rgba(255, 200, 0, 0.05); border: 2px dashed var(--jj-yellow-main); }
         .col-header { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--jj-brown); margin-bottom: 15px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .col-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        /* PEDIDO CARD COMPACTO */
         .pedido-card {
             background: #f0f2f5;
             border-radius: 20px;
@@ -103,7 +101,6 @@
         .stock-critical { border: 2px solid var(--jj-yellow-main) !important; box-shadow: 0 0 15px rgba(255, 200, 0, 0.4) !important; animation: pulse-border 2s infinite; }
         @keyframes pulse-border { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        /* MODAL DE DETALHES */
         #modal-view {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000;
             display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px);
@@ -251,10 +248,15 @@
                 producao: document.getElementById('col-producao'),
                 finalizado: document.getElementById('col-finalizado')
             };
-            Object.values(cols).forEach(c => c.innerHTML = "");
+            
+            // Limpeza absoluta antes de renderizar
+            Object.values(cols).forEach(c => { if(c) c.innerHTML = ""; });
 
-            [...pedidosArray].reverse().forEach(p => {
-                const tk = p.token || '---';
+            // Filtra nulos ou indefinidos que causam fantasmas
+            const validos = pedidosArray.filter(p => p && p.token);
+
+            [...validos].reverse().forEach(p => {
+                const tk = p.token;
                 const st = p.status || 'orcamento';
                 const pagamento = p.pagamento || 'A DEFINIR';
                 const valor = parseFloat(p.total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -349,16 +351,14 @@
         }
 
         function recalcularGestao() {
-            const arr = Object.values(allPedidos);
+            const arr = Object.values(allPedidos).filter(p => p && p.token);
             const finalizados = arr.filter(p => p.status === 'finalizado');
             
-            // Faturamento e Meta
             const totalFinalizado = finalizados.reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             const ticket = finalizados.length > 0 ? (totalFinalizado / finalizados.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
             const faltaMeta = Math.max(0, metaGlobal - totalFinalizado);
 
-            // Cálculo do Melhor Cliente
             const faturamentoPorCliente = {};
             finalizados.forEach(p => {
                 const nome = p.cliente || 'Sem Nome';
@@ -375,21 +375,17 @@
                 }
             });
 
-            // Atualização dos KPIs
             document.getElementById('kpi-total').innerText = `R$ ${totalFinalizado.toLocaleString('pt-BR')}`;
             document.getElementById('kpi-ticket').innerText = `R$ ${ticket.toLocaleString('pt-BR', {maximumFractionDigits:0})}`;
             document.getElementById('kpi-prod').innerText = arr.filter(p => p.status === 'producao').length;
             document.getElementById('kpi-top-client').innerText = melhorCliente;
             
             const bar = document.getElementById('meta-bar');
-            bar.style.width = Math.min(perc, 100) + "%";
-
-            if (perc < 50) {
-                bar.style.backgroundColor = 'var(--danger)';
-            } else if (perc < 100) {
-                bar.style.backgroundColor = 'var(--warning)';
-            } else {
-                bar.style.backgroundColor = 'var(--success)';
+            if(bar) {
+                bar.style.width = Math.min(perc, 100) + "%";
+                if (perc < 50) bar.style.backgroundColor = 'var(--danger)';
+                else if (perc < 100) bar.style.backgroundColor = 'var(--warning)';
+                else bar.style.backgroundColor = 'var(--success)';
             }
 
             document.getElementById('txt-status-meta').innerText = `${perc}% CONCLUÍDO`;
@@ -458,11 +454,21 @@
 
         function filtrarPedidos() {
             const t = document.getElementById('pedido-search').value.toLowerCase();
-            renderPedidos(Object.values(allPedidos).filter(p => (p.cliente || '').toLowerCase().includes(t) || (p.token || '').toLowerCase().includes(t)));
+            renderPedidos(Object.values(allPedidos).filter(p => p && ((p.cliente || '').toLowerCase().includes(t) || (p.token || '').toLowerCase().includes(t))));
         }
 
         function salvarMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v) || 0); }
-        function remover(path) { if(confirm("Remover permanentemente?")) database.ref(path).remove(); }
+        
+        function remover(path) { 
+            if(confirm("Remover permanentemente?")) {
+                database.ref(path).set(null).then(() => {
+                    // Limpa do objeto local imediatamente para forçar a saída da tela
+                    const parts = path.split('/');
+                    if(parts[0] === 'pedidos') delete allPedidos[parts[1]];
+                    renderPedidos(Object.values(allPedidos));
+                });
+            } 
+        }
     </script>
 </body>
 </html>

@@ -352,13 +352,11 @@
             const arr = Object.values(allPedidos);
             const finalizados = arr.filter(p => p.status === 'finalizado');
             
-            // Faturamento e Meta
             const totalFinalizado = finalizados.reduce((acc, p) => acc + (parseFloat(p.total) || 0), 0);
             const ticket = finalizados.length > 0 ? (totalFinalizado / finalizados.length) : 0;
             const perc = metaGlobal > 0 ? Math.floor((totalFinalizado / metaGlobal) * 100) : 0;
             const faltaMeta = Math.max(0, metaGlobal - totalFinalizado);
 
-            // Cálculo do Melhor Cliente
             const faturamentoPorCliente = {};
             finalizados.forEach(p => {
                 const nome = p.cliente || 'Sem Nome';
@@ -375,7 +373,6 @@
                 }
             });
 
-            // Atualização dos KPIs
             document.getElementById('kpi-total').innerText = `R$ ${totalFinalizado.toLocaleString('pt-BR')}`;
             document.getElementById('kpi-ticket').innerText = `R$ ${ticket.toLocaleString('pt-BR', {maximumFractionDigits:0})}`;
             document.getElementById('kpi-prod').innerText = arr.filter(p => p.status === 'producao').length;
@@ -384,13 +381,9 @@
             const bar = document.getElementById('meta-bar');
             bar.style.width = Math.min(perc, 100) + "%";
 
-            if (perc < 50) {
-                bar.style.backgroundColor = 'var(--danger)';
-            } else if (perc < 100) {
-                bar.style.backgroundColor = 'var(--warning)';
-            } else {
-                bar.style.backgroundColor = 'var(--success)';
-            }
+            if (perc < 50) bar.style.backgroundColor = 'var(--danger)';
+            else if (perc < 100) bar.style.backgroundColor = 'var(--warning)';
+            else bar.style.backgroundColor = 'var(--success)';
 
             document.getElementById('txt-status-meta').innerText = `${perc}% CONCLUÍDO`;
             document.getElementById('txt-meta-restante').innerText = `FALTAM R$ ${faltaMeta.toLocaleString('pt-BR')}`;
@@ -446,7 +439,7 @@
                 let hasCritical = false;
                 
                 if (p.variants) {
-                    // Mapeia e renderiza as cores exatamente como estão no banco (configuradas no index)
+                    // Mapeia exatamente as cores que estão no banco de dados para este item
                     Object.entries(p.variants).forEach(([color, details]) => {
                         const stockVal = details.stock || 0;
                         if(stockVal <= 0) hasCritical = true;

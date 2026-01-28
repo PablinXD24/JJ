@@ -61,64 +61,79 @@
         .edit-field:focus { border-bottom: 1px solid var(--jj-yellow-main); }
 
         .status-select {
-            padding: 8px 12px; border-radius: 12px; border: none; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; cursor: pointer; width: 100%;
+            padding: 8px; border-radius: 10px; border: none; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; cursor: pointer; width: 100%;
         }
         .st-orcamento { background: #eee; color: #666; }
         .st-producao { background: var(--info); color: white; }
         .st-finalizado { background: var(--success); color: white; }
 
-        /* NOVA ESTRUTURA DE CARDS PARA PEDIDOS */
-        .pedidos-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 20px; 
-            padding: 10px 0;
+        /* ESTRUTURA KANBAN (TRÊS COLUNAS) */
+        .kanban-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            align-items: start;
         }
+        .kanban-column {
+            background: rgba(0,0,0,0.02);
+            border-radius: 25px;
+            padding: 15px;
+            min-height: 400px;
+            box-shadow: inset 4px 4px 10px var(--shadow-dark);
+        }
+        .col-header {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--jj-brown);
+            margin-bottom: 15px;
+            text-align: center;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .col-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* CARDS NO KANBAN */
         .pedido-card {
             background: #f0f2f5;
-            border-radius: 25px;
-            padding: 20px;
-            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
             border: 1px solid rgba(255,255,255,0.4);
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            position: relative;
-            transition: transform 0.2s;
+            gap: 10px;
         }
-        .pedido-card:hover { transform: translateY(-3px); }
         .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .token-tag { font-family: monospace; font-size: 0.6rem; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 5px; opacity: 0.6; }
+        .token-tag { font-family: monospace; font-size: 0.55rem; background: rgba(0,0,0,0.05); padding: 2px 5px; border-radius: 4px; }
         
         .pedido-itens-box {
-            background: rgba(255,255,255,0.5);
-            border-radius: 15px;
-            padding: 12px;
-            font-size: 0.7rem;
+            background: rgba(255,255,255,0.4);
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 0.65rem;
             color: #555;
-            min-height: 60px;
-            border: 1px inset rgba(0,0,0,0.02);
-        }
-
-        .pedido-footer {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            align-items: center;
-            margin-top: auto;
+            border-left: 3px solid var(--jj-yellow-main);
         }
 
         .val-badge { 
             font-weight: 700; 
             color: var(--jj-brown); 
             background: var(--jj-yellow-main); 
-            padding: 5px 10px; 
-            border-radius: 10px; 
-            font-size: 0.75rem;
-            display: inline-block;
+            padding: 4px 8px; 
+            border-radius: 8px; 
+            font-size: 0.7rem;
         }
 
-        /* --- MANUTENÇÃO ESTÉTICA --- */
+        /* RESPONSIVIDADE PARA CELULAR */
+        @media (max-width: 900px) {
+            .kanban-container { grid-template-columns: 1fr; }
+        }
+
         .btn-jj { padding: 12px 25px; border-radius: 15px; border: none; background: var(--jj-yellow-main); font-weight: 700; cursor: pointer; }
         .low-stock { color: var(--danger); font-weight: 800; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
@@ -133,16 +148,15 @@
         .variant-label { font-size: 0.65rem; font-weight: 600; color: #555; }
         .variant-input-group { display: flex; align-items: center; gap: 10px; width: 50%; }
 
-        .attachment-area { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .btn-attach { background: var(--jj-yellow-main); border: none; border-radius: 5px; padding: 4px 8px; cursor: pointer; font-size: 0.55rem; font-weight: 800; text-transform: uppercase; }
+        .attachment-area { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn-attach { background: var(--jj-yellow-main); border: none; border-radius: 5px; padding: 3px 6px; cursor: pointer; font-size: 0.5rem; font-weight: 800; }
         
-        .file-wrapper { position: relative; display: inline-block; }
-        .file-icon { font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
-        .file-icon:hover { transform: scale(1.2); }
+        .file-wrapper { position: relative; }
+        .file-icon { font-size: 1rem; cursor: pointer; }
         .del-file { 
             position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; 
-            border-radius: 50%; width: 14px; height: 14px; font-size: 10px; line-height: 14px; 
-            text-align: center; cursor: pointer; border: 1px solid white; font-weight: 900;
+            border-radius: 50%; width: 12px; height: 12px; font-size: 8px; line-height: 12px; 
+            text-align: center; cursor: pointer;
         }
 
         #modal-view {
@@ -152,9 +166,8 @@
         .modal-content { 
             background: var(--jj-bg); padding: 30px; border-radius: 40px; 
             max-width: 90%; max-height: 90%; overflow: auto; position: relative;
-            box-shadow: 20px 20px 60px rgba(0,0,0,0.5);
         }
-        .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-weight: 900; color: var(--jj-brown); font-size: 1.2rem; }
+        .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -214,19 +227,30 @@
         </div>
 
         <div class="card-jj">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <h3 class="section-title" style="margin-bottom:0">Controle de Pedidos & Fluxo</h3>
-                <input type="text" id="pedido-search" placeholder="🔍 Buscar cliente ou token..." oninput="filtrarPedidos()" style="border:none; background:rgba(0,0,0,0.05); padding:10px 20px; border-radius:15px; font-size:0.75rem; width: 100%; max-width: 300px; box-shadow: inset 2px 2px 5px var(--shadow-dark);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center;">
+                <h3 class="section-title" style="margin:0">Controle de Pedidos & Fluxo</h3>
+                <input type="text" id="pedido-search" placeholder="🔍 Buscar cliente ou token..." oninput="filtrarPedidos()" style="border:none; background:rgba(0,0,0,0.05); padding:8px 15px; border-radius:12px; font-size:0.7rem; width:250px;">
             </div>
             
-            <div id="lista-pedidos" class="pedidos-grid">
+            <div class="kanban-container">
+                <div class="kanban-column">
+                    <div class="col-header"><div class="col-dot" style="background:#666"></div> Orçamento</div>
+                    <div id="col-orcamento"></div>
                 </div>
+                <div class="kanban-column">
+                    <div class="col-header"><div class="col-dot" style="background:var(--info)"></div> Em Produção</div>
+                    <div id="col-producao"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="col-header"><div class="col-dot" style="background:var(--success)"></div> Finalizado</div>
+                    <div id="col-finalizado"></div>
+                </div>
+            </div>
         </div>
 
         <div class="card-jj">
-            <h3 class="section-title">Estoque Crítico de Insumos (Variantes)</h3>
-            <div id="grid-estoque" class="stock-grid">
-                </div>
+            <h3 class="section-title">Estoque Crítico de Insumos</h3>
+            <div id="grid-estoque" class="stock-grid"></div>
         </div>
     </div>
 
@@ -274,56 +298,61 @@
             database.ref('produtos').on('value', snap => renderProdutos(snap.val() || {}));
         }
 
-        // FUNÇÃO DE RENDERIZAÇÃO ATUALIZADA PARA CARDS DINÂMICOS
         function renderPedidos(pedidosArray) {
-            const container = document.getElementById('lista-pedidos');
-            const html = [...pedidosArray].reverse().map(p => {
+            const cols = {
+                orcamento: document.getElementById('col-orcamento'),
+                producao: document.getElementById('col-producao'),
+                finalizado: document.getElementById('col-finalizado')
+            };
+            
+            Object.values(cols).forEach(c => c.innerHTML = "");
+
+            [...pedidosArray].reverse().forEach(p => {
                 const tk = p.token || '---';
                 const st = p.status || 'orcamento';
                 const comps = p.comprovantes || {};
                 const pagamento = p.pagamento || 'A DEFINIR';
                 const itensTxt = p.itens_resumo || "Itens não especificados";
 
-                return `
+                const cardHTML = `
                 <div class="pedido-card">
                     <div class="pedido-header">
-                        <div>
-                            <span class="token-tag">#${tk}</span>
-                            <input class="edit-field" style="font-weight:700; font-size: 0.9rem; margin-top:5px; display:block;" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
-                        </div>
-                        <button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer; font-size: 1.1rem; opacity: 0.3;">🗑️</button>
+                        <span class="token-tag">#${tk}</span>
+                        <button onclick="remover('pedidos/${tk}')" style="border:none; background:none; cursor:pointer; opacity:0.3">🗑️</button>
                     </div>
-
-                    <div class="pedido-itens-box">
-                        ${itensTxt}
-                    </div>
+                    
+                    <input class="edit-field" style="font-weight:700; font-size: 0.8rem;" value="${p.cliente || ''}" oninput="updateDB('pedidos/${tk}', 'cliente', this)">
+                    
+                    <div class="pedido-itens-box">${itensTxt}</div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="val-badge">R$ <input type="number" step="0.01" style="background:transparent; border:none; color:inherit; font-weight:inherit; width:65px; outline:none;" value="${p.total || 0}" oninput="updateDB('pedidos/${tk}', 'total', this, true)"></span>
-                        <div style="font-size: 0.55rem; font-weight: 800; color: var(--success);">💳 ${pagamento.toUpperCase()}</div>
+                        <span class="val-badge">R$ <input type="number" step="0.01" style="background:transparent; border:none; color:inherit; font-weight:inherit; width:55px; outline:none;" value="${p.total || 0}" oninput="updateDB('pedidos/${tk}', 'total', this, true)"></span>
+                        <span style="font-size:0.5rem; font-weight:800; color:var(--success)">💳 ${pagamento}</span>
                     </div>
 
-                    <div class="pedido-footer">
+                    <div style="margin-top:5px">
                         <select class="status-select ${getStatusClass(st)}" onchange="updateDB('pedidos/${tk}', 'status', this)">
                             <option value="orcamento" ${st==='orcamento'?'selected':''}>Orçamento</option>
                             <option value="producao" ${st==='producao'?'selected':''}>Produção</option>
                             <option value="finalizado" ${st==='finalizado'?'selected':''}>Finalizado</option>
                         </select>
-                        
-                        <div class="attachment-area" style="justify-content: flex-end;">
-                            <button class="btn-attach" onclick="document.getElementById('up-${tk}').click()">+ DOC</button>
-                            <input type="file" id="up-${tk}" style="display:none" onchange="uploadComprovante('${tk}', this)">
-                            ${Object.entries(comps).map(([id, file]) => `
-                                <div class="file-wrapper">
-                                    <span class="file-icon" onclick="visualizarArquivo('${file.base64}', '${file.type}')" title="${file.name}">📄</span>
-                                    <span class="del-file" onclick="removerComprovante('${tk}', '${id}')">✕</span>
-                                </div>
-                            `).join('')}
-                        </div>
                     </div>
-                </div>
-            `}).join('');
-            container.innerHTML = html;
+
+                    <div class="attachment-area">
+                        <button class="btn-attach" onclick="document.getElementById('up-${tk}').click()">+ DOC</button>
+                        <input type="file" id="up-${tk}" style="display:none" onchange="uploadComprovante('${tk}', this)">
+                        ${Object.entries(comps).map(([id, file]) => `
+                            <div class="file-wrapper">
+                                <span class="file-icon" onclick="visualizarArquivo('${file.base64}', '${file.type}')">📄</span>
+                                <span class="del-file" onclick="removerComprovante('${tk}', '${id}')">✕</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+
+                if(cols[st]) cols[st].innerHTML += cardHTML;
+                else cols.orcamento.innerHTML += cardHTML;
+            });
         }
 
         function getStatusClass(st) {
@@ -360,7 +389,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const fileData = { name: file.name, type: file.type, base64: e.target.result };
-                database.ref(`pedidos/${token}/comprovantes`).push(fileData).then(() => { input.value = ''; }).catch(() => alert("Acesso negado."));
+                database.ref(`pedidos/${token}/comprovantes`).push(fileData).then(() => { input.value = ''; });
             };
             reader.readAsDataURL(file);
         }
@@ -375,15 +404,13 @@
         }
 
         function removerComprovante(token, fileID) {
-            if(confirm("Remover este comprovante?")) {
-                database.ref(`pedidos/${token}/comprovantes/${fileID}`).remove().catch(() => alert("Acesso negado."));
-            }
+            if(confirm("Remover comprovante?")) database.ref(`pedidos/${token}/comprovantes/${fileID}`).remove();
         }
 
         function updateDB(path, key, element, isNum = false) {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                let val = isNum ? (parseFloat(element.value.toString().replace(',', '.')) || 0) : element.value;
+                let val = isNum ? (parseFloat(element.value) || 0) : element.value;
                 database.ref(path).update({ [key]: val }).catch(() => { alert("Acesso negado."); location.reload(); });
             }, 600);
         }
@@ -395,28 +422,25 @@
                 if (p.variants) {
                     Object.entries(p.variants).forEach(([color, details]) => {
                         const stockVal = details.stock || "0";
-                        const isLow = stockVal.includes(':0') || stockVal === "0" || stockVal === 0;
+                        const isLow = stockVal.toString().includes(':0') || stockVal == 0;
                         variantsHTML += `<div class="variant-row"><span class="variant-label">${color}</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${stockVal}" oninput="updateDB('produtos/${id}/variants/${color}', 'stock', this)"><span style="font-size:0.5rem">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
                     });
                 } else {
                     const isLow = (p.stock || 0) < 5;
                     variantsHTML = `<div class="variant-row"><span class="variant-label">Geral</span><div class="variant-input-group"><input class="edit-field ${isLow?'low-stock':''}" value="${p.stock || 0}" oninput="updateDB('produtos/${id}', 'stock', this)"><span style="font-size:0.5rem">${isLow ? '⚠️' : 'OK'}</span></div></div>`;
                 }
-                html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div><div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">Preço Ref: R$ ${p.price}</div>${variantsHTML}</div>`;
+                html += `<div class="stock-card"><div class="stock-item-name">${p.name}</div>${variantsHTML}</div>`;
             });
             document.getElementById('grid-estoque').innerHTML = html;
         }
 
         function filtrarPedidos() {
             const t = document.getElementById('pedido-search').value.toLowerCase();
-            renderPedidos(Object.values(allPedidos).filter(p => 
-                (p.cliente || '').toLowerCase().includes(t) || 
-                (p.token || '').toLowerCase().includes(t)
-            ));
+            renderPedidos(Object.values(allPedidos).filter(p => (p.cliente || '').toLowerCase().includes(t) || (p.token || '').toLowerCase().includes(t)));
         }
 
-        function salvarMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v) || 0).catch(() => alert("Acesso negado.")); }
-        function remover(path) { if(confirm("Remover permanentemente?")) database.ref(path).remove().catch(() => alert("Acesso negado.")); }
+        function salvarMeta(v) { database.ref('configuracoes/meta').set(parseFloat(v) || 0); }
+        function remover(path) { if(confirm("Remover permanentemente?")) database.ref(path).remove(); }
     </script>
 </body>
 </html>

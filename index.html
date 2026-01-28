@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
@@ -339,8 +339,21 @@
                     const v = (p.variants && p.variants[c]) ? p.variants[c] : { img: "", stock: "" };
                     return `<div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:20px; margin-bottom:10px"><label style="font-size:0.6rem; font-weight:700">COR: ${c.toUpperCase()}</label><input type="file" onchange="uploadImg('${p.id}', '${c}', this)" style="display:block; margin:10px 0; font-size:0.7rem"><input type="text" class="edit-field v-stock" data-color="${c}" value="${v.stock || ''}" placeholder="Estoque (Ex: P:2, M:5)"></div>`;
                 }).join('');
-                body.innerHTML = `<div style="grid-column: 1/-1"><h3 style="margin-bottom:20px">EDITOR DE PEÇA</h3><div style="background:white; padding:20px; border-radius:30px; text-align:center; margin-bottom:20px"><svg id="barcode-canvas"></svg><p style="font-size:0.5rem; margin-top:5px; opacity:0.6">${p.id}</p></div><input type="text" id="e-cat" class="edit-field" value="${p.category}"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><textarea id="e-desc" class="edit-field" style="height:80px">${p.desc || ''}</textarea>${variantEditor}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button></div>`;
-                setTimeout(() => JsBarcode("#barcode-canvas", p.id, { format: "CODE128", width: 1.5, height: 40, displayValue: false }), 100);
+                
+                // Substituído Canvas por Container de QRCode
+                body.innerHTML = `<div style="grid-column: 1/-1"><h3 style="margin-bottom:20px">EDITOR DE PEÇA</h3><div style="background:white; padding:20px; border-radius:30px; text-align:center; margin-bottom:20px; display:flex; flex-direction:column; align-items:center;"><div id="qrcode-container"></div><p style="font-size:0.5rem; margin-top:10px; opacity:0.6; font-family:monospace">${p.id}</p></div><input type="text" id="e-cat" class="edit-field" value="${p.category}"><input type="text" id="e-name" class="edit-field" value="${p.name}"><input type="text" id="e-price" class="edit-field" value="${p.price}"><input type="text" id="e-colors" class="edit-field" value="${p.colors}"><textarea id="e-desc" class="edit-field" style="height:80px">${p.desc || ''}</textarea>${variantEditor}<button class="card-btn-fix" style="position:static; width:100%" onclick="updateProductAll('${p.id}')">SALVAR ALTERAÇÕES</button></div>`;
+                
+                // Gerador de QRCode efetivo
+                setTimeout(() => {
+                    new QRCode(document.getElementById("qrcode-container"), {
+                        text: p.id,
+                        width: 128,
+                        height: 128,
+                        colorDark : "#834A29",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }, 100);
             } else {
                 renderUserView(p, selectedCol);
             }
@@ -354,7 +367,6 @@
             const stockArr = v.stock ? v.stock.split(',').map(s => s.trim()) : [];
             const colorDots = p.colors.split(',').map(c => `<div class="color-dot-btn ${c.trim() === color ? 'selected' : ''}" style="background:${c.trim()}" onclick="renderUserView(currentProduct, '${c.trim()}')"></div>`).join('');
             
-            // Filtro para não mostrar opções esgotadas (opcional, mantendo o aviso de estoque)
             const options = stockArr.map(s => {
                 const [tam, qtd] = s.split(':');
                 const isOut = parseInt(qtd) <= 0;
@@ -418,7 +430,6 @@
             msg += `💳 *Pagamento:* ${pay}\n`;
             msg += `\n---------------------------\n`;
 
-            // BAIXA DE ESTOQUE AUTOMÁTICA
             for (const item of cart) {
                 if(item.id && item.id !== 'manual') {
                     const snap = await database.ref(`produtos/${item.id}/variants/${item.color}/stock`).once('value');

@@ -246,7 +246,6 @@
             }
         });
 
-        // FUNÇÃO DE LIMPEZA DE CARACTERES PARA O FIREBASE
         function cleanKey(key) {
             if(!key) return "default";
             return key.replace(/[\.\#\$\[\]]/g, "").trim();
@@ -407,7 +406,6 @@
             };
 
             const nameLow = colorName.toLowerCase().trim();
-            // Retorna a cor mapeada ou um cinza padrão se for inválida para o input color
             return colorMap[nameLow] || "#888888";
         }
 
@@ -453,7 +451,6 @@
                 desc: document.getElementById('e-desc').value 
             };
 
-            // Processa as variantes com chaves limpas
             document.querySelectorAll('.v-stock').forEach(i => {
                 const safeColor = cleanKey(i.dataset.color);
                 database.ref(`produtos/${id}/variants/${safeColor}/stock`).set(i.value);
@@ -567,6 +564,9 @@
             document.getElementById('tab-novo').classList.toggle('active', t==='novo');
             document.getElementById('tab-caixa').classList.toggle('active', t==='caixa');
             document.getElementById('tab-dash').classList.toggle('active', t==='dash');
+            
+            // Força atualização dos dados ao alternar abas
+            if(t === 'caixa' || t === 'dash') updateCashierStats();
         }
 
         function filterCat(c) {
@@ -577,7 +577,7 @@
 
         function closeModals() { stopScanner(); document.querySelectorAll('.modal').forEach(m => { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 400); }); }
         function deleteProduct(id) { if(confirm("Remover este item?")) database.ref('produtos/'+id).remove(); }
-        function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'), 10); }
+        function openAdmin() { document.getElementById('admin-modal').style.display='flex'; setTimeout(()=>document.getElementById('admin-modal').classList.add('active'), 10); updateCashierStats(); }
 
         if(window.innerWidth > 768) {
             const dot = document.querySelector('.cursor-dot'), out = document.querySelector('.cursor-outline');

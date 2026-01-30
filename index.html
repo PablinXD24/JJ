@@ -231,13 +231,7 @@
             const btnCaixa = document.getElementById('caixa-btn-floating');
             if(user) {
                 ui.innerHTML = `<span style="font-size:0.6rem; font-weight:700">${user.displayName.split(' ')[0]}</span> <button class="cat-filter-btn" onclick="auth.signOut()" style="padding:4px 10px; font-size:0.5rem; margin-left:5px">Sair</button>`;
-                
                 if(user.email === ADM_EMAIL) { 
-                    // Se o administrador logar, redireciona para o aparato principal caso esteja acessando o index puro
-                    if (window.self === window.top) {
-                        window.location.href = 'main.html';
-                        return;
-                    }
                     btnAdmin.style.display = 'flex'; 
                     btnDash.style.display = 'flex';
                     btnScan.style.display = 'flex'; 

@@ -67,6 +67,7 @@
             box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
             font-size: 1rem;
             font-family: var(--font-sans);
+            font-weight: 500;
         }
 
         .products-grid { 
@@ -90,7 +91,7 @@
             box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
             transform: scale(0.98);
         }
-        .pos-item-card h4 { font-size: 0.75rem; color: var(--jj-brown); margin-bottom: 8px; text-transform: uppercase; }
+        .pos-item-card h4 { font-size: 0.75rem; color: var(--jj-brown); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .pos-item-card span { font-weight: 800; font-size: 1.1rem; }
 
         .checkout-sidebar { 
@@ -107,7 +108,7 @@
         .cart-item {
             padding: 15px;
             background: var(--jj-bg);
-            border-radius: 15px;
+            border-radius: 18px;
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
@@ -121,7 +122,7 @@
             border-radius: 25px;
             text-align: center;
             margin-bottom: 20px;
-            box-shadow: 6px 6px 12px rgba(0,0,0,0.15);
+            box-shadow: 6px 6px 12px rgba(0,0,0,0.1);
         }
 
         .input-caixa {
@@ -140,40 +141,68 @@
             width: 100%; padding: 20px; border-radius: 20px; border: none;
             background: var(--jj-brown); color: white; font-weight: 800; 
             text-transform: uppercase; cursor: pointer; transition: 0.3s;
+            letter-spacing: 1px;
         }
-        .btn-finish:hover { filter: brightness(1.2); }
+        .btn-finish:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
         #variant-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center;
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px);
         }
         .variant-content { 
-            background: var(--jj-bg); padding: 40px; border-radius: 35px; width: 400px; 
-            text-align: center; box-shadow: 20px 20px 60px var(--shadow-dark);
+            background: var(--jj-bg); padding: 40px; border-radius: 35px; width: 450px; 
+            text-align: center; box-shadow: 20px 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.6);
         }
         
         .variant-option {
-            padding: 15px; border-radius: 15px; margin: 8px;
+            padding: 18px 12px; border-radius: 20px; margin: 8px;
             cursor: pointer; display: inline-block; font-size: 0.85rem; font-weight: 700;
             background: var(--jj-bg);
-            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-            min-width: 80px;
-            transition: 0.2s;
+            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            min-width: 110px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid transparent;
-            user-select: none;
         }
 
-        /* Força a aparência quando o atributo de seleção estiver presente */
-        .variant-option[data-selected="true"] {
-            background: #ffffff !important;
-            border: 3px solid var(--jj-yellow) !important;
-            box-shadow: inset 4px 4px 8px var(--shadow-dark) !important;
+        .variant-option.selected-active {
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light) !important;
+            border: 2px solid var(--jj-yellow) !important;
             color: var(--jj-brown) !important;
-            transform: scale(1.05);
+            background: #fff !important;
+            transform: scale(0.96);
         }
 
-        .out-of-stock { opacity: 0.3; cursor: not-allowed; box-shadow: none !important; pointer-events: none; }
+        .qty-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0 30px 0;
+        }
+        .qty-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: var(--jj-bg);
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--jj-brown);
+            cursor: pointer;
+        }
+        .qty-btn:active {
+            box-shadow: inset 2px 2px 5px var(--shadow-dark);
+        }
+        #modal-qty-display {
+            font-size: 1.5rem;
+            font-weight: 800;
+            min-width: 40px;
+        }
+
+        .out-of-stock { opacity: 0.3; cursor: not-allowed; pointer-events: none; box-shadow: none !important; }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: var(--jj-yellow); border-radius: 10px; }
@@ -183,19 +212,20 @@
 
     <header>
         <img src="jjvidro.png" style="height: 40px;">
-        <h2 style="font-size: 0.8rem; letter-spacing: 2px; color: var(--jj-brown)">TERMINAL DE VENDAS</h2>
-        <button onclick="window.location.href='dash.html'" style="background:var(--jj-bg); border: none; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: 600;">PAINEL</button>
+        <h2 style="font-size: 0.8rem; letter-spacing: 2px; color: var(--jj-brown); font-weight: 700;">TERMINAL DE VENDAS</h2>
+        <button onclick="window.location.href='dash.html'" style="background:var(--jj-bg); border: none; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: 700; color: var(--jj-brown); font-size: 0.7rem; text-transform: uppercase;">Painel</button>
     </header>
 
     <div class="pos-container">
         <div class="products-section">
-            <input type="text" id="search-pos" placeholder="Pesquisar produto..." oninput="filterPOS()">
+            <input type="text" id="search-pos" placeholder="Procurar item..." oninput="filterPOS()">
             <div class="products-grid" id="pos-grid"></div>
         </div>
 
         <div class="checkout-sidebar">
-            <h3 style="font-size: 0.9rem; margin-bottom: 20px; border-left: 4px solid var(--jj-yellow); padding-left: 10px;">RESUMO DA VENDA</h3>
+            <h3 style="font-size: 0.8rem; margin-bottom: 25px; border-left: 5px solid var(--jj-yellow); padding-left: 15px; color: var(--jj-brown); font-weight: 700;">ITENS NO CARRINHO</h3>
             <div class="cart-list" id="pos-cart-list"></div>
+            
             <div class="finalizacao">
                 <input type="text" id="c-cliente" class="input-caixa" placeholder="Nome do Cliente">
                 <select id="c-pagamento" class="input-caixa">
@@ -205,20 +235,29 @@
                     <option value="CARTÃO CRÉDITO">CARTÃO CRÉDITO</option>
                 </select>
                 <div class="total-box">
-                    <p style="font-size: 0.7rem; font-weight: 700; margin-bottom: 5px; opacity: 0.8;">TOTAL</p>
-                    <h2 id="pos-total-display" style="font-size: 2rem;">R$ 0,00</h2>
+                    <p style="font-size: 0.65rem; font-weight: 700; margin-bottom: 5px; color: var(--jj-brown); opacity: 0.7;">VALOR TOTAL</p>
+                    <h2 id="pos-total-display" style="font-size: 2.2rem; font-weight: 800; color: var(--jj-brown);">R$ 0,00</h2>
                 </div>
-                <button class="btn-finish" onclick="finishPOSOrder()">FINALIZAR AGORA</button>
+                <button class="btn-finish" onclick="finishPOSOrder()">Finalizar Venda</button>
             </div>
         </div>
     </div>
 
     <div id="variant-modal">
         <div class="variant-content">
-            <h2 id="modal-product-name" style="margin-bottom: 20px;"></h2>
-            <div id="variant-options-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px;"></div>
-            <button class="btn-finish" onclick="confirmVariantAddition()">ADICIONAR</button>
-            <p onclick="closeVariantModal()" style="margin-top:20px; cursor:pointer; font-size: 0.8rem; font-weight: 700; color: #666;">CANCELAR</p>
+            <h2 id="modal-product-name" style="color: var(--jj-brown); font-size: 1.2rem; margin-bottom: 5px;"></h2>
+            <p style="font-size: 0.75rem; margin-bottom: 15px; font-weight: 600; opacity: 0.6;">ESCOLHA A OPÇÃO E QUANTIDADE</p>
+            
+            <div id="variant-options-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-bottom: 15px;"></div>
+            
+            <div class="qty-selector">
+                <button class="qty-btn" onclick="changeModalQty(-1)">-</button>
+                <span id="modal-qty-display">1</span>
+                <button class="qty-btn" onclick="changeModalQty(1)">+</button>
+            </div>
+
+            <button class="btn-finish" onclick="confirmVariantAddition()">Adicionar ao Pedido</button>
+            <p onclick="closeVariantModal()" style="margin-top:20px; cursor:pointer; font-size: 0.7rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 1px;">Cancelar</p>
         </div>
     </div>
 
@@ -239,6 +278,7 @@
         let allProducts = {};
         let selectedProductForModal = null;
         let selectedVariant = null;
+        let modalQty = 1;
 
         database.ref('produtos').on('value', snap => {
             allProducts = snap.val() || {};
@@ -263,47 +303,69 @@
         function openVariantModal(id) {
             selectedProductForModal = allProducts[id];
             selectedVariant = null;
+            modalQty = 1;
+            document.getElementById('modal-qty-display').innerText = modalQty;
+            
             if(!selectedProductForModal) return;
-
-            console.log("Abrindo modal para:", selectedProductForModal.name);
 
             document.getElementById('modal-product-name').innerText = selectedProductForModal.name;
             const container = document.getElementById('variant-options-container');
             container.innerHTML = "";
 
-            const variants = selectedProductForModal.variants || selectedProductForModal.variantes || {};
-            const keys = Object.keys(variants);
+            const vars = selectedProductForModal.variants || selectedProductForModal.variantes || {};
+            
+            Object.keys(vars).forEach(key => {
+                const item = vars[key];
+                const stock = (item && typeof item === 'object') ? item.stock : item;
+                
+                const btn = document.createElement('div');
+                btn.className = `variant-option ${stock <= 0 ? 'out-of-stock' : ''}`;
+                btn.innerHTML = `${key}<br><small style="font-weight:400; opacity:0.7">Qtd: ${stock}</small>`;
+                
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    const all = container.querySelectorAll('.variant-option');
+                    all.forEach(b => b.classList.remove('selected-active'));
+                    this.classList.add('selected-active');
+                    
+                    // IMPORTANTE: Definimos a variante ANTES de qualquer alteração de QTD
+                    selectedVariant = key;
+                    modalQty = 1;
+                    document.getElementById('modal-qty-display').innerText = modalQty;
+                    console.log("Variante definida para:", selectedVariant);
+                };
 
-            if(keys.length === 0) {
-                container.innerHTML = "<p>Sem variações.</p>";
+                container.appendChild(btn);
+            });
+
+            document.getElementById('variant-modal').style.display = 'flex';
+        }
+
+        function changeModalQty(val) {
+            if(!selectedVariant) {
+                alert("Selecione primeiro a cor!");
+                return;
+            }
+            
+            const vars = selectedProductForModal.variants || selectedProductForModal.variantes || {};
+            const item = vars[selectedVariant];
+            
+            // Garantindo que capturamos o número do estoque corretamente
+            let stock = 0;
+            if (item !== null && typeof item === 'object') {
+                stock = parseInt(item.stock || 0);
+            } else {
+                stock = parseInt(item || 0);
             }
 
-            keys.forEach(vKey => {
-                const data = variants[vKey];
-                const stock = (data && typeof data === 'object') ? data.stock : data;
-                
-                const div = document.createElement('div');
-                div.className = `variant-option ${stock <= 0 ? 'out-of-stock' : ''}`;
-                div.setAttribute('data-variant', vKey);
-                div.innerHTML = `${vKey}<br><small>Qtd: ${stock}</small>`;
-                
-                if(stock > 0) {
-                    div.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        console.log("Cor clicada:", vKey);
-                        
-                        // Limpa seleções anteriores
-                        const options = container.querySelectorAll('.variant-option');
-                        options.forEach(el => el.removeAttribute('data-selected'));
-                        
-                        // Aplica nova seleção
-                        this.setAttribute('data-selected', 'true');
-                        selectedVariant = vKey;
-                    });
-                }
-                container.appendChild(div);
-            });
-            document.getElementById('variant-modal').style.display = 'flex';
+            const newVal = modalQty + val;
+            
+            if(newVal >= 1 && newVal <= stock) {
+                modalQty = newVal;
+                document.getElementById('modal-qty-display').innerText = modalQty;
+            } else if (newVal > stock) {
+                alert("Estoque máximo atingido (" + stock + ")");
+            }
         }
 
         function closeVariantModal() { 
@@ -312,28 +374,18 @@
 
         function confirmVariantAddition() {
             if(!selectedVariant) {
-                alert("Selecione uma opção primeiro!");
-                return;
-            }
-            
-            const prod = selectedProductForModal;
-            const vars = prod.variants || prod.variantes;
-            const data = vars[selectedVariant];
-            const stock = (data && typeof data === 'object') ? data.stock : data;
-            
-            const inCart = localCart.filter(i => i.id === prod.id && i.variant === selectedVariant).length;
-
-            if(inCart >= stock) {
-                alert("Sem estoque disponível!");
+                alert("Por favor, selecione uma opção!");
                 return;
             }
 
-            localCart.push({ 
-                id: prod.id, 
-                name: prod.name, 
-                price: parseFloat(prod.price || 0), 
-                variant: selectedVariant 
-            });
+            for(let i = 0; i < modalQty; i++) {
+                localCart.push({ 
+                    id: selectedProductForModal.id, 
+                    name: selectedProductForModal.name, 
+                    price: parseFloat(selectedProductForModal.price || 0), 
+                    variant: selectedVariant 
+                });
+            }
             
             updatePOSCartUI();
             closeVariantModal();
@@ -342,14 +394,26 @@
         function updatePOSCartUI() {
             const list = document.getElementById('pos-cart-list');
             let total = 0;
-            list.innerHTML = localCart.map((item, idx) => {
-                total += item.price;
+            
+            const grouped = localCart.reduce((acc, item) => {
+                const key = `${item.id}-${item.variant}`;
+                if(!acc[key]) acc[key] = {...item, qty: 0};
+                acc[key].qty++;
+                return acc;
+            }, {});
+
+            list.innerHTML = Object.values(grouped).map((item) => {
+                const itemTotal = item.price * item.qty;
+                total += itemTotal;
                 return `
                     <div class="cart-item">
-                        <div><b>${item.name}</b><br><small>${item.variant}</small></div>
-                        <div style="display:flex; align-items:center; gap:10px">
-                            <b>R$ ${item.price.toFixed(2)}</b>
-                            <span onclick="localCart.splice(${idx},1); updatePOSCartUI()" style="cursor:pointer; color:red; font-weight:bold;">✕</span>
+                        <div>
+                            <p style="font-size: 0.85rem; font-weight: 700; color: var(--jj-brown);">${item.name}</p>
+                            <p style="font-size: 0.65rem; font-weight: 600; opacity: 0.6;">${item.qty}x ${item.variant}</p>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px">
+                            <b style="font-size: 0.9rem;">R$ ${itemTotal.toFixed(2)}</b>
+                            <span onclick="removeFromCart('${item.id}', '${item.variant}')" style="cursor:pointer; color:#ff4444; font-weight:800; font-size:1.1rem">✕</span>
                         </div>
                     </div>
                 `;
@@ -357,23 +421,37 @@
             document.getElementById('pos-total-display').innerText = `R$ ${total.toFixed(2)}`;
         }
 
+        function removeFromCart(id, variant) {
+            localCart = localCart.filter(item => !(item.id === id && item.variant === variant));
+            updatePOSCartUI();
+        }
+
         async function finishPOSOrder() {
             if(localCart.length === 0) return alert("Carrinho vazio!");
+            
             const token = "CAIXA-" + Math.floor(1000 + Math.random()*9000);
             
             try {
-                for(let item of localCart) {
-                    const prodRef = allProducts[item.id];
-                    const vKeyName = prodRef.variants ? 'variants' : 'variantes';
-                    const refPath = `produtos/${item.id}/${vKeyName}/${item.variant}`;
+                const stockUpdate = localCart.reduce((acc, item) => {
+                    const key = `${item.id}|${item.variant}`;
+                    acc[key] = (acc[key] || 0) + 1;
+                    return acc;
+                }, {});
+
+                for(let key in stockUpdate) {
+                    const [id, variant] = key.split('|');
+                    const prodRef = allProducts[id];
+                    const vKey = prodRef.variants ? 'variants' : 'variantes';
+                    const path = `produtos/${id}/${vKey}/${variant}`;
+                    const qtyToSubtract = stockUpdate[key];
                     
-                    const snapshot = await database.ref(refPath).once('value');
-                    const data = snapshot.val();
-                    
+                    const snap = await database.ref(path).once('value');
+                    const data = snap.val();
+
                     if(data && typeof data === 'object' && data.stock !== undefined) {
-                        await database.ref(refPath + '/stock').transaction(c => (c || 0) - 1);
+                        await database.ref(path + '/stock').transaction(c => (c || 0) - qtyToSubtract);
                     } else {
-                        await database.ref(refPath).transaction(c => (c || 0) - 1);
+                        await database.ref(path).transaction(c => (c || 0) - qtyToSubtract);
                     }
                 }
 
@@ -389,13 +467,13 @@
                 };
 
                 await database.ref('pedidos/' + token).set(order);
-                alert("VENDA FINALIZADA!");
+                alert("VENDA FINALIZADA COM SUCESSO!");
                 localCart = [];
                 updatePOSCartUI();
                 document.getElementById('c-cliente').value = "";
-            } catch(error) {
-                console.error(error);
-                alert("Erro ao salvar.");
+            } catch(e) {
+                console.error(e);
+                alert("Erro ao processar venda.");
             }
         }
     </script>

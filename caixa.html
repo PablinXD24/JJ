@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>J&J | PDV Caixa Físico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --jj-yellow-main: #FFC800;
+            --jj-brown: #834A29;
+            --jj-bg: #f8f9fa;
+            --jj-text: #1a1a1a;
+            --shadow-dark: rgba(163, 177, 198, 0.4);
+            --shadow-light: rgba(255, 255, 255, 0.9);
+            --font-sans: 'Montserrat', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: #000; /* Fundo cortina conforme preferência */
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('jjvidro2.png');
+            background-attachment: fixed;
+            background-size: cover;
+            font-family: var(--font-sans); 
+            color: var(--jj-text); 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Layout PDV */
+        .pos-container { display: grid; grid-template-columns: 1fr 400px; gap: 20px; padding: 20px; flex: 1; overflow: hidden; }
+
+        /* Lista de Produtos */
+        .products-grid { 
+            background: rgba(255,255,255,0.1); 
+            backdrop-filter: blur(10px);
+            border-radius: 30px; 
+            padding: 20px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 15px; 
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .pos-item-card {
+            background: var(--jj-bg);
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+        }
+        .pos-item-card:active { transform: scale(0.95); }
+        .pos-item-card h4 { font-size: 0.7rem; color: var(--jj-brown); margin-bottom: 5px; text-transform: uppercase; }
+        .pos-item-card span { font-weight: 800; font-size: 0.8rem; }
+
+        /* Sidebar Carrinho */
+        .checkout-sidebar { 
+            background: var(--jj-bg); 
+            border-radius: 30px; 
+            padding: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            border-left: 5px solid var(--jj-yellow-main); /* Detalhe tapete vermelho conceitual */
+        }
+
+        .cart-list { flex: 1; overflow-y: auto; margin: 20px 0; }
+        .cart-item {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .total-box {
+            background: var(--jj-yellow-main);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .total-box h2 { font-size: 1.5rem; font-weight: 800; }
+
+        .input-caixa {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            font-family: inherit;
+            font-size: 0.8rem;
+        }
+
+        .btn-finish {
+            width: 100%;
+            padding: 18px;
+            border-radius: 15px;
+            border: none;
+            background: var(--jj-brown);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-finish:hover { background: #000; }
+
+        .header-caixa {
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        @media (max-width: 800px) {
+            .pos-container { grid-template-columns: 1fr; }
+            .checkout-sidebar { position: fixed; bottom: 0; left: 0; right: 0; height: 60vh; z-index: 100; display: none; }
+            .checkout-sidebar.active { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-caixa">
+        <img src="jjvidro.png" style="height: 40px; filter: brightness(0) invert(1);">
+        <h2 style="font-size: 0.8rem; letter-spacing: 2px;">TERMINAL DE VENDAS FÍSICO</h2>
+        <button onclick="window.location.href='dash.html'" style="background:none; border: 1px solid white; color: white; padding: 5px 15px; border-radius: 10px; cursor: pointer;">Voltar</button>
+    </header>
+
+    <div class="pos-container">
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="text" id="search-pos" class="input-caixa" placeholder="🔍 Buscar produto no estoque..." oninput="filterPOS()">
+            <div class="products-grid" id="pos-grid"></div>
+        </div>
+
+        <div class="checkout-sidebar">
+            <h3 style="font-size: 0.9rem; border-bottom: 2px solid var(--jj-yellow-main); padding-bottom: 10px;">CARRINHO ATUAL</h3>
+            
+            <div class="cart-list" id="pos-cart-list">
+                </div>
+
+            <div class="finalizacao">
+                <input type="text" id="c-cliente" class="input-caixa" placeholder="Nome do Cliente">
+                <select id="c-pagamento" class="input-caixa">
+                    <option value="DINHEIRO">DINHEIRO</option>
+                    <option value="PIX">PIX</option>
+                    <option value="CARTÃO DÉBITO">CARTÃO DÉBITO</option>
+                    <option value="CARTÃO CRÉDITO">CARTÃO CRÉDITO</option>
+                </select>
+                <div class="total-box">
+                    <p style="font-size: 0.6rem; opacity: 0.7;">TOTAL A PAGAR</p>
+                    <h2 id="pos-total-display">R$ 0,00</h2>
+                </div>
+                <button class="btn-finish" onclick="finishPOSOrder()">FINALIZAR E BAIXAR ESTOQUE</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTYFc2tphilGadT8LfSV_mTI0GRmebMdI",
+            authDomain: "jj26-d5c78.firebaseapp.com",
+            databaseURL: "https://jj26-d5c78-default-rtdb.firebaseio.com",
+            projectId: "jj26-d5c78",
+            storageBucket: "jj26-d5c78.firebasestorage.app",
+            messagingSenderId: "923255408755",
+            appId: "1:923255408755:web:b9197990d671452d5dc206"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        let localCart = [];
+        let allProducts = [];
+
+        // Carregar produtos
+        database.ref('produtos').on('value', snap => {
+            const data = snap.val();
+            allProducts = data ? Object.values(data) : [];
+            renderPOSGrid(allProducts);
+        });
+
+        function renderPOSGrid(list) {
+            const grid = document.getElementById('pos-grid');
+            grid.innerHTML = list.map(p => `
+                <div class="pos-item-card" onclick="addToPOSCart('${p.id}', '${p.name}', ${p.price}, '${p.colors}')">
+                    <h4>${p.name}</h4>
+                    <span>R$ ${p.price}</span>
+                </div>
+            `).join('');
+        }
+
+        function filterPOS() {
+            const term = document.getElementById('search-pos').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));
+            renderPOSGrid(filtered);
+        }
+
+        function addToPOSCart(id, name, price, colors) {
+            const firstColor = colors ? colors.split(',')[0].trim() : "Única";
+            localCart.push({ id, name, price, color: firstColor, qty: 1, size: "Padrão" });
+            updatePOSCartUI();
+        }
+
+        function updatePOSCartUI() {
+            const list = document.getElementById('pos-cart-list');
+            let total = 0;
+            list.innerHTML = localCart.map((item, idx) => {
+                total += item.price;
+                return `
+                    <div class="cart-item">
+                        <div><b>${item.name}</b><br><small>${item.color}</small></div>
+                        <div style="display:flex; align-items:center; gap:10px">
+                            <b>R$ ${item.price}</b>
+                            <button onclick="localCart.splice(${idx},1); updatePOSCartUI()" style="border:none; background:none; cursor:pointer">❌</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('pos-total-display').innerText = `R$ ${total.toFixed(2)}`;
+        }
+
+        async function finishPOSOrder() {
+            const cliente = document.getElementById('c-cliente').value || "Cliente Balcão";
+            const pagamento = document.getElementById('c-pagamento').value;
+            const total = localCart.reduce((acc, i) => acc + i.price, 0);
+            
+            if(localCart.length === 0) return alert("Carrinho vazio!");
+
+            const token = "jj" + Math.floor(1000 + Math.random()*9000);
+            let itensResumo = "";
+
+            // Baixa de estoque e registro
+            for (const item of localCart) {
+                itensResumo += `${item.qty}x ${item.name} (${item.color}); `;
+                // Aqui você pode adicionar a lógica de decremento de estoque similar ao index.html se desejar
+            }
+
+            const orderData = {
+                token,
+                cliente,
+                total: total.toFixed(2),
+                pagamento,
+                itens_resumo: itensResumo,
+                data: new Date().toLocaleString(),
+                status: 'finalizado' // Venda física já sai finalizada
+            };
+
+            database.ref('pedidos/' + token).set(orderData).then(() => {
+                alert("VENDA REALIZADA: " + token);
+                localCart = [];
+                document.getElementById('c-cliente').value = "";
+                updatePOSCartUI();
+            });
+        }
+    </script>
+</body>
+</html>

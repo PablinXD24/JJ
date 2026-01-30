@@ -179,7 +179,10 @@
                 <input type="text" id="p-price" class="edit-field" placeholder="Preço (00.00)">
                 <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Transparente)">
                 <textarea id="p-desc" class="edit-field" placeholder="Descrição da Obra"></textarea>
-                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
+                    <button class="card-btn-fix" onclick="window.location.href='caixa.html'" style="position:static; width:100%; background: var(--jj-brown); color: white;">CAIXA</button>
+                </div>
             </div>
 
             <div id="admin-caixa-section" style="display:none">

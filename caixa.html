@@ -160,13 +160,20 @@
             box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
             min-width: 80px;
             transition: 0.2s;
+            border: 2px solid transparent;
+            user-select: none;
         }
-        .variant-option.selected { 
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-            color: var(--jj-brown);
-            border: 2px solid var(--jj-yellow);
+
+        /* Força a aparência quando o atributo de seleção estiver presente */
+        .variant-option[data-selected="true"] {
+            background: #ffffff !important;
+            border: 3px solid var(--jj-yellow) !important;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark) !important;
+            color: var(--jj-brown) !important;
+            transform: scale(1.05);
         }
-        .out-of-stock { opacity: 0.3; cursor: not-allowed; box-shadow: none !important; }
+
+        .out-of-stock { opacity: 0.3; cursor: not-allowed; box-shadow: none !important; pointer-events: none; }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: var(--jj-yellow); border-radius: 10px; }
@@ -258,27 +265,41 @@
             selectedVariant = null;
             if(!selectedProductForModal) return;
 
+            console.log("Abrindo modal para:", selectedProductForModal.name);
+
             document.getElementById('modal-product-name').innerText = selectedProductForModal.name;
             const container = document.getElementById('variant-options-container');
             container.innerHTML = "";
 
-            const variants = selectedProductForModal.variants || {};
-            
-            // Corrige a leitura caso as variantes venham como array ou objeto
-            Object.keys(variants).forEach(vKey => {
-                const stock = variants[vKey].stock !== undefined ? variants[vKey].stock : variants[vKey];
-                const displayLabel = vKey;
+            const variants = selectedProductForModal.variants || selectedProductForModal.variantes || {};
+            const keys = Object.keys(variants);
 
+            if(keys.length === 0) {
+                container.innerHTML = "<p>Sem variações.</p>";
+            }
+
+            keys.forEach(vKey => {
+                const data = variants[vKey];
+                const stock = (data && typeof data === 'object') ? data.stock : data;
+                
                 const div = document.createElement('div');
                 div.className = `variant-option ${stock <= 0 ? 'out-of-stock' : ''}`;
-                div.innerHTML = `${displayLabel}<br><small>Qtd: ${stock}</small>`;
+                div.setAttribute('data-variant', vKey);
+                div.innerHTML = `${vKey}<br><small>Qtd: ${stock}</small>`;
                 
                 if(stock > 0) {
-                    div.onclick = () => {
-                        document.querySelectorAll('.variant-option').forEach(el => el.classList.remove('selected'));
-                        div.classList.add('selected');
+                    div.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        console.log("Cor clicada:", vKey);
+                        
+                        // Limpa seleções anteriores
+                        const options = container.querySelectorAll('.variant-option');
+                        options.forEach(el => el.removeAttribute('data-selected'));
+                        
+                        // Aplica nova seleção
+                        this.setAttribute('data-selected', 'true');
                         selectedVariant = vKey;
-                    };
+                    });
                 }
                 container.appendChild(div);
             });
@@ -291,18 +312,19 @@
 
         function confirmVariantAddition() {
             if(!selectedVariant) {
-                alert("Por favor, selecione uma cor/tamanho disponível.");
+                alert("Selecione uma opção primeiro!");
                 return;
             }
             
             const prod = selectedProductForModal;
-            const variantData = prod.variants[selectedVariant];
-            const currentStock = variantData.stock !== undefined ? variantData.stock : variantData;
+            const vars = prod.variants || prod.variantes;
+            const data = vars[selectedVariant];
+            const stock = (data && typeof data === 'object') ? data.stock : data;
             
             const inCart = localCart.filter(i => i.id === prod.id && i.variant === selectedVariant).length;
 
-            if(inCart >= currentStock) {
-                alert("Estoque máximo atingido para esta variante!");
+            if(inCart >= stock) {
+                alert("Sem estoque disponível!");
                 return;
             }
 
@@ -341,15 +363,17 @@
             
             try {
                 for(let item of localCart) {
-                    const refPath = `produtos/${item.id}/variants/${item.variant}`;
-                    // Verifica se a variante é um objeto com .stock ou apenas o valor do estoque
+                    const prodRef = allProducts[item.id];
+                    const vKeyName = prodRef.variants ? 'variants' : 'variantes';
+                    const refPath = `produtos/${item.id}/${vKeyName}/${item.variant}`;
+                    
                     const snapshot = await database.ref(refPath).once('value');
                     const data = snapshot.val();
                     
                     if(data && typeof data === 'object' && data.stock !== undefined) {
-                        await database.ref(refPath + '/stock').transaction(current => (current || 0) - 1);
+                        await database.ref(refPath + '/stock').transaction(c => (c || 0) - 1);
                     } else {
-                        await database.ref(refPath).transaction(current => (current || 0) - 1);
+                        await database.ref(refPath).transaction(c => (c || 0) - 1);
                     }
                 }
 
@@ -365,13 +389,13 @@
                 };
 
                 await database.ref('pedidos/' + token).set(order);
-                alert("VENDA FINALIZADA COM SUCESSO!");
+                alert("VENDA FINALIZADA!");
                 localCart = [];
                 updatePOSCartUI();
                 document.getElementById('c-cliente').value = "";
             } catch(error) {
                 console.error(error);
-                alert("Erro ao processar venda.");
+                alert("Erro ao salvar.");
             }
         }
     </script>

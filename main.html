@@ -29,7 +29,6 @@
             overflow: hidden;
         }
 
-        /* Barra de Navegação Superior (Mantendo o estilo do index original) */
         .admin-nav { 
             padding: 10px 5%; 
             display: flex; 
@@ -42,10 +41,8 @@
         }
 
         .logo-img { height: 40px; width: auto; }
-
         .menu-options { display: flex; gap: 15px; }
 
-        /* Botões seguindo o estilo Neumorphism dos originais */
         .nav-btn { 
             padding: 8px 18px; 
             border-radius: 12px; 
@@ -65,7 +62,6 @@
             color: var(--jj-yellow-main); 
         }
 
-        /* Container do Iframe (O Palco) */
         #content-frame {
             flex: 1;
             width: 100%;
@@ -75,7 +71,6 @@
 
         @media (max-width: 768px) {
             .admin-nav { flex-direction: column; gap: 10px; padding: 15px; }
-            .nav-btn { font-size: 0.6rem; padding: 8px 12px; }
         }
     </style>
 </head>
@@ -94,18 +89,10 @@
 
     <script>
         function navigate(url, btn) {
-            // Atualiza o SRC do iframe
             document.getElementById('content-frame').src = url;
-
-            // Gerencia a classe ativa nos botões
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
-
-        // Listener para garantir que links internos que tentem sair do iframe sejam contidos (opcional)
-        window.addEventListener('message', function(e) {
-            // Lógica para comunicação entre arquivos se necessário no futuro
-        });
     </script>
 </body>
 </html>

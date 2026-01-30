@@ -81,6 +81,7 @@
         #admin-btn { bottom: 30px; right: 30px; background: var(--jj-yellow-main); }
         #dash-btn-floating { bottom: 105px; right: 30px; background: var(--jj-brown); color: white; font-size: 20px; }
         #scan-btn-floating { bottom: 180px; right: 30px; color: var(--jj-brown); }
+        #caixa-btn-floating { bottom: 255px; right: 30px; color: var(--jj-brown); }
 
         #cart-badge { position: absolute; top: 0; right: 0; background: var(--jj-yellow-main); font-size: 10px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
@@ -151,6 +152,7 @@
 
     <button id="cart-btn-floating" class="float-btn" onclick="openCartModal()">🛒 <div id="cart-badge">0</div></button>
     
+    <button id="caixa-btn-floating" class="float-btn" onclick="window.location.href='caixa.html'">🏦</button>
     <button id="scan-btn-floating" class="float-btn" onclick="openScanner()">📷</button>
     <button id="dash-btn-floating" class="float-btn" onclick="window.location.href='dash.html'">📊</button>
     <button id="admin-btn" class="float-btn" onclick="openAdmin()">+</button>
@@ -179,10 +181,7 @@
                 <input type="text" id="p-price" class="edit-field" placeholder="Preço (00.00)">
                 <input type="text" id="p-colors" class="edit-field" placeholder="Cores (Ex: Ouro, Transparente)">
                 <textarea id="p-desc" class="edit-field" placeholder="Descrição da Obra"></textarea>
-                <div style="display: flex; gap: 10px;">
-                    <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
-                    <button class="card-btn-fix" onclick="window.location.href='caixa.html'" style="position:static; width:100%; background: var(--jj-brown); color: white;">CAIXA</button>
-                </div>
+                <button class="card-btn-fix" onclick="saveToRTDB()" style="position:static; width:100%">CADASTRAR ITEM</button>
             </div>
 
             <div id="admin-caixa-section" style="display:none">
@@ -229,18 +228,21 @@
             const btnAdmin = document.getElementById('admin-btn');
             const btnDash = document.getElementById('dash-btn-floating');
             const btnScan = document.getElementById('scan-btn-floating');
+            const btnCaixa = document.getElementById('caixa-btn-floating');
             if(user) {
                 ui.innerHTML = `<span style="font-size:0.6rem; font-weight:700">${user.displayName.split(' ')[0]}</span> <button class="cat-filter-btn" onclick="auth.signOut()" style="padding:4px 10px; font-size:0.5rem; margin-left:5px">Sair</button>`;
                 if(user.email === ADM_EMAIL) { 
                     btnAdmin.style.display = 'flex'; 
                     btnDash.style.display = 'flex';
                     btnScan.style.display = 'flex'; 
+                    btnCaixa.style.display = 'flex';
                 }
             } else {
                 ui.innerHTML = `<button class="cat-filter-btn" onclick="auth.signInWithPopup(provider)">ENTRAR</button>`;
                 btnAdmin.style.display = 'none'; 
                 btnDash.style.display = 'none';
                 btnScan.style.display = 'none';
+                btnCaixa.style.display = 'none';
             }
         });
 

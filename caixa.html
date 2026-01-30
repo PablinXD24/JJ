@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
         :root {
@@ -154,6 +155,7 @@
             background: var(--jj-bg); padding: 40px; border-radius: 35px; width: 450px; 
             text-align: center; box-shadow: 20px 20px 60px rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.6);
+            max-height: 90vh; overflow-y: auto;
         }
         
         .variant-option {
@@ -196,6 +198,26 @@
         .out-of-stock { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: var(--jj-yellow); border-radius: 10px; }
+
+        /* Estilo do botão do Scanner */
+        #scan-btn-floating {
+            position: fixed;
+            bottom: 30px;
+            right: 465px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: var(--jj-bg);
+            z-index: 100;
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: 0.3s;
+        }
     </style>
 </head>
 <body>
@@ -233,8 +255,15 @@
         </div>
     </div>
 
+    <button id="scan-btn-floating" onclick="openScanner()">📷</button>
+
     <div id="variant-modal">
         <div class="variant-content">
+            <div id="reader-container" style="display:none; margin-bottom: 20px;">
+                <h3 style="font-size:0.7rem; margin-bottom:10px; color:var(--jj-brown)">ESCANEANDO ETIQUETA...</h3>
+                <div id="reader" style="border-radius: 20px; overflow: hidden; box-shadow: inset 4px 4px 8px var(--shadow-dark);"></div>
+            </div>
+
             <h2 id="modal-product-name" style="color: var(--jj-brown); font-size: 1.1rem; margin-bottom: 5px;"></h2>
             
             <p id="label-cor" style="font-size: 0.7rem; margin: 10px 0 5px; font-weight: 700; opacity: 0.6; text-transform: uppercase;">1. Escolha a Cor</p>
@@ -277,6 +306,7 @@
         let selectedSize = null;
         let currentAvailableStock = 0;
         let modalQty = 1;
+        let html5QrCode = null;
 
         database.ref('produtos').on('value', snap => {
             allProducts = snap.val() || {};
@@ -284,6 +314,41 @@
         });
 
         function cleanKey(key) { return key ? key.replace(/[\.\#\$\[\]]/g, "").trim() : "default"; }
+
+        // Lógica do Scanner
+        function openScanner() {
+            document.getElementById('variant-modal').style.display = 'flex';
+            document.getElementById('reader-container').style.display = 'block';
+            document.getElementById('modal-product-name').innerText = "";
+            document.getElementById('color-options').innerHTML = "";
+            document.getElementById('size-options').innerHTML = "";
+            document.getElementById('qty-area').style.display = 'none';
+
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (txt) => {
+                stopScanner();
+                let p = null;
+                for(let k in allProducts) { 
+                    if(k === txt || allProducts[k].barcode === txt) { 
+                        p = allProducts[k]; 
+                        break; 
+                    } 
+                }
+                if(p) {
+                    document.getElementById('reader-container').style.display = 'none';
+                    openVariantModal(p.id);
+                } else {
+                    alert("Produto não encontrado.");
+                    closeVariantModal();
+                }
+            });
+        }
+
+        function stopScanner() {
+            if(html5QrCode) {
+                html5QrCode.stop().then(() => { html5QrCode = null; });
+            }
+        }
 
         function renderPOSGrid(list) {
             document.getElementById('pos-grid').innerHTML = list.map(p => `
@@ -306,6 +371,7 @@
             selectedSize = null;
             modalQty = 1;
             
+            document.getElementById('reader-container').style.display = 'none';
             document.getElementById('modal-product-name').innerText = selectedProductForModal.name;
             document.getElementById('label-tamanho').style.display = 'none';
             document.getElementById('size-options').innerHTML = '';
@@ -386,7 +452,11 @@
             }
         }
 
-        function closeVariantModal() { document.getElementById('variant-modal').style.display = 'none'; }
+        function closeVariantModal() { 
+            stopScanner();
+            document.getElementById('variant-modal').style.display = 'none'; 
+            document.getElementById('reader-container').style.display = 'none';
+        }
 
         function confirmVariantAddition() {
             for(let i = 0; i < modalQty; i++) {
@@ -442,7 +512,6 @@
             const token = "CAIXA-" + Math.floor(1000 + Math.random()*9000);
             
             try {
-                // Lógica de redução de estoque igual ao index.html
                 for (const item of localCart) {
                     const safeC = cleanKey(item.color);
                     const snap = await database.ref(`produtos/${item.id}/variants/${safeC}/stock`).once('value');

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J&J | Painel Administrativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <style>
+        :root {
+            --jj-yellow: #FFC800;
+            --jj-brown: #834A29;
+            --jj-dark: #000000;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: var(--jj-dark); 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header Administrativo */
+        .admin-nav {
+            background: rgba(10, 10, 10, 0.95);
+            padding: 10px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--jj-yellow);
+            z-index: 1000;
+        }
+
+        .logo-adm { height: 40px; }
+
+        .nav-links { display: flex; gap: 10px; }
+
+        .nav-item {
+            background: transparent;
+            border: 1px solid var(--jj-yellow);
+            color: var(--jj-yellow);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .nav-item.active {
+            background: var(--jj-yellow);
+            color: #000;
+        }
+
+        .nav-item:hover {
+            box-shadow: 0 0 10px var(--jj-yellow);
+        }
+
+        .btn-logout {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        /* Container do Iframe */
+        .viewport-container {
+            flex: 1;
+            width: 100%;
+            position: relative;
+            background: #f8f9fa; /* Fundo neutro para carregar as páginas */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Estética Harry Potter / Soundtrack (Instrução Salva) */
+        #audio-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="admin-nav">
+        <img src="jjvidro.png" class="logo-adm">
+        
+        <div class="nav-links">
+            <button class="nav-item active" onclick="changePage(this, 'index.html')">Vitrine</button>
+            <button class="nav-item" onclick="changePage(this, 'dash.html')">Dashboard</button>
+            <button class="nav-item" onclick="changePage(this, 'caixa.html')">Caixa</button>
+        </div>
+
+        <button class="nav-item btn-logout" onclick="logoutAdm()">Sair do Adm</button>
+    </nav>
+
+    <div class="viewport-container">
+        <iframe src="index.html" id="adm-frame"></iframe>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTYFc2tphilGadT8LfSV_mTI0GRmebMdI",
+            authDomain: "jj26-d5c78.firebaseapp.com",
+            databaseURL: "https://jj26-d5c78-default-rtdb.firebaseio.com",
+            projectId: "jj26-d5c78",
+            storageBucket: "jj26-d5c78.firebasestorage.app",
+            messagingSenderId: "923255408755",
+            appId: "1:923255408755:web:b9197990d671452d5dc206"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const ADM_EMAIL = "pablo11ssousa2@gmail.com";
+
+        // Verifica se o usuário é realmente ADM ao carregar
+        auth.onAuthStateChanged(user => {
+            if (!user || user.email !== ADM_EMAIL) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        function changePage(btn, url) {
+            // Atualiza botões
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Troca o conteúdo do iframe
+            document.getElementById('adm-frame').src = url;
+        }
+
+        function logoutAdm() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+    </script>
+</body>
+</html>

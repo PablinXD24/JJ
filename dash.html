@@ -68,9 +68,22 @@
         .st-finalizado { background: var(--success); color: white; }
 
         .kanban-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
-        .kanban-column { background: rgba(0,0,0,0.02); border-radius: 25px; padding: 15px; min-height: 400px; box-shadow: inset 4px 4px 10px var(--shadow-dark); transition: background 0.3s; }
+        
+        .kanban-column { 
+            background: rgba(0,0,0,0.02); 
+            border-radius: 25px; 
+            padding: 15px; 
+            min-height: 400px; 
+            max-height: 70vh; 
+            overflow-y: auto; 
+            box-shadow: inset 4px 4px 10px var(--shadow-dark); 
+            transition: background 0.3s; 
+        }
+        .kanban-column::-webkit-scrollbar { width: 5px; }
+        .kanban-column::-webkit-scrollbar-thumb { background: var(--jj-yellow-main); border-radius: 10px; }
+
         .kanban-column.drag-over { background: rgba(255, 200, 0, 0.05); border: 2px dashed var(--jj-yellow-main); }
-        .col-header { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--jj-brown); margin-bottom: 15px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .col-header { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--jj-brown); margin-bottom: 15px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px; position: sticky; top: 0; background: inherit; z-index: 1; padding: 5px 0; }
         .col-dot { width: 8px; height: 8px; border-radius: 50%; }
 
         .pedido-card {
@@ -249,10 +262,8 @@
                 finalizado: document.getElementById('col-finalizado')
             };
             
-            // Limpeza absoluta antes de renderizar
             Object.values(cols).forEach(c => { if(c) c.innerHTML = ""; });
 
-            // Filtra nulos ou indefinidos que causam fantasmas
             const validos = pedidosArray.filter(p => p && p.token);
 
             [...validos].reverse().forEach(p => {
@@ -462,7 +473,6 @@
         function remover(path) { 
             if(confirm("Remover permanentemente?")) {
                 database.ref(path).set(null).then(() => {
-                    // Limpa do objeto local imediatamente para forçar a saída da tela
                     const parts = path.split('/');
                     if(parts[0] === 'pedidos') delete allPedidos[parts[1]];
                     renderPedidos(Object.values(allPedidos));
